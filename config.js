@@ -24,5 +24,5 @@ const CONFIG = {
   // Google OAuth Client ID（用於里長回覆頁自動帶入承辦人姓名）
   // 設定方式: Google Cloud Console → 憑證 → 建立 OAuth 2.0 用戶端 ID
   //          已授權的 JavaScript 來源加入 https://itokorabbit.github.io
-  GOOGLE_CLIENT_ID: '',
+  GOOGLE_CLIENT_ID: '998009736888-v0hng93jchshicessbc6pjf4e6eiolju.apps.googleusercontent.com',
 };
