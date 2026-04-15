@@ -6,551 +6,617 @@
 <title>案件詳情 - 和平里里民通報系統</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-:root {
-  --green-50:  #F4F9F5;
-  --green-100: #E6F1EA;
-  --green-200: #CDE3D4;
-  --green-300: #A8CDB6;
-  --green-400: #7BB596;
-  --green-500: #5B9B7B;
-  --green-600: #4A8366;
-  --green-700: #3A6952;
-  --green-800: #2D5240;
+/* ────────── Reset ────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+img{display:block;max-width:100%}
+button{cursor:pointer;font-family:inherit}
 
-  --ink-900: #2C3E36;
-  --ink-700: #4A5C52;
-  --ink-500: #6B7C73;
-  --ink-300: #A4B0A8;
-  --ink-200: #DCE8DF;
-  --ink-100: #EEF4F0;
+/* ────────── Design tokens ────────── */
+:root{
+  --bg:        #F5F2EE;
+  --card:      #FFFFFF;
+  --border:    #E2D9CF;
+  --divider:   #EDE7DF;
+  --lbl:       #8C7B6A;
+  --val:       #2C2018;
+  --muted:     #B8A898;
+  --heading:   #1E160E;
 
-  --blue-50:  #EFF6FF;
-  --blue-500: #3B82F6;
-  --blue-700: #1D4ED8;
+  --primary:       #4B7A52;
+  --primary-light: #EAF3EB;
+  --primary-dark:  #3A5E3F;
 
-  --orange-50:  #FFF7ED;
-  --orange-500: #F97316;
-  --orange-700: #C2410C;
+  --warn:      #C0582A;
+  --warn-bg:   #FDF0EA;
 
-  --warn:    #D97757;
-  --warn-bg: #FDF1EC;
+  --badge-new-bg:  #EBF3FF; --badge-new-txt: #1A56A8;
+  --badge-proc-bg: #FFF3E0; --badge-proc-txt: #B75D00;
+  --badge-done-bg: #EAF3EB; --badge-done-txt: #2F6836;
 
-  --shadow-sm: 0 1px 2px rgba(45, 82, 64, 0.04);
-  --shadow-md: 0 4px 16px rgba(45, 82, 64, 0.06), 0 1px 3px rgba(45, 82, 64, 0.04);
-  --shadow-lg: 0 8px 24px rgba(45, 82, 64, 0.10);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --shadow-md: 0 2px 8px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --radius:    10px;
+  --font: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--green-50);
-  color: var(--ink-900);
-  font-size: 16px;
+/* ────────── Base ────────── */
+body{
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--val);
+  font-size: 15px;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
-.icon {
-  width: 18px; height: 18px;
-  stroke: currentColor; fill: none;
-  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-  flex-shrink: 0;
+/* ────────── Page header ────────── */
+.page-header{
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.page-header .back-btn{
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-size: 14px; color: var(--lbl);
+  transition: background .15s;
+}
+.page-header .back-btn:hover{ background: var(--bg); }
+.page-header .page-title{
+  font-size: 16px; font-weight: 700;
+  color: var(--heading); flex: 1;
 }
 
-/* Header */
-.header {
-  background: linear-gradient(135deg, #9FCFB3 0%, #7BB596 55%, #5B9B7B 100%);
-  padding: 44px 24px 56px;
-  text-align: center;
-  position: relative;
+/* ────────── Container ────────── */
+.container{
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 20px 16px 120px;
+}
+
+/* ────────── Card ────────── */
+.card{
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 14px;
   overflow: hidden;
 }
-.header::before {
-  content: '';
-  position: absolute;
-  top: -40%; right: -20%;
-  width: 80%; height: 180%;
-  background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 60%);
-  pointer-events: none;
+.card-header{
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--divider);
+  font-size: 13px; font-weight: 700;
+  color: var(--lbl); letter-spacing: .5px;
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
 }
-.header-icon {
-  width: 44px; height: 44px;
-  margin: 0 auto 12px;
-  display: block; color: #fff;
-  filter: drop-shadow(0 2px 4px rgba(45,82,64,0.18));
-  position: relative;
-}
-.header h1 {
-  font-size: 24px; font-weight: 700;
-  color: #fff; letter-spacing: 0.8px;
-  position: relative;
-  text-shadow: 0 1px 2px rgba(45,82,64,0.12);
-}
-.header .subtitle {
-  font-size: 14px; color: rgba(255,255,255,0.92);
-  margin-top: 8px; font-weight: 400;
-  letter-spacing: 0.3px; position: relative;
-}
+.card-header svg{ opacity:.6; }
 
-/* Container */
-.container {
-  max-width: 640px;
-  margin: -32px auto 40px;
-  padding: 0 16px 48px;
-  position: relative; z-index: 1;
-}
-
-/* Card */
-.card {
-  background: #fff;
-  border-radius: 18px;
-  padding: 28px 26px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--ink-100);
-  animation: fadeUp 0.45s ease-out both;
-}
-.card:nth-child(2) { animation-delay: 0.06s; }
-.card:nth-child(3) { animation-delay: 0.12s; }
-.card:nth-child(4) { animation-delay: 0.18s; }
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Section title */
-.section-title {
-  font-size: 17px; font-weight: 700;
-  color: var(--green-800);
-  margin: 0 0 22px;
-  display: flex; align-items: center; gap: 12px;
-  letter-spacing: 0.3px;
-}
-.section-title .title-bar {
-  display: inline-block;
-  width: 4px; height: 18px;
-  background: linear-gradient(180deg, var(--green-400), var(--green-600));
-  border-radius: 2px; flex-shrink: 0;
-}
-
-/* Status badge */
-.badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 4px 12px; border-radius: 999px;
-  font-size: 13px; font-weight: 600; letter-spacing: 0.3px;
-}
-.badge-new    { background: var(--blue-50);   color: var(--blue-700); }
-.badge-processing { background: var(--orange-50); color: var(--orange-700); }
-.badge-done   { background: var(--green-100); color: var(--green-700); }
-
-/* Meta header row */
-.meta-row {
-  display: flex; align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap; gap: 10px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--ink-100);
-}
-.case-id {
-  font-size: 13px; color: var(--ink-500);
-  font-weight: 500; letter-spacing: 0.5px;
-}
-.case-id strong { color: var(--green-700); font-size: 15px; font-weight: 700; }
-
-/* Info grid */
-.info-grid {
+/* ────────── Info table ────────── */
+.info-table{ width:100%; }
+.info-row{
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px 20px;
-  margin-bottom: 20px;
+  grid-template-columns: 120px 1fr;
+  align-items: start;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--divider);
+  gap: 12px;
 }
-.info-item {}
-.info-label {
-  font-size: 12px; color: var(--ink-300);
-  font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.6px; margin-bottom: 4px;
+.info-row:last-child{ border-bottom: none; }
+.info-lbl{
+  font-size: 13px; color: var(--lbl);
+  font-weight: 500; padding-top: 1px;
+  flex-shrink: 0;
 }
-.info-value {
-  font-size: 15px; color: var(--ink-900);
-  font-weight: 500; line-height: 1.5;
+.info-val{
+  font-size: 14px; color: var(--val);
+  line-height: 1.6; word-break: break-all;
 }
-.info-value a {
-  color: var(--green-600);
-  text-decoration: none;
-  display: inline-flex; align-items: center; gap: 4px;
+.info-val a{
+  color: var(--primary); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 3px;
 }
-.info-value a:hover { text-decoration: underline; }
-.info-item.full { grid-column: 1 / -1; }
+.info-val a:hover{ text-decoration: underline; }
+.info-val.desc{ white-space: pre-wrap; word-break: break-word; }
+.info-val.empty{ color: var(--muted); font-style: italic; }
 
-/* Description block */
-.desc-block {
-  background: var(--green-50);
-  border-radius: 12px; padding: 16px;
-  border: 1px solid var(--ink-100);
-  margin-bottom: 16px;
+/* ────────── Status badge ────────── */
+.badge{
+  display: inline-flex; align-items: center;
+  padding: 3px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; letter-spacing: .3px;
 }
-.desc-block .label {
-  font-size: 12px; font-weight: 600;
-  color: var(--ink-300); text-transform: uppercase;
-  letter-spacing: 0.6px; margin-bottom: 8px;
+.badge-new  { background: var(--badge-new-bg);  color: var(--badge-new-txt); }
+.badge-proc { background: var(--badge-proc-bg); color: var(--badge-proc-txt); }
+.badge-done { background: var(--badge-done-bg); color: var(--badge-done-txt); }
+
+/* ────────── Case title card ────────── */
+.case-title-card{
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 18px 16px;
+  margin-bottom: 14px;
 }
-.desc-block .text {
-  font-size: 15px; color: var(--ink-900);
-  line-height: 1.7; white-space: pre-wrap;
+.case-meta{
+  display: flex; align-items: center;
+  gap: 10px; margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.case-id-tag{
+  font-size: 12px; color: var(--muted);
+  font-weight: 500; letter-spacing: .5px;
+}
+.case-main-title{
+  font-size: 18px; font-weight: 700;
+  color: var(--heading); line-height: 1.4;
 }
 
-/* Photo grid */
-.photo-grid {
+/* ────────── Photo grid ────────── */
+.photo-grid-wrap{ padding: 12px 18px 14px; }
+.photo-grid{
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 4px;
+  gap: 8px;
 }
-.photo-grid img {
+.photo-grid img{
   width: 100%; aspect-ratio: 4/3;
   object-fit: cover;
-  border-radius: 10px;
+  border-radius: 7px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  border: 1px solid var(--ink-100);
+  border: 1px solid var(--border);
+  transition: transform .18s;
 }
-.photo-grid img:hover {
-  transform: scale(1.03);
-  box-shadow: 0 4px 16px rgba(45,82,64,0.14);
+.photo-grid img:hover{ transform: scale(1.03); }
+
+/* ────────── No reply placeholder ────────── */
+.no-reply{
+  padding: 24px 18px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
 }
 
-/* Reply exists block */
-.reply-block {
-  background: var(--green-100);
-  border-radius: 12px; padding: 16px 20px;
-  border: 1px solid var(--green-200);
+/* ────────── Action bar (bottom fixed) ────────── */
+.action-bar{
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex; gap: 10px;
+  z-index: 50;
 }
-.reply-block .reply-meta {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 10px;
+.btn{
+  flex: 1; padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 15px; font-weight: 600;
+  border: none; transition: all .15s;
+  display: flex; align-items: center;
+  justify-content: center; gap: 7px;
 }
-.reply-block .reply-who {
-  font-size: 13px; color: var(--green-700); font-weight: 600;
-  display: flex; align-items: center; gap: 6px;
+.btn-secondary{
+  background: var(--bg);
+  color: var(--lbl);
+  border: 1px solid var(--border);
 }
-.reply-block .reply-time {
-  font-size: 12px; color: var(--ink-300);
+.btn-secondary:hover{ background: var(--divider); }
+.btn-primary{
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(75,122,82,.3);
 }
-.reply-block .reply-text {
-  font-size: 15px; color: var(--ink-900);
-  line-height: 1.7; white-space: pre-wrap;
+.btn-primary:hover{ background: var(--primary-dark); }
+.btn-primary:disabled{
+  background: var(--muted); cursor: not-allowed;
+  box-shadow: none;
 }
 
-/* Form fields */
-.field-group { margin-bottom: 20px; }
-.field-label {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 14px; font-weight: 600;
-  color: var(--ink-700); margin-bottom: 8px;
-  letter-spacing: 0.2px;
+/* ────────── Modal ────────── */
+.modal-overlay{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: 200;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding: 0;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
 }
-.field-label .icon { color: var(--green-500); }
-.field-label .required { color: var(--warn); margin-left: 2px; font-weight: 700; }
+.modal-overlay.open{
+  opacity: 1; pointer-events: auto;
+}
+.modal-box{
+  background: var(--card);
+  border-radius: 16px 16px 0 0;
+  width: 100%; max-width: 680px;
+  max-height: 90vh;
+  display: flex; flex-direction: column;
+  transform: translateY(40px);
+  transition: transform .25s ease-out;
+  overflow: hidden;
+}
+.modal-overlay.open .modal-box{
+  transform: translateY(0);
+}
+.modal-header{
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--divider);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.modal-header h2{
+  font-size: 17px; font-weight: 700;
+  color: var(--heading);
+}
+.modal-close{
+  width: 32px; height: 32px;
+  border-radius: 50%; border: none;
+  background: var(--bg); color: var(--lbl);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; line-height: 1;
+  transition: background .15s;
+}
+.modal-close:hover{ background: var(--divider); }
+.modal-body{
+  flex: 1; overflow-y: auto;
+  padding: 18px 20px;
+  -webkit-overflow-scrolling: touch;
+}
+.modal-footer{
+  padding: 14px 20px;
+  border-top: 1px solid var(--divider);
+  display: flex; gap: 10px;
+  flex-shrink: 0;
+  background: var(--card);
+}
+.modal-footer .btn{ flex: 1; }
 
-input[type="text"], input[type="tel"], textarea, select {
+/* ────────── Form fields ────────── */
+.field{ margin-bottom: 18px; }
+.field:last-child{ margin-bottom: 0; }
+.field-label{
+  font-size: 13px; font-weight: 600;
+  color: var(--lbl); margin-bottom: 6px;
+  display: flex; align-items: center; gap: 4px;
+}
+.field-label .req{ color: var(--warn); }
+
+.field input[type="text"],
+.field textarea,
+.field select{
   width: 100%;
-  padding: 12px 15px;
-  border: 1.5px solid var(--ink-200);
-  border-radius: 11px;
-  font-size: 15px; font-family: inherit;
-  color: var(--ink-900); background: var(--green-50);
-  transition: all 0.2s; outline: none;
+  padding: 10px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px; font-family: inherit;
+  color: var(--val); background: #fff;
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+  -webkit-appearance: none;
 }
-input:hover, textarea:hover, select:hover { border-color: var(--green-300); }
-input:focus, textarea:focus, select:focus {
-  border-color: var(--green-500);
-  box-shadow: 0 0 0 4px rgba(91,155,123,0.13);
-  background: #fff;
+.field input:focus,
+.field textarea:focus,
+.field select:focus{
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(75,122,82,.12);
 }
-input::placeholder, textarea::placeholder { color: var(--ink-300); font-size: 14px; }
-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
-select {
-  cursor: pointer; appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%235B9B7B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 14px center;
-  padding-right: 42px;
+.field input[readonly],
+.field input[disabled]{
+  background: var(--bg);
+  color: var(--lbl);
+  cursor: default;
+}
+.field textarea{ resize: vertical; min-height: 90px; line-height: 1.6; }
+.field select{
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238C7B6A' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  padding-right: 36px;
+}
+.field-hint{
+  font-size: 12px; color: var(--muted);
+  margin-top: 5px;
 }
 
-/* Toggle public section */
-.toggle-wrap {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px;
-  background: var(--green-50);
-  border-radius: 11px; border: 1.5px solid var(--ink-200);
-  cursor: pointer; transition: border-color 0.2s;
+/* ────────── Photo upload ────────── */
+.photo-upload-row{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
-.toggle-wrap:hover { border-color: var(--green-300); }
-.toggle-wrap input[type="checkbox"] { display: none; }
-.toggle-switch {
-  position: relative; width: 44px; height: 24px;
-  background: var(--ink-200); border-radius: 999px;
-  transition: background 0.25s; flex-shrink: 0;
-}
-.toggle-switch::after {
-  content: ''; position: absolute;
-  top: 3px; left: 3px;
-  width: 18px; height: 18px;
-  background: #fff; border-radius: 50%;
-  transition: transform 0.25s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-}
-.toggle-wrap.active .toggle-switch { background: var(--green-500); }
-.toggle-wrap.active .toggle-switch::after { transform: translateX(20px); }
-.toggle-label { font-size: 15px; font-weight: 500; color: var(--ink-700); }
-
-/* Collapsible public fields */
-.public-fields { display: none; margin-top: 16px; }
-.public-fields.open { display: block; }
-
-/* Photo upload */
-.photo-upload {
-  border: 2px dashed var(--ink-200);
-  border-radius: 14px; padding: 22px 12px;
-  text-align: center; cursor: pointer;
-  background: var(--green-50); transition: all 0.25s;
-  position: relative; min-height: 110px;
+.photo-slot{
+  border: 1.5px dashed var(--border);
+  border-radius: 8px;
+  aspect-ratio: 4/3;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
+  cursor: pointer; position: relative;
+  background: var(--bg); overflow: hidden;
+  transition: border-color .15s;
 }
-.photo-upload:hover {
-  border-color: var(--green-400);
-  background: var(--green-100);
-  transform: translateY(-2px);
+.photo-slot:hover{ border-color: var(--primary); }
+.photo-slot input[type="file"]{
+  position: absolute; inset: 0;
+  opacity: 0; cursor: pointer;
+  font-size: 0;
 }
-.photo-upload input[type="file"] {
-  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+.photo-slot .slot-icon{ color: var(--muted); margin-bottom: 4px; }
+.photo-slot .slot-label{ font-size: 11px; color: var(--muted); }
+.photo-slot img.thumb{
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: none;
 }
-.photo-upload .upload-icon {
-  width: 28px; height: 28px;
-  color: var(--green-400); margin-bottom: 6px; stroke-width: 1.8;
-}
-.photo-upload .upload-text { font-size: 13px; color: var(--ink-500); font-weight: 500; }
-.photo-upload .preview { max-width: 100%; max-height: 200px; border-radius: 10px; display: none; }
-.photo-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.photo-slot.has-img .slot-icon,
+.photo-slot.has-img .slot-label{ display:none; }
+.photo-slot.has-img img.thumb{ display:block; }
 
-/* Buttons */
-.submit-btn {
-  width: 100%; padding: 16px 24px;
-  background: linear-gradient(135deg, var(--green-500) 0%, var(--green-600) 100%);
-  color: #fff; border: none; border-radius: 14px;
-  font-size: 16px; font-weight: 600; font-family: inherit;
-  cursor: pointer; display: flex; align-items: center;
-  justify-content: center; gap: 10px; transition: all 0.25s;
-  margin-top: 12px; letter-spacing: 1px;
-  box-shadow: 0 4px 14px rgba(91,155,123,0.32);
+/* ────────── Toggle ────────── */
+.toggle-field{
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px; cursor: pointer;
+  background: #fff; transition: border-color .15s;
 }
-.submit-btn:hover {
-  background: linear-gradient(135deg, var(--green-600) 0%, var(--green-700) 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(74,131,102,0.40);
+.toggle-field:hover{ border-color: var(--primary); }
+.toggle-track{
+  width: 40px; height: 22px;
+  border-radius: 11px; background: var(--muted);
+  position: relative; flex-shrink: 0;
+  transition: background .2s;
 }
-.submit-btn:disabled { background: var(--ink-300); cursor: not-allowed; transform: none; box-shadow: none; }
+.toggle-track::after{
+  content: '';
+  position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: #fff; border-radius: 50%;
+  transition: transform .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.toggle-field.on .toggle-track{ background: var(--primary); }
+.toggle-field.on .toggle-track::after{ transform: translateX(18px); }
+.toggle-text{ font-size: 14px; color: var(--val); }
+.collapsible{ display: none; margin-top: 14px; }
+.collapsible.open{ display: block; }
 
-/* Loading */
-.spinner {
-  display: inline-block; width: 18px; height: 18px;
-  border: 2px solid rgba(255,255,255,0.35);
+/* ────────── Google sign-in hint ────────── */
+.google-hint{
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--lbl);
+  margin-top: 5px;
+}
+.google-hint svg{ flex-shrink: 0; }
+
+/* ────────── Spinner ────────── */
+.spinner{
+  display: inline-block; width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,.4);
   border-top-color: #fff; border-radius: 50%;
-  animation: spin 0.6s linear infinite;
+  animation: spin .6s linear infinite; flex-shrink: 0;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin{ to{transform:rotate(360deg)} }
 
-/* Success */
-.success-msg { display: none; text-align: center; animation: fadeUp 0.5s ease-out; }
-.success-msg .card { padding: 56px 28px; }
-.success-msg .check-wrap {
-  width: 84px; height: 84px; margin: 0 auto 22px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--green-100), var(--green-200));
-  display: flex; align-items: center; justify-content: center;
-  animation: popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) 0.2s both;
+/* ────────── Skeleton ────────── */
+.skel{
+  background: linear-gradient(90deg,var(--divider) 25%,var(--border) 50%,var(--divider) 75%);
+  background-size: 300% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 5px;
 }
-.success-msg .check-wrap .icon { width: 42px; height: 42px; color: var(--green-600); stroke-width: 2.5; }
-@keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
-.success-msg h2 { font-size: 22px; font-weight: 700; color: var(--green-800); margin-bottom: 10px; }
-.success-msg p  { font-size: 15px; color: var(--ink-500); line-height: 1.6; }
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* Loading skeleton */
-.skeleton {
-  background: linear-gradient(90deg, var(--ink-100) 25%, var(--ink-200) 50%, var(--ink-100) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 8px; height: 18px; margin-bottom: 8px;
-}
-@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-
-/* Error state */
-.error-state {
-  text-align: center; padding: 48px 24px;
-  color: var(--ink-500);
-}
-.error-state .error-icon { width: 48px; height: 48px; color: var(--ink-300); margin: 0 auto 16px; }
-.error-state h3 { font-size: 18px; color: var(--ink-700); margin-bottom: 8px; }
-
-/* Lightbox */
-.lightbox {
-  display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.85); z-index: 999;
+/* ────────── Lightbox ────────── */
+.lightbox{
+  position: fixed; inset: 0; background: rgba(0,0,0,.88);
+  z-index: 500; display: none;
   align-items: center; justify-content: center;
 }
-.lightbox.open { display: flex; }
-.lightbox img {
+.lightbox.open{ display: flex; }
+.lightbox img{
   max-width: 92vw; max-height: 88vh;
-  border-radius: 12px; box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  border-radius: 10px;
 }
-.lightbox-close {
-  position: absolute; top: 20px; right: 20px;
-  background: rgba(255,255,255,0.15); border: none;
-  border-radius: 50%; width: 40px; height: 40px;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  color: #fff; transition: background 0.2s;
+.lb-close{
+  position: absolute; top: 18px; right: 18px;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,.15); border: none;
+  color: #fff; font-size: 20px; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
 }
-.lightbox-close:hover { background: rgba(255,255,255,0.3); }
+.lb-close:hover{ background: rgba(255,255,255,.3); }
 
-/* Divider */
-.divider { height: 1px; background: var(--ink-100); margin: 20px 0; }
-
-/* Footer */
-.footer {
-  text-align: center; padding: 18px;
-  font-size: 12px; color: var(--ink-300); letter-spacing: 0.5px;
+/* ────────── Success overlay ────────── */
+.success-overlay{
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 300;
+  display: none;
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 40px;
+}
+.success-overlay.open{ display: flex; }
+.success-icon{
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+  animation: popIn .4s cubic-bezier(.175,.885,.32,1.275) both;
+}
+@keyframes popIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.success-overlay h2{
+  font-size: 22px; font-weight: 700;
+  color: var(--heading); margin-bottom: 8px;
+}
+.success-overlay p{
+  font-size: 15px; color: var(--lbl); line-height: 1.6;
 }
 
-/* RWD */
-@media (max-width: 480px) {
-  .container { padding: 0 12px 40px; margin-top: -28px; }
-  .header { padding: 36px 16px 50px; }
-  .header h1 { font-size: 20px; }
-  .card { padding: 22px 18px; border-radius: 16px; }
-  .info-grid { grid-template-columns: 1fr; }
-  .photo-row { grid-template-columns: 1fr; }
-  .photo-grid { grid-template-columns: repeat(2, 1fr); }
+/* ────────── Error / Loading ────────── */
+.state-box{
+  text-align: center; padding: 48px 24px;
+  color: var(--lbl);
+}
+.state-box h3{ font-size: 17px; color: var(--heading); margin-bottom: 6px; }
+.state-box p{ font-size: 14px; }
+
+/* ────────── RWD ────────── */
+@media(max-width:480px){
+  .info-row{ grid-template-columns: 90px 1fr; }
+  .photo-upload-row{ grid-template-columns: repeat(3, 1fr); }
 }
 </style>
 </head>
 <body>
 
-<!-- SVG Sprite -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="i-leaf"    viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19.2 2.96a1 1 0 0 1 1.8.5c0 7.83-3.45 13.39-9 14.54"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></symbol>
-    <symbol id="i-check"   viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.08"/></symbol>
-    <symbol id="i-user"    viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
-    <symbol id="i-phone"   viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
-    <symbol id="i-tag"     viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></symbol>
-    <symbol id="i-pin"     viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></symbol>
-    <symbol id="i-map"     viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></symbol>
-    <symbol id="i-camera"  viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
-    <symbol id="i-reply"   viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></symbol>
-    <symbol id="i-send"    viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
-    <symbol id="i-globe"   viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
-    <symbol id="i-alert"   viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol>
-    <symbol id="i-person"  viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
-    <symbol id="i-note"    viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
-    <symbol id="i-x"       viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
-    <symbol id="i-ext"     viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></symbol>
-  </defs>
-</svg>
-
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">
-    <svg class="icon"><use href="#i-x"/></svg>
-  </button>
-  <img id="lightboxImg" src="" alt="photo">
+<!-- ── Lightbox ── -->
+<div class="lightbox" id="lightbox" onclick="closeLb()">
+  <button class="lb-close" onclick="closeLb()">&#215;</button>
+  <img id="lbImg" src="" alt="">
 </div>
 
-<!-- Header -->
-<div class="header">
-  <svg class="header-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-leaf"/></svg>
-  <h1>和平里 里民通報系統</h1>
-  <div class="subtitle" id="headerSubtitle">案件詳情</div>
-</div>
-
-<!-- Main -->
-<div class="container" id="mainContent">
-  <!-- Loading state -->
-  <div class="card" id="loadingCard">
-    <div class="skeleton" style="width:40%;height:22px;margin-bottom:16px"></div>
-    <div class="skeleton" style="width:90%"></div>
-    <div class="skeleton" style="width:75%"></div>
-    <div class="skeleton" style="width:85%;margin-top:12px"></div>
-    <div class="skeleton" style="width:60%"></div>
+<!-- ── Success ── -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">
+    <svg width="36" height="36" fill="none" stroke="#4B7A52" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
   </div>
+  <h2>回覆已送出！</h2>
+  <p>案件狀態已更新<br>謝謝您的處理</p>
 </div>
 
-<!-- Success overlay -->
-<div class="container" style="display:none" id="successContainer">
-  <div class="success-msg" id="successMsg" style="display:block">
-    <div class="card">
-      <div class="check-wrap">
-        <svg class="icon"><use href="#i-check"/></svg>
-      </div>
-      <h2>回覆已送出！</h2>
-      <p>案件狀態已更新，謝謝您的處理</p>
+<!-- ── Reply Modal ── -->
+<div class="modal-overlay" id="replyModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>案件回覆</h2>
+      <button class="modal-close" onclick="closeModal()" aria-label="關閉">&#215;</button>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <!-- injected by JS -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="submitBtn" onclick="submitReply()">更新</button>
     </div>
   </div>
 </div>
 
-<div class="footer">和平里辦公處 — 里民陳情通報系統</div>
+<!-- ── Page header ── -->
+<div class="page-header">
+  <button class="back-btn" onclick="goBack()">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    返回
+  </button>
+  <div class="page-title" id="pageTitle">案件詳情</div>
+</div>
+
+<!-- ── Main ── -->
+<div class="container" id="mainContent">
+  <!-- Loading skeleton -->
+  <div class="card" id="loadingCard" style="padding:20px 18px">
+    <div class="skel" style="height:20px;width:40%;margin-bottom:14px"></div>
+    <div class="skel" style="height:14px;width:80%;margin-bottom:8px"></div>
+    <div class="skel" style="height:14px;width:65%;margin-bottom:8px"></div>
+    <div class="skel" style="height:14px;width:75%"></div>
+  </div>
+</div>
+
+<!-- ── Action bar ── -->
+<div class="action-bar" id="actionBar" style="display:none">
+  <button class="btn btn-secondary" onclick="goBack()">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    返回
+  </button>
+  <button class="btn btn-primary" onclick="openModal()">
+    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    編輯回覆
+  </button>
+</div>
 
 <script src="config.js"></script>
 <script>
-// ============================================================
+// ────────────────────────────────────────────────────────────
 // CONFIG
-// ============================================================
+// ────────────────────────────────────────────────────────────
 var SPREADSHEET_ID = '1SDwkiqi2EJoW0ICZLeBVRC7IM5ridvHgxS-tFoh_BWE';
 var SHEET_NAME     = '案件清單';
 var UPLOAD_URL     = CONFIG.UPLOAD_URL;
 var REPLY_WEBHOOK  = CONFIG.REPLY_WEBHOOK_URL;
 
-// ============================================================
-// COLUMN INDEX MAP (0-based, A=0)
-// ============================================================
 var COL = {
-  caseId:        0,  // A
-  reportTime:    1,  // B
-  status:        2,  // C
-  category:      3,  // D
-  name:          4,  // E
-  phone:         5,  // F
-  lineId:        6,  // G
-  title:         7,  // H
-  desc:          8,  // I
-  addr:          9,  // J
-  mapUrl:        10, // K
-  case1999:      11, // L
-  photo1:        12, // M
-  photo2:        13, // N
-  photo3:        14, // O
-  replyTime:     15, // P
-  lastUpdate:    16, // Q
-  replyContent:  17, // R
-  repPhoto1:     18, // S
-  repPhoto2:     19, // T
-  repPhoto3:     20, // U
-  handler:       21, // V
-  note:          22, // W
-  publicFlag:    23, // X
-  publicTitle:   24, // Y
-  publicCate:    25, // Z
-  publicLoc:     26, // AA
-  publicSummary: 27, // AB
-  replyUrl:      28  // AC
+  caseId:0, reportTime:1, status:2, category:3,
+  name:4, phone:5, lineId:6,
+  title:7, desc:8, addr:9, mapUrl:10,
+  case1999:11,
+  photo1:12, photo2:13, photo3:14,
+  replyTime:15, lastUpdate:16, replyContent:17,
+  repPhoto1:18, repPhoto2:19, repPhoto3:20,
+  handler:21, note:22,
+  publicFlag:23, publicTitle:24, publicCate:25,
+  publicLoc:26, publicSummary:27,
+  replyUrl:28
 };
 
-// ============================================================
-// LOAD CASE DATA
-// ============================================================
+var PUBLIC_CATES = ['道路交通','環境清潔','公共設施','社區安全','公園綠地','違規停車','其他'];
+
+// ────────────────────────────────────────────────────────────
+// GOOGLE SIGN-IN
+// ────────────────────────────────────────────────────────────
+var gName = '';
+
+function initGoogle() {
+  if (!CONFIG.GOOGLE_CLIENT_ID) return;
+  if (typeof google === 'undefined') return;
+  google.accounts.id.initialize({
+    client_id: CONFIG.GOOGLE_CLIENT_ID,
+    callback: function(resp) {
+      var parts = resp.credential.split('.');
+      try {
+        var pad = parts[1].replace(/-/g,'+').replace(/_/g,'/');
+        while (pad.length % 4) pad += '=';
+        var payload = JSON.parse(atob(pad));
+        gName = payload.name || payload.given_name || '';
+        // Update handler field if modal is open
+        var el = document.getElementById('m_handler');
+        if (el) el.value = gName;
+      } catch(e) {}
+    },
+    auto_select: true,
+  });
+  google.accounts.id.prompt();
+}
+
+window.addEventListener('load', function() {
+  // Wait for GSI library
+  var tries = 0;
+  var t = setInterval(function() {
+    if (typeof google !== 'undefined' || ++tries > 20) {
+      clearInterval(t);
+      initGoogle();
+    }
+  }, 300);
+});
+
+// ────────────────────────────────────────────────────────────
+// DATA LOAD
+// ────────────────────────────────────────────────────────────
 var caseId = new URLSearchParams(location.search).get('id') || '';
 var caseData = null;
 
@@ -559,276 +625,301 @@ function loadCase() {
     showError('缺少案件編號', '請確認網址是否正確（需包含 ?id=案件編號）');
     return;
   }
-
-  var tq = encodeURIComponent("SELECT * WHERE A='" + caseId.replace(/'/g, "\\'") + "' LIMIT 1");
+  var tq  = encodeURIComponent("SELECT * WHERE A='" + caseId.replace(/'/g,"\\'") + "' LIMIT 1");
   var url = 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID
           + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_NAME)
           + '&headers=1&tq=' + tq;
 
   fetch(url)
-    .then(function(r) { return r.text(); })
-    .then(function(text) {
-      // Strip JSONP wrapper: /*O_o*/\ngoogle.visualization.Query.setResponse({...});
-      var json = JSON.parse(text.replace(/^[^{]*/, '').replace(/\);?\s*$/, ''));
+    .then(function(r){ return r.text(); })
+    .then(function(text){
+      var json = JSON.parse(text.replace(/^[^{]*/,'').replace(/\);?\s*$/,''));
       var rows = json.table && json.table.rows;
-      if (!rows || rows.length === 0) {
+      if (!rows || !rows.length) {
         showError('找不到案件', '案件編號「' + caseId + '」不存在或尚未建立');
         return;
       }
       var row = rows[0].c;
       caseData = {};
-      Object.keys(COL).forEach(function(key) {
-        var cell = row[COL[key]];
-        caseData[key] = cell ? (cell.f || cell.v || '') : '';
+      Object.keys(COL).forEach(function(k){
+        var c = row[COL[k]];
+        caseData[k] = c ? (c.f || c.v || '') : '';
       });
       renderCase();
     })
-    .catch(function(err) {
-      console.error(err);
-      showError('載入失敗', '無法讀取資料，請稍後再試（若問題持續，請聯絡辦公處）');
+    .catch(function(err){
+      showError('載入失敗', '無法讀取資料，請稍後再試');
     });
 }
 
-// ============================================================
+// ────────────────────────────────────────────────────────────
 // RENDER
-// ============================================================
-function statusBadge(s) {
-  var cls = s === '新案件' ? 'badge-new' : s === '已完成' ? 'badge-done' : 'badge-processing';
-  return '<span class="badge ' + cls + '">' + (s || '—') + '</span>';
+// ────────────────────────────────────────────────────────────
+function esc(s){
+  if (!s && s !== 0) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function v(s){ return s ? esc(s) : '<span class="empty">—</span>'; }
+
+function badgeCls(s){
+  if (s === '新案件') return 'badge-new';
+  if (s === '已完成') return 'badge-done';
+  return 'badge-proc';
 }
 
-function photoHtml(url, label) {
-  if (!url) return '';
-  return '<img src="' + url + '" alt="' + label + '" loading="lazy" onclick="openLightbox(\'' + url.replace(/'/g,"'") + '\')">';
-}
+function row(lbl, val){ return '<div class="info-row"><div class="info-lbl">' + lbl + '</div><div class="info-val">' + val + '</div></div>'; }
 
-function renderCase() {
+function renderCase(){
   var d = caseData;
-  var hasReply = !!d.replyContent;
-  var photos = [d.photo1, d.photo2, d.photo3].filter(Boolean);
+  var photos    = [d.photo1,    d.photo2,    d.photo3   ].filter(Boolean);
   var repPhotos = [d.repPhoto1, d.repPhoto2, d.repPhoto3].filter(Boolean);
 
-  document.getElementById('headerSubtitle').textContent = d.title || '案件詳情';
+  document.getElementById('pageTitle').textContent = d.title || '案件詳情';
 
   var html = '';
 
-  // ── Card 1: Case info ──────────────────────────────────
+  // ── Title card ──
+  html += '<div class="case-title-card">';
+  html += '<div class="case-meta">';
+  html += '<span class="case-id-tag">' + esc(d.caseId) + '</span>';
+  html += '<span class="badge ' + badgeCls(d.status) + '">' + esc(d.status) + '</span>';
+  html += '</div>';
+  html += '<div class="case-main-title">' + esc(d.title) + '</div>';
+  html += '</div>';
+
+  // ── 通報資訊 ──
   html += '<div class="card">';
-  html += '<div class="meta-row">';
-  html += '<div class="case-id">案件編號 <strong>' + d.caseId + '</strong></div>';
-  html += statusBadge(d.status);
+  html += '<div class="card-header">';
+  html += icon('file') + ' 通報資訊';
   html += '</div>';
-
-  html += '<div class="desc-block" style="margin-bottom:0">';
-  html += '<div class="label">通報主旨</div>';
-  html += '<div class="text" style="font-size:17px;font-weight:600;color:var(--ink-900)">' + esc(d.title) + '</div>';
+  html += '<div class="info-table">';
+  html += row('通報時間', v(d.reportTime));
+  html += row('通報類別', v(d.category));
+  html += row('發生地點', d.addr ? (esc(d.addr) + (d.mapUrl ? ' <a href="' + esc(d.mapUrl) + '" target="_blank" rel="noopener">地圖 ↗</a>' : '')) : '<span class="empty">—</span>');
+  if (d.case1999) html += row('1999案號', esc(d.case1999));
+  if (d.desc) html += row('問題描述', '<span class="desc">' + esc(d.desc) + '</span>');
   html += '</div>';
-  html += '</div>';
-
-  // ── Card 2: Details ────────────────────────────────────
-  html += '<div class="card">';
-  html += '<div class="section-title"><span class="title-bar"></span>通報資訊</div>';
-
-  html += '<div class="info-grid">';
-  html += '<div class="info-item"><div class="info-label">通報時間</div><div class="info-value">' + esc(d.reportTime) + '</div></div>';
-  html += '<div class="info-item"><div class="info-label">通報類別</div><div class="info-value">' + esc(d.category) + '</div></div>';
-  html += '<div class="info-item full"><div class="info-label">發生地點</div><div class="info-value">' + esc(d.addr);
-  if (d.mapUrl) html += '&nbsp;<a href="' + d.mapUrl + '" target="_blank" rel="noopener"><svg class="icon" style="width:14px;height:14px"><use href="#i-ext"/></svg>地圖</a>';
-  html += '</div></div>';
-  if (d.case1999) html += '<div class="info-item full"><div class="info-label">1999案號</div><div class="info-value">' + esc(d.case1999) + '</div></div>';
-  html += '</div>';
-
-  if (d.desc) {
-    html += '<div class="desc-block">';
-    html += '<div class="label">原始描述</div>';
-    html += '<div class="text">' + esc(d.desc) + '</div>';
-    html += '</div>';
-  }
-
-  if (photos.length > 0) {
-    html += '<div class="field-label" style="margin-top:4px"><svg class="icon"><use href="#i-camera"/></svg> 通報照片</div>';
+  if (photos.length) {
+    html += '<div class="photo-grid-wrap">';
+    html += '<div style="font-size:12px;color:var(--lbl);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">通報照片</div>';
     html += '<div class="photo-grid">';
-    photos.forEach(function(p, i) { html += photoHtml(p, '照片'+(i+1)); });
-    html += '</div>';
+    photos.forEach(function(p,i){ html += '<img src="' + esc(p) + '" alt="照片'+(i+1)+'" loading="lazy" onclick="openLb(\'' + esc(p) + '\')">'; });
+    html += '</div></div>';
   }
   html += '</div>';
 
-  // ── Card 3: Reporter info ──────────────────────────────
+  // ── 通報人資訊 ──
   html += '<div class="card">';
-  html += '<div class="section-title"><span class="title-bar"></span>通報人資訊</div>';
-  html += '<div class="info-grid">';
-  html += '<div class="info-item"><div class="info-label">姓名</div><div class="info-value">' + esc(d.name) + '</div></div>';
-  html += '<div class="info-item"><div class="info-label">電話</div><div class="info-value"><a href="tel:' + esc(d.phone) + '">' + esc(d.phone) + '</a></div></div>';
-  if (d.lineId) html += '<div class="info-item"><div class="info-label">LINE ID</div><div class="info-value">' + esc(d.lineId) + '</div></div>';
+  html += '<div class="card-header">' + icon('user') + ' 通報人資訊</div>';
+  html += '<div class="info-table">';
+  html += row('姓名', v(d.name));
+  html += row('電話', d.phone ? '<a href="tel:' + esc(d.phone) + '">' + esc(d.phone) + '</a>' : '<span class="empty">—</span>');
+  if (d.lineId) html += row('LINE ID', esc(d.lineId));
   html += '</div>';
   html += '</div>';
 
-  // ── Card 4: Existing reply (if any) ───────────────────
-  if (hasReply) {
-    html += '<div class="card">';
-    html += '<div class="section-title"><span class="title-bar"></span>處理回覆</div>';
-    html += '<div class="reply-block">';
-    html += '<div class="reply-meta">';
-    html += '<div class="reply-who"><svg class="icon" style="width:14px;height:14px"><use href="#i-person"/></svg>' + esc(d.handler || '里長辦公室') + '</div>';
-    html += '<div class="reply-time">' + esc(d.replyTime) + '</div>';
+  // ── 里長回覆 ──
+  html += '<div class="card">';
+  html += '<div class="card-header">' + icon('reply') + ' 里長回覆</div>';
+  if (d.replyContent) {
+    html += '<div class="info-table">';
+    html += row('回覆時間', v(d.replyTime));
+    html += row('承辦人',   v(d.handler));
+    html += row('回覆內容', '<span class="desc">' + esc(d.replyContent) + '</span>');
+    if (d.note) html += row('備註', esc(d.note));
+    var pubLbl = (d.publicFlag === true || d.publicFlag === 'TRUE' || d.publicFlag === '是') ? '是' : '否';
+    html += row('公開顯示', pubLbl);
+    if (d.publicTitle)   html += row('公開主旨', esc(d.publicTitle));
+    if (d.publicCate)    html += row('公開類別', esc(d.publicCate));
+    if (d.publicLoc)     html += row('公開地點', esc(d.publicLoc));
+    if (d.publicSummary) html += row('公開摘要', '<span class="desc">' + esc(d.publicSummary) + '</span>');
     html += '</div>';
-    html += '<div class="reply-text">' + esc(d.replyContent) + '</div>';
-    html += '</div>';
-    if (repPhotos.length > 0) {
-      html += '<div class="field-label" style="margin-top:16px"><svg class="icon"><use href="#i-camera"/></svg> 處理照片</div>';
+    if (repPhotos.length) {
+      html += '<div class="photo-grid-wrap">';
+      html += '<div style="font-size:12px;color:var(--lbl);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">處理照片</div>';
       html += '<div class="photo-grid">';
-      repPhotos.forEach(function(p, i) { html += photoHtml(p, '處理照片'+(i+1)); });
-      html += '</div>';
+      repPhotos.forEach(function(p,i){ html += '<img src="' + esc(p) + '" alt="處理照片'+(i+1)+'" loading="lazy" onclick="openLb(\'' + esc(p) + '\')">'; });
+      html += '</div></div>';
     }
-    html += '</div>';
+  } else {
+    html += '<div class="no-reply">尚未填寫回覆</div>';
   }
-
-  // ── Card 5: Reply form ────────────────────────────────
-  html += '<div class="card" id="replyFormCard">';
-  html += '<div class="section-title"><span class="title-bar"></span>' + (hasReply ? '更新回覆' : '填寫回覆') + '</div>';
-  html += '<form id="replyForm" novalidate>';
-
-  // Status
-  html += '<div class="field-group">';
-  html += '<label class="field-label"><svg class="icon"><use href="#i-tag"/></svg> 案件狀態 <span class="required">*</span></label>';
-  html += '<select id="r_status" required>';
-  html += '<option value="">請選擇</option>';
-  ['新案件','處理中','已完成'].forEach(function(s) {
-    html += '<option value="' + s + '"' + (d.status === s ? ' selected' : '') + '>' + s + '</option>';
-  });
-  html += '</select>';
-  html += '</div>';
-
-  // Reply content
-  html += '<div class="field-group">';
-  html += '<label class="field-label"><svg class="icon"><use href="#i-reply"/></svg> 回覆內容 <span class="required">*</span></label>';
-  html += '<textarea id="r_content" rows="5" placeholder="請輸入處理情況與回覆內容…" required>' + esc(d.replyContent) + '</textarea>';
-  html += '</div>';
-
-  // Handler
-  html += '<div class="field-group">';
-  html += '<label class="field-label"><svg class="icon"><use href="#i-person"/></svg> 承辦人</label>';
-  html += '<input type="text" id="r_handler" placeholder="姓名或職稱" value="' + esc(d.handler) + '">';
-  html += '</div>';
-
-  // Note
-  html += '<div class="field-group">';
-  html += '<label class="field-label"><svg class="icon"><use href="#i-note"/></svg> 備註</label>';
-  html += '<input type="text" id="r_note" placeholder="內部備註（不對外顯示）" value="' + esc(d.note) + '">';
-  html += '</div>';
-
-  // Reply photos
-  html += '<div class="field-group">';
-  html += '<label class="field-label"><svg class="icon"><use href="#i-camera"/></svg> 處理照片（選填）</label>';
-  html += '<div class="photo-row">';
-  [1,2,3].forEach(function(n) {
-    html += '<div class="photo-upload" id="rphoto' + n + '_area">';
-    html += '<input type="file" accept="image/*" id="r_photo' + n + '" onchange="previewPhoto(this,\'rprev' + n + '\')">';
-    html += '<svg class="icon upload-icon"><use href="#i-camera"/></svg>';
-    html += '<div class="upload-text">照片 ' + n + '</div>';
-    html += '<img class="preview" id="rprev' + n + '">';
-    html += '</div>';
-  });
-  html += '</div>';
-  html += '</div>';
-
-  // Public toggle
-  var isPublic = d.publicFlag === true || d.publicFlag === 'TRUE' || d.publicFlag === '是';
-  html += '<div class="field-group">';
-  html += '<div class="toggle-wrap' + (isPublic ? ' active' : '') + '" id="publicToggle" onclick="togglePublic()">';
-  html += '<input type="checkbox" id="r_public"' + (isPublic ? ' checked' : '') + '>';
-  html += '<div class="toggle-switch"></div>';
-  html += '<div class="toggle-label">公開顯示此案件處理結果</div>';
-  html += '</div>';
-  html += '</div>';
-
-  html += '<div class="public-fields' + (isPublic ? ' open' : '') + '" id="publicFields">';
-
-  html += '<div class="field-group">';
-  html += '<label class="field-label"><svg class="icon"><use href="#i-globe"/></svg> 公開主旨</label>';
-  html += '<input type="text" id="r_public_title" placeholder="對外顯示的標題" value="' + esc(d.publicTitle) + '">';
-  html += '</div>';
-
-  html += '<div class="field-group">';
-  html += '<label class="field-label"><svg class="icon"><use href="#i-pin"/></svg> 公開地點</label>';
-  html += '<input type="text" id="r_public_loc" placeholder="對外顯示的地點" value="' + esc(d.publicLoc) + '">';
-  html += '</div>';
-
-  html += '<div class="field-group" style="margin-bottom:0">';
-  html += '<label class="field-label"><svg class="icon"><use href="#i-note"/></svg> 公開回覆摘要</label>';
-  html += '<textarea id="r_public_content" rows="3" placeholder="簡短對外說明（不含個人資訊）">' + esc(d.publicSummary) + '</textarea>';
-  html += '</div>';
-
-  html += '</div>'; // public-fields
-
-  html += '<button type="submit" class="submit-btn" id="replyBtn">';
-  html += '<svg class="icon"><use href="#i-send"/></svg> 送出回覆</button>';
-  html += '</form>';
   html += '</div>';
 
   document.getElementById('mainContent').innerHTML = html;
-  bindReplyForm();
+  document.getElementById('actionBar').style.display = 'flex';
 }
 
-function showError(title, msg) {
+function icon(name){
+  var icons = {
+    file:  '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    user:  '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+    reply: '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></svg>',
+  };
+  return icons[name] || '';
+}
+
+function showError(t, m){
   document.getElementById('mainContent').innerHTML =
-    '<div class="card"><div class="error-state">' +
-    '<svg class="icon error-icon" style="width:48px;height:48px"><use href="#i-alert"/></svg>' +
-    '<h3>' + title + '</h3><p>' + msg + '</p>' +
-    '</div></div>';
+    '<div class="card"><div class="state-box"><h3>' + t + '</h3><p>' + m + '</p></div></div>';
 }
 
-// ============================================================
-// FORM
-// ============================================================
-function esc(str) {
-  if (!str && str !== 0) return '';
-  return String(str)
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
-}
+// ────────────────────────────────────────────────────────────
+// MODAL
+// ────────────────────────────────────────────────────────────
+function openModal(){
+  if (!caseData) return;
+  var d = caseData;
+  var isPublic = d.publicFlag === true || d.publicFlag === 'TRUE' || d.publicFlag === '是';
 
-function togglePublic() {
-  var wrap = document.getElementById('publicToggle');
-  var cb   = document.getElementById('r_public');
-  var fields = document.getElementById('publicFields');
-  var isActive = wrap.classList.toggle('active');
-  cb.checked = isActive;
-  fields.classList.toggle('open', isActive);
-}
+  var handlerVal  = gName || d.handler || '';
+  var handlerAttr = gName ? 'readonly' : '';
+  var handlerHint = gName
+    ? '<div class="google-hint"><svg width="14" height="14" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>已從 Google 帳號取得</div>'
+    : '<div class="field-hint">請輸入承辦人姓名</div>';
 
-function previewPhoto(input, previewId) {
-  var preview = document.getElementById(previewId);
-  var area = input.closest('.photo-upload');
-  if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      preview.src = e.target.result;
-      preview.style.display = 'block';
-      area.querySelector('.upload-icon').style.display = 'none';
-      area.querySelector('.upload-text').textContent = input.files[0].name;
-    };
-    reader.readAsDataURL(input.files[0]);
+  var cateOptions = PUBLIC_CATES.map(function(c){
+    return '<option value="' + c + '"' + (d.publicCate === c ? ' selected' : '') + '>' + c + '</option>';
+  }).join('');
+
+  var html = '';
+
+  // 案件狀態
+  html += '<div class="field">';
+  html += '<div class="field-label">案件狀態 <span class="req">*</span></div>';
+  html += '<select id="m_status">';
+  html += '<option value="">請選擇</option>';
+  ['新案件','處理中','已完成'].forEach(function(s){
+    html += '<option value="' + s + '"' + (d.status === s ? ' selected' : '') + '>' + s + '</option>';
+  });
+  html += '</select></div>';
+
+  // 1999案號 (readonly)
+  if (d.case1999) {
+    html += '<div class="field">';
+    html += '<div class="field-label">1999案號</div>';
+    html += '<input type="text" value="' + esc(d.case1999) + '" readonly>';
+    html += '</div>';
+  }
+
+  // 完整回覆內容
+  html += '<div class="field">';
+  html += '<div class="field-label">完整回覆內容 <span class="req">*</span></div>';
+  html += '<textarea id="m_content" rows="5" placeholder="請輸入處理情況與回覆內容…">' + esc(d.replyContent) + '</textarea>';
+  html += '</div>';
+
+  // 處理照片
+  html += '<div class="field">';
+  html += '<div class="field-label">處理照片</div>';
+  html += '<div class="photo-upload-row">';
+  [1,2,3].forEach(function(n){
+    var existing = n === 1 ? d.repPhoto1 : n === 2 ? d.repPhoto2 : d.repPhoto3;
+    html += '<div class="photo-slot' + (existing ? ' has-img' : '') + '" id="slot'+n+'">';
+    html += '<input type="file" accept="image/*" id="m_photo'+n+'" onchange="handlePhotoChange(this,'+n+')">';
+    html += '<svg class="slot-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+    html += '<div class="slot-label">照片 ' + n + '</div>';
+    html += '<img class="thumb" id="thumb'+n+'" src="' + (existing ? esc(existing) : '') + '" alt="">';
+    html += '</div>';
+  });
+  html += '</div></div>';
+
+  // 備註
+  html += '<div class="field">';
+  html += '<div class="field-label">備註</div>';
+  html += '<input type="text" id="m_note" placeholder="內部備註（不對外顯示）" value="' + esc(d.note) + '">';
+  html += '</div>';
+
+  // 公開顯示
+  html += '<div class="field">';
+  html += '<div class="field-label">公開設定</div>';
+  html += '<div class="toggle-field' + (isPublic ? ' on' : '') + '" id="pubToggle" onclick="togglePub()">';
+  html += '<div class="toggle-track"></div>';
+  html += '<input type="checkbox" id="m_public"' + (isPublic ? ' checked' : '') + ' style="display:none">';
+  html += '<span class="toggle-text">公開顯示此案件處理結果</span>';
+  html += '</div>';
+  html += '</div>';
+
+  // 公開欄位
+  html += '<div class="collapsible' + (isPublic ? ' open' : '') + '" id="pubFields">';
+
+  html += '<div class="field"><div class="field-label">公開主旨</div>';
+  html += '<input type="text" id="m_pub_title" placeholder="對外顯示的標題" value="' + esc(d.publicTitle) + '"></div>';
+
+  html += '<div class="field"><div class="field-label">公開類別</div>';
+  html += '<select id="m_pub_cate"><option value="">請選擇</option>' + cateOptions + '</select></div>';
+
+  html += '<div class="field"><div class="field-label">公開地點</div>';
+  html += '<input type="text" id="m_pub_loc" placeholder="對外顯示的地點" value="' + esc(d.publicLoc) + '"></div>';
+
+  html += '<div class="field"><div class="field-label">公開回覆摘要</div>';
+  html += '<textarea id="m_pub_summary" rows="3" placeholder="簡短對外說明（不含個人資訊）">' + esc(d.publicSummary) + '</textarea></div>';
+
+  html += '</div>'; // collapsible
+
+  // 承辦人
+  html += '<div class="field">';
+  html += '<div class="field-label">承辦人 <span class="req">*</span></div>';
+  html += '<input type="text" id="m_handler" placeholder="承辦人姓名" value="' + esc(handlerVal) + '" ' + handlerAttr + '>';
+  html += handlerHint;
+  html += '</div>';
+
+  document.getElementById('modalBody').innerHTML = html;
+  document.getElementById('replyModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // If Google name not yet retrieved, try again now
+  if (!gName && CONFIG.GOOGLE_CLIENT_ID && typeof google !== 'undefined') {
+    google.accounts.id.prompt();
   }
 }
 
-function compressImage(file) {
-  return new Promise(function(resolve) {
+function closeModal(){
+  document.getElementById('replyModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function togglePub(){
+  var wrap   = document.getElementById('pubToggle');
+  var cb     = document.getElementById('m_public');
+  var fields = document.getElementById('pubFields');
+  var on = wrap.classList.toggle('on');
+  cb.checked = on;
+  fields.classList.toggle('open', on);
+}
+
+// ────────────────────────────────────────────────────────────
+// PHOTO PREVIEW
+// ────────────────────────────────────────────────────────────
+function handlePhotoChange(input, n){
+  if (!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var slot  = document.getElementById('slot' + n);
+    var thumb = document.getElementById('thumb' + n);
+    thumb.src = e.target.result;
+    slot.classList.add('has-img');
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+// ────────────────────────────────────────────────────────────
+// IMAGE COMPRESS + UPLOAD
+// ────────────────────────────────────────────────────────────
+function compressImage(file){
+  return new Promise(function(resolve){
     var reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function(e){
       var img = new Image();
-      img.onload = function() {
+      img.onload = function(){
         var canvas = document.createElement('canvas');
-        var maxSize = 1600, w = img.width, h = img.height;
-        if (w > maxSize || h > maxSize) {
-          if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-          else { w = Math.round(w * maxSize / h); h = maxSize; }
+        var max = 1600, w = img.width, h = img.height;
+        if (w > max || h > max){
+          if (w > h){ h = Math.round(h * max / w); w = max; }
+          else { w = Math.round(w * max / h); h = max; }
         }
         canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', 0.8));
+        resolve(canvas.toDataURL('image/jpeg', 0.82));
       };
       img.src = e.target.result;
     };
@@ -836,97 +927,119 @@ function compressImage(file) {
   });
 }
 
-async function uploadPhoto(fileInput) {
-  if (!fileInput.files || !fileInput.files[0]) return '';
+async function uploadPhoto(fileInput){
+  if (!fileInput || !fileInput.files || !fileInput.files[0]) return '';
   var file = fileInput.files[0];
   try {
     var base64 = await compressImage(file);
     var res = await fetch(UPLOAD_URL, {
       method: 'POST', redirect: 'follow',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ base64, mimeType: 'image/jpeg', fileName: 'reply_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_') })
+      body: JSON.stringify({ base64, mimeType: 'image/jpeg',
+        fileName: 'reply_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g,'_') })
     });
     var json = JSON.parse(await res.text());
     return (json.success && json.url) ? json.url : '';
-  } catch(e) { return ''; }
+  } catch(e){ return ''; }
 }
 
-function bindReplyForm() {
-  document.getElementById('replyForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
+// ────────────────────────────────────────────────────────────
+// SUBMIT
+// ────────────────────────────────────────────────────────────
+async function submitReply(){
+  var status  = document.getElementById('m_status').value;
+  var content = (document.getElementById('m_content').value || '').trim();
+  var handler = (document.getElementById('m_handler').value || '').trim();
 
-    var status  = document.getElementById('r_status').value;
-    var content = document.getElementById('r_content').value.trim();
+  // Validate
+  var ok = true;
+  if (!status)  { hilite('m_status');  ok = false; }
+  if (!content) { hilite('m_content'); ok = false; }
+  if (!handler) { hilite('m_handler'); ok = false; }
+  if (!ok) return;
 
-    if (!status || !content) {
-      if (!status)  document.getElementById('r_status').style.borderColor = 'var(--warn)';
-      if (!content) document.getElementById('r_content').style.borderColor = 'var(--warn)';
-      return;
-    }
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> 上傳照片…';
 
-    var btn = document.getElementById('replyBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> 上傳照片中...';
+  // Upload photos (only new uploads; keep existing URLs if no new file)
+  var inputs = [1,2,3].map(function(n){ return document.getElementById('m_photo' + n); });
+  var existing = [caseData.repPhoto1, caseData.repPhoto2, caseData.repPhoto3];
+  var photos = await Promise.all(inputs.map(function(inp, i){
+    if (inp && inp.files && inp.files[0]) return uploadPhoto(inp);
+    return Promise.resolve(existing[i] || '');
+  }));
 
-    var photos = await Promise.all([1,2,3].map(function(n) {
-      return uploadPhoto(document.getElementById('r_photo' + n));
-    }));
+  btn.innerHTML = '<span class="spinner"></span> 送出中…';
 
-    btn.innerHTML = '<span class="spinner"></span> 送出中...';
+  var isPublic = document.getElementById('m_public').checked;
+  var payload = {
+    caseId:          caseId,
+    status:          status,
+    reply_content:   content,
+    handler:         handler,
+    PS:              (document.getElementById('m_note').value || '').trim(),
+    public:          isPublic,
+    public_title:    (document.getElementById('m_pub_title')   ? document.getElementById('m_pub_title').value.trim()   : ''),
+    public_category: (document.getElementById('m_pub_cate')    ? document.getElementById('m_pub_cate').value            : ''),
+    public_location: (document.getElementById('m_pub_loc')     ? document.getElementById('m_pub_loc').value.trim()     : ''),
+    public_content:  (document.getElementById('m_pub_summary') ? document.getElementById('m_pub_summary').value.trim() : ''),
+    reply_photo1:    photos[0],
+    reply_photo2:    photos[1],
+    reply_photo3:    photos[2],
+  };
 
-    var payload = {
-      caseId:         caseId,
-      status:         status,
-      reply_content:  content,
-      handler:        document.getElementById('r_handler').value.trim(),
-      PS:             document.getElementById('r_note').value.trim(),
-      public:         document.getElementById('r_public').checked,
-      public_title:   document.getElementById('r_public_title') ? document.getElementById('r_public_title').value.trim() : '',
-      public_location:document.getElementById('r_public_loc')   ? document.getElementById('r_public_loc').value.trim()   : '',
-      public_content: document.getElementById('r_public_content')? document.getElementById('r_public_content').value.trim(): '',
-      reply_photo1:   photos[0],
-      reply_photo2:   photos[1],
-      reply_photo3:   photos[2]
-    };
-
-    try {
-      var res = await fetch(REPLY_WEBHOOK, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-
-      document.getElementById('mainContent').style.display = 'none';
-      document.getElementById('successContainer').style.display = 'block';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } catch(err) {
-      alert('送出失敗，請稍後再試。\n錯誤：' + err.message);
-      btn.disabled = false;
-      btn.innerHTML = '<svg class="icon"><use href="#i-send"/></svg> 送出回覆';
-    }
-  });
+  try {
+    var res = await fetch(REPLY_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    closeModal();
+    document.getElementById('successOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  } catch(err){
+    alert('送出失敗，請稍後再試。\n錯誤：' + err.message);
+    btn.disabled = false;
+    btn.innerHTML = '更新';
+  }
 }
 
-// ============================================================
+function hilite(id){
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = 'var(--warn)';
+  el.addEventListener('input', function(){ el.style.borderColor = ''; }, { once: true });
+}
+
+// ────────────────────────────────────────────────────────────
 // LIGHTBOX
-// ============================================================
-function openLightbox(url) {
-  document.getElementById('lightboxImg').src = url;
+// ────────────────────────────────────────────────────────────
+function openLb(url){
+  document.getElementById('lbImg').src = url;
   document.getElementById('lightbox').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-function closeLightbox() {
+function closeLb(){
   document.getElementById('lightbox').classList.remove('open');
   document.body.style.overflow = '';
 }
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeLightbox();
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape'){ closeLb(); closeModal(); }
 });
 
-// ============================================================
+// ────────────────────────────────────────────────────────────
+// NAVIGATION
+// ────────────────────────────────────────────────────────────
+function goBack(){
+  if (document.referrer) { history.back(); }
+  else { location.href = CONFIG.BASE_URL + '/'; }
+}
+
+// ────────────────────────────────────────────────────────────
 // INIT
-// ============================================================
+// ────────────────────────────────────────────────────────────
 loadCase();
 </script>
 </body>
