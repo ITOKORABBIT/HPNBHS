@@ -500,7 +500,7 @@ input.invalid, textarea.invalid, select.invalid {
         <label class="field-label">
           <svg class="icon"><use href="#i-phone"/></svg> 電話 <span class="required">*</span>
         </label>
-        <input type="tel" id="f_phone" placeholder="務必留下手機或住家電話以利聯絡" required>
+        <input type="text" inputmode="tel" id="f_phone" placeholder="務必留下手機或住家電話以利聯絡" required>
         <div class="error-text">請輸入電話</div>
       </div>
 
@@ -704,7 +704,7 @@ async function uploadPhoto(fileInput) {
   }
 }
 
-// 上傳所有照片（平行處理）
+// 上傳所有照片（循序處理，避免 Apps Script 並發衝突）
 async function uploadAllPhotos(btn) {
   var photoInputs = [
     document.getElementById('f_photo1'),
@@ -717,11 +717,13 @@ async function uploadAllPhotos(btn) {
   });
   if (!hasPhotos) return ['', '', ''];
 
-  btn.innerHTML = '<span class="spinner"></span> 上傳照片中...';
-
-  var results = await Promise.all(photoInputs.map(function(input) {
-    return uploadPhoto(input);
-  }));
+  var results = [];
+  for (var i = 0; i < photoInputs.length; i++) {
+    if (photoInputs[i].files && photoInputs[i].files.length > 0) {
+      btn.innerHTML = '<span class="spinner"></span> 上傳照片 ' + (i + 1) + '/3...';
+    }
+    results.push(await uploadPhoto(photoInputs[i]));
+  }
 
   return results;
 }
@@ -785,7 +787,7 @@ document.getElementById('reportForm').addEventListener('submit', async function(
     // 2. 組合資料
     var payload = {
       name: document.getElementById('f_name').value.trim(),
-      phone: document.getElementById('f_phone').value.trim(),
+      phone: "'" + document.getElementById('f_phone').value.trim(),
       lineId: document.getElementById('f_line').value.trim(),
       cate: document.getElementById('f_cate').value,
       title: document.getElementById('f_title').value.trim(),
