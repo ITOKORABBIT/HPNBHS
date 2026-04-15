@@ -787,7 +787,7 @@ document.getElementById('reportForm').addEventListener('submit', async function(
     // 2. 組合資料
     var payload = {
       name: document.getElementById('f_name').value.trim(),
-      phone: "'" + document.getElementById('f_phone').value.trim(),
+      phone: document.getElementById('f_phone').value.trim(),
       lineId: document.getElementById('f_line').value.trim(),
       cate: document.getElementById('f_cate').value,
       title: document.getElementById('f_title').value.trim(),
