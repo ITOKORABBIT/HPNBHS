@@ -142,6 +142,7 @@ body{
 .badge-new  { background: var(--badge-new-bg);  color: var(--badge-new-txt); }
 .badge-proc { background: var(--badge-proc-bg); color: var(--badge-proc-txt); }
 .badge-done { background: var(--badge-done-bg); color: var(--badge-done-txt); }
+.badge-grey { background: #F0EEEC; color: #7A6E66; }
 
 /* ────────── Case title card ────────── */
 .case-title-card{
@@ -574,7 +575,7 @@ var COL = {
   replyUrl:28
 };
 
-var PUBLIC_CATES = ['道路交通','環境清潔','公共設施','社區安全','公園綠地','違規停車','其他'];
+var PUBLIC_CATES = ['生活','校園','交通','環境','治安','修繕','其他'];
 
 // ────────────────────────────────────────────────────────────
 // GOOGLE SIGN-IN
@@ -662,8 +663,10 @@ function esc(s){
 function v(s){ return s ? esc(s) : '<span class="empty">—</span>'; }
 
 function badgeCls(s){
-  if (s === '新案件') return 'badge-new';
-  if (s === '已完成') return 'badge-done';
+  if (!s) return 'badge-proc';
+  if (s.indexOf('新案件') !== -1) return 'badge-new';
+  if (s.indexOf('結案') !== -1)   return 'badge-done';
+  if (s.indexOf('不受理') !== -1) return 'badge-grey';
   return 'badge-proc';
 }
 
@@ -789,7 +792,7 @@ function openModal(){
   html += '<div class="field-label">案件狀態 <span class="req">*</span></div>';
   html += '<select id="m_status">';
   html += '<option value="">請選擇</option>';
-  ['新案件','處理中','已完成'].forEach(function(s){
+  ['1.新案件','2.處理中','3.已轉交相關單位','4.已結案','5.不受理'].forEach(function(s){
     html += '<option value="' + s + '"' + (d.status === s ? ' selected' : '') + '>' + s + '</option>';
   });
   html += '</select></div>';
