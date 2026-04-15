@@ -505,6 +505,16 @@ body{
   <button onclick="location.reload()" style="margin-top:20px;padding:12px 36px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">返回查看</button>
 </div>
 
+<!-- ── Login Required Overlay ── -->
+<div id="loginOverlay" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:150;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;">
+  <div style="width:68px;height:68px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
+    <svg width="32" height="32" fill="none" stroke="var(--primary)" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  </div>
+  <h2 style="font-size:20px;font-weight:700;color:var(--heading);margin-bottom:10px;">請先登入</h2>
+  <p style="font-size:14px;color:var(--lbl);line-height:1.7;margin-bottom:24px;">此頁面需要登入 Google 帳號<br>才能查看案件內容</p>
+  <div id="loginOverlayBtn" style="display:flex;justify-content:center;"></div>
+</div>
+
 <!-- ── Reply Modal ── -->
 <div class="modal-overlay" id="replyModal">
   <div class="modal-box">
@@ -544,11 +554,7 @@ body{
 
 <!-- ── Action bar ── -->
 <div class="action-bar" id="actionBar" style="display:none">
-  <button class="btn btn-secondary" onclick="goBack()">
-    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    返回
-  </button>
-  <button class="btn btn-primary" onclick="openModal()">
+  <button class="btn btn-primary" style="flex:1" onclick="openModal()">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
     編輯回覆
   </button>
@@ -585,40 +591,65 @@ var PUBLIC_CATES = ['生活','校園','交通','環境','治安','修繕','其�
 // ────────────────────────────────────────────────────────────
 var gName = '';
 
+function onGoogleSignIn(resp) {
+  var parts = resp.credential.split('.');
+  try {
+    var pad = parts[1].replace(/-/g,'+').replace(/_/g,'/');
+    while (pad.length % 4) pad += '=';
+    var payload = JSON.parse(atob(pad));
+    gName = payload.name || payload.given_name || '';
+
+    // Hide login overlay
+    var lo = document.getElementById('loginOverlay');
+    if (lo) lo.style.display = 'none';
+
+    // Load case data (first time), or update contact card (signed in later)
+    if (!caseData) {
+      loadCase();
+    } else {
+      renderContactCard();
+    }
+
+    // Update handler field if modal is open
+    var el = document.getElementById('m_handler');
+    if (el) { el.value = gName; el.readOnly = true; }
+    var btn = document.getElementById('googleSignInBtn');
+    if (btn) btn.style.display = 'none';
+    var hint = document.getElementById('handlerHint');
+    if (hint) hint.innerHTML = '✓ 已從 Google 帳號取得';
+  } catch(e) {}
+}
+
+function showLoginOverlay() {
+  if (gName) return; // already signed in
+  var lo = document.getElementById('loginOverlay');
+  if (!lo) return;
+  lo.style.display = 'flex';
+  if (typeof google !== 'undefined' && CONFIG.GOOGLE_CLIENT_ID) {
+    var btnDiv = document.getElementById('loginOverlayBtn');
+    if (btnDiv && !btnDiv.hasChildNodes()) {
+      google.accounts.id.renderButton(btnDiv, {
+        type: 'standard', theme: 'filled_blue', size: 'large',
+        text: 'signin_with', locale: 'zh-TW', width: 280
+      });
+    }
+  }
+}
+
 function initGoogle() {
-  if (!CONFIG.GOOGLE_CLIENT_ID) return;
-  if (typeof google === 'undefined') return;
+  if (!CONFIG.GOOGLE_CLIENT_ID) { loadCase(); return; }
+  if (typeof google === 'undefined') { showLoginOverlay(); return; }
   google.accounts.id.initialize({
     client_id: CONFIG.GOOGLE_CLIENT_ID,
-    callback: function(resp) {
-      var parts = resp.credential.split('.');
-      try {
-        var pad = parts[1].replace(/-/g,'+').replace(/_/g,'/');
-        while (pad.length % 4) pad += '=';
-        var payload = JSON.parse(atob(pad));
-        gName = payload.name || payload.given_name || '';
-        // Update contact card (show personal info now that user is logged in)
-        renderContactCard();
-        // Update handler field if modal is open
-        var el = document.getElementById('m_handler');
-        if (el) {
-          el.value = gName;
-          el.readOnly = true;
-        }
-        // Hide sign-in button and hint
-        var btn = document.getElementById('googleSignInBtn');
-        if (btn) btn.style.display = 'none';
-        var hint = document.getElementById('handlerHint');
-        if (hint) hint.innerHTML = '✓ 已從 Google 帳號取得';
-      } catch(e) {}
-    },
+    callback: onGoogleSignIn,
     auto_select: true,
   });
   google.accounts.id.prompt();
+  // Show login overlay if auto sign-in doesn't fire within 3 seconds
+  setTimeout(function() { if (!gName) showLoginOverlay(); }, 3000);
 }
 
 window.addEventListener('load', function() {
-  // Wait for GSI library
   var tries = 0;
   var t = setInterval(function() {
     if (typeof google !== 'undefined' || ++tries > 20) {
@@ -1104,14 +1135,8 @@ document.addEventListener('keydown', function(e){
 // NAVIGATION
 // ────────────────────────────────────────────────────────────
 function goBack(){
-  if (document.referrer) { history.back(); }
-  else { location.href = CONFIG.BASE_URL + '/'; }
+  location.href = CONFIG.BASE_URL + '/list.html';
 }
-
-// ────────────────────────────────────────────────────────────
-// INIT
-// ────────────────────────────────────────────────────────────
-loadCase();
 </script>
 </body>
 </html>
