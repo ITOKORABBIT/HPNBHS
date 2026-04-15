@@ -885,10 +885,15 @@ function renderGrid(cases) {
   grid.innerHTML = html;
 }
 
+function imgFallback(img) {
+  var wrap = img.parentNode; // .card-thumb
+  wrap.innerHTML = '<div class="card-thumb-placeholder">' + noPhotoHtml() + '</div>';
+}
+
 function renderCard(d) {
   var hasPhoto = !!d.photo1;
   var thumb = hasPhoto
-    ? '<div class="card-thumb"><img src="' + esc(d.photo1) + '" alt="" loading="lazy" onerror="this.outerHTML=\'<div class=card-thumb-placeholder>' + noPhotoHtml().replace(/'/g,'&apos;') + '</div>\'"></div>'
+    ? '<div class="card-thumb"><img src="' + esc(d.photo1) + '" alt="" loading="lazy" onerror="imgFallback(this)"></div>'
     : '<div class="card-thumb"><div class="card-thumb-placeholder">' + noPhotoHtml() + '</div></div>';
 
   // Format date

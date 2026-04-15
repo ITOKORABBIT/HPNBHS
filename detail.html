@@ -589,35 +589,79 @@ var PUBLIC_CATES = ['生活','校園','交通','環境','治安','修繕','其�
 // ────────────────────────────────────────────────────────────
 // GOOGLE SIGN-IN
 // ────────────────────────────────────────────────────────────
-var gName = '';
+var gName  = '';
+var gEmail = '';
+var isAdmin = false;
 
 function onGoogleSignIn(resp) {
   var parts = resp.credential.split('.');
   try {
     var pad = parts[1].replace(/-/g,'+').replace(/_/g,'/');
     while (pad.length % 4) pad += '=';
-    var payload = JSON.parse(atob(pad));
-    gName = payload.name || payload.given_name || '';
+    // 使用 decodeURIComponent + escape 確保 UTF-8（含中文姓名）正確解碼
+    var payload = JSON.parse(decodeURIComponent(escape(atob(pad))));
+    gName  = payload.name || payload.given_name || '';
+    gEmail = (payload.email || '').toLowerCase().trim();
 
-    // Hide login overlay
-    var lo = document.getElementById('loginOverlay');
-    if (lo) lo.style.display = 'none';
-
-    // Load case data (first time), or update contact card (signed in later)
-    if (!caseData) {
-      loadCase();
-    } else {
-      renderContactCard();
-    }
-
-    // Update handler field if modal is open
-    var el = document.getElementById('m_handler');
-    if (el) { el.value = gName; el.readOnly = true; }
-    var btn = document.getElementById('googleSignInBtn');
-    if (btn) btn.style.display = 'none';
-    var hint = document.getElementById('handlerHint');
-    if (hint) hint.innerHTML = '✓ 已從 Google 帳號取得';
+    // 從試算表「管理員名單」比對 email，取得 display_name
+    checkAdminAndProceed();
   } catch(e) {}
+}
+
+function checkAdminAndProceed() {
+  var SHEET_ADMINS = '管理員名單';
+  var url = 'https://docs.google.com/spreadsheets/d/'
+          + '1SDwkiqi2EJoW0ICZLeBVRC7IM5ridvHgxS-tFoh_BWE'
+          + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_ADMINS)
+          + '&headers=1';
+  fetch(url)
+    .then(function(r){ return r.text(); })
+    .then(function(text){
+      var json = JSON.parse(text.replace(/^[^{]*/,'').replace(/\);?\s*$/,''));
+      var rows = (json.table && json.table.rows) || [];
+      // 欄位：username(0) password(1) display_name(2) role(3) active(4) email(5)
+      var matched = rows.find(function(r){
+        var c = r.c || [];
+        var email  = c[5] ? String(c[5].v || '').toLowerCase().trim() : '';
+        var active = c[4] ? String(c[4].v || '').toUpperCase() : '';
+        return email === gEmail && active === 'TRUE';
+      });
+      if (matched) {
+        var c = matched.c || [];
+        // 優先使用試算表的 display_name，否則 fallback 到 Google 名稱
+        if (c[2] && c[2].v) gName = String(c[2].v);
+        isAdmin = true;
+      }
+      afterSignIn();
+    })
+    .catch(function(){
+      // 無法讀取試算表時 fallback 到 config.js 的 ALLOWED_EMAILS
+      var allowed = (CONFIG.ALLOWED_EMAILS || []).map(function(e){ return e.toLowerCase().trim(); });
+      isAdmin = allowed.indexOf(gEmail) !== -1;
+      afterSignIn();
+    });
+}
+
+function afterSignIn() {
+  // Hide login overlay
+  var lo = document.getElementById('loginOverlay');
+  if (lo) lo.style.display = 'none';
+
+  // Load case data (first time), or update contact card (signed in later)
+  if (!caseData) {
+    loadCase();
+  } else {
+    renderContactCard();
+    document.getElementById('actionBar').style.display = isAdmin ? 'flex' : 'none';
+  }
+
+  // Update handler field if modal is open
+  var el = document.getElementById('m_handler');
+  if (el) { el.value = gName; el.readOnly = true; }
+  var btn = document.getElementById('googleSignInBtn');
+  if (btn) btn.style.display = 'none';
+  var hint = document.getElementById('handlerHint');
+  if (hint) hint.innerHTML = '✓ 已從 Google 帳號取得';
 }
 
 function showLoginOverlay() {
@@ -787,7 +831,8 @@ function renderCase(){
   html += '</div>';
 
   document.getElementById('mainContent').innerHTML = html;
-  document.getElementById('actionBar').style.display = 'flex';
+  // 只有管理員才顯示「編輯回覆」按鈕
+  document.getElementById('actionBar').style.display = isAdmin ? 'flex' : 'none';
   renderContactCard();
 }
 
@@ -846,6 +891,7 @@ function showError(t, m){
 // ────────────────────────────────────────────────────────────
 function openModal(){
   if (!caseData) return;
+  if (!isAdmin) { alert('您沒有權限執行此操作。'); return; }
   var d = caseData;
   var isPublic = d.publicFlag === true || d.publicFlag === 'TRUE' || d.publicFlag === '是';
 
@@ -1040,6 +1086,7 @@ async function uploadPhoto(fileInput){
 // SUBMIT
 // ────────────────────────────────────────────────────────────
 async function submitReply(){
+  if (!isAdmin) { alert('您沒有權限執行此操作。'); return; }
   var status  = document.getElementById('m_status').value;
   var content = (document.getElementById('m_content').value || '').trim();
   var handler = (document.getElementById('m_handler').value || '').trim();
