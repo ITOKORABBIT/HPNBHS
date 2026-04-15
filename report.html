@@ -783,17 +783,16 @@ document.getElementById('reportForm').addEventListener('submit', async function(
     btn.innerHTML = '<span class="spinner"></span> 送出案件中...';
 
     // 2. 組合資料
-    function cleanText(val) { return val.trim().replace(/[\r\n]+/g, ' '); }
     var payload = {
-      name: cleanText(document.getElementById('f_name').value),
-      phone: cleanText(document.getElementById('f_phone').value),
-      lineId: cleanText(document.getElementById('f_line').value),
+      name: document.getElementById('f_name').value.trim(),
+      phone: document.getElementById('f_phone').value.trim(),
+      lineId: document.getElementById('f_line').value.trim(),
       cate: document.getElementById('f_cate').value,
-      title: cleanText(document.getElementById('f_title').value),
-      desc: cleanText(document.getElementById('f_desc').value),
-      addr: cleanText(document.getElementById('f_addr').value),
-      map: cleanText(document.getElementById('f_map').value),
-      '1999': cleanText(document.getElementById('f_1999').value),
+      title: document.getElementById('f_title').value.trim(),
+      desc: document.getElementById('f_desc').value.trim(),
+      addr: document.getElementById('f_addr').value.trim(),
+      map: document.getElementById('f_map').value.trim(),
+      '1999': document.getElementById('f_1999').value.trim(),
       photo1: photoUrls[0],
       photo2: photoUrls[1],
       photo3: photoUrls[2]
