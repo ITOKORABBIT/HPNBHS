@@ -18,7 +18,7 @@ const CONFIG = {
 
   // Google Apps Script（統一 API 端點，所有資料讀寫都經過此處驗證）
   // ⚠️ 部署後填入
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbz2Ws0lA_aklmM9y48TITk0d-pLAjIKTTIHhjsscTTFTe5r9lyNmhkcAF0JkfgKiwl27A/exec',
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzrkTqHoddzXyCj5dlRlmZL2eAFrr8zeqJ9IiVIJnc59g7ibZjZ8wAxxGdrJnyQkaatTw/exec',
 
   // GitHub Pages 基底網址
   BASE_URL: 'https://itokorabbit.github.io/HPNBHS',
