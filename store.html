@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>和平里 特約商店申請</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-50:  #F4F9F5;
+  --green-100: #E6F1EA;
+  --green-200: #CDE3D4;
+  --green-300: #A8CDB6;
+  --green-400: #7BB596;
+  --green-500: #5B9B7B;
+  --green-600: #4A8366;
+  --green-700: #3A6952;
+  --green-800: #2D5240;
+
+  --ink-900: #2C3E36;
+  --ink-700: #4A5C52;
+  --ink-500: #6B7C73;
+  --ink-300: #A4B0A8;
+  --ink-200: #DCE8DF;
+  --ink-100: #EEF4F0;
+
+  --warn:     #D97757;
+  --warn-bg:  #FDF1EC;
+
+  --shadow-sm: 0 1px 2px rgba(45, 82, 64, 0.04);
+  --shadow-md: 0 4px 16px rgba(45, 82, 64, 0.06), 0 1px 3px rgba(45, 82, 64, 0.04);
+  --shadow-lg: 0 8px 24px rgba(45, 82, 64, 0.10);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--green-50);
+  color: var(--ink-900);
+  font-size: 16px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon {
+  width: 18px; height: 18px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.header {
+  background: linear-gradient(135deg, #9FCFB3 0%, #7BB596 55%, #5B9B7B 100%);
+  padding: 44px 24px 56px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute; top: -40%; right: -20%;
+  width: 80%; height: 180%;
+  background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.header::after {
+  content: '';
+  position: absolute; bottom: -40%; left: -20%;
+  width: 70%; height: 160%;
+  background: radial-gradient(circle, rgba(255,255,255,0.10) 0%, transparent 60%);
+  pointer-events: none;
+}
+.header-icon {
+  width: 44px; height: 44px;
+  margin: 0 auto 12px; display: block;
+  color: #ffffff; stroke-width: 2; position: relative;
+  filter: drop-shadow(0 2px 4px rgba(45,82,64,0.18));
+}
+.header h1 {
+  font-size: 24px; font-weight: 700; color: #ffffff;
+  letter-spacing: 0.8px; position: relative;
+  text-shadow: 0 1px 2px rgba(45,82,64,0.12);
+}
+.header .subtitle {
+  font-size: 14px; color: rgba(255,255,255,0.92);
+  margin-top: 8px; font-weight: 400; letter-spacing: 0.3px; position: relative;
+}
+
+.form-container {
+  max-width: 640px; margin: -32px auto 40px;
+  padding: 0 16px 48px; position: relative; z-index: 1;
+}
+
+.card {
+  background: #ffffff; border-radius: 18px;
+  padding: 28px 26px; margin-bottom: 16px;
+  box-shadow: var(--shadow-md); border: 1px solid var(--ink-100);
+  animation: fadeUp 0.45s ease-out both;
+}
+.card:nth-child(2) { animation-delay: 0.08s; }
+.card:nth-child(3) { animation-delay: 0.16s; }
+.card:nth-child(4) { animation-delay: 0.24s; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+  font-size: 17px; font-weight: 700; color: var(--green-800);
+  margin: 0 0 22px;
+  display: flex; align-items: center; gap: 12px; letter-spacing: 0.3px;
+}
+.section-title .title-bar {
+  display: inline-block; width: 4px; height: 18px;
+  background: linear-gradient(180deg, var(--green-400), var(--green-600));
+  border-radius: 2px; flex-shrink: 0;
+}
+
+.field-group { margin-bottom: 20px; }
+.field-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 600; color: var(--ink-700);
+  margin-bottom: 8px; letter-spacing: 0.2px;
+}
+.field-label .icon { color: var(--green-500); }
+.field-label .required { color: var(--warn); margin-left: 2px; font-size: 14px; font-weight: 700; }
+
+input[type="text"],
+input[type="tel"],
+input[type="url"],
+textarea,
+select {
+  width: 100%; padding: 12px 15px;
+  border: 1.5px solid var(--ink-200); border-radius: 11px;
+  font-size: 15px; font-family: inherit; color: var(--ink-900);
+  background: var(--green-50); transition: all 0.2s ease; outline: none;
+}
+input:hover, textarea:hover, select:hover { border-color: var(--green-300); }
+input:focus, textarea:focus, select:focus {
+  border-color: var(--green-500);
+  box-shadow: 0 0 0 4px rgba(91, 155, 123, 0.13);
+  background: #ffffff;
+}
+input::placeholder, textarea::placeholder { color: var(--ink-300); font-size: 14px; }
+textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+select {
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='none' stroke='%235B9B7B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; padding-right: 42px;
+}
+
+.field-hint {
+  font-size: 12px; color: var(--ink-500); margin-top: 6px;
+  line-height: 1.6; display: flex; align-items: flex-start; gap: 6px;
+}
+.field-hint .icon { width: 14px; height: 14px; margin-top: 2px; color: var(--green-500); }
+.field-hint.hint-box {
+  color: var(--ink-500); background: #F5F7F6;
+  padding: 9px 12px; border-radius: 8px; font-size: 12px;
+  border-left: 3px solid var(--ink-200);
+}
+.field-hint.hint-box .icon { color: var(--ink-300); }
+
+.photo-upload {
+  border: 2px dashed var(--ink-200); border-radius: 14px;
+  padding: 22px 12px; text-align: center; cursor: pointer;
+  background: var(--green-50); transition: all 0.25s ease;
+  position: relative; min-height: 110px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.photo-upload:hover {
+  border-color: var(--green-400); background: var(--green-100);
+  transform: translateY(-2px); box-shadow: 0 4px 12px rgba(91, 155, 123, 0.12);
+}
+.photo-upload input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.photo-upload .upload-icon { width: 28px; height: 28px; color: var(--green-400); margin-bottom: 6px; stroke-width: 1.8; }
+.photo-upload .upload-text { font-size: 13px; color: var(--ink-500); font-weight: 500; }
+.photo-upload .preview { max-width: 100%; max-height: 200px; border-radius: 10px; display: none; }
+
+.photo-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+.submit-btn {
+  width: 100%; padding: 16px 24px;
+  background: linear-gradient(135deg, var(--green-500) 0%, var(--green-600) 100%);
+  color: #ffffff; border: none; border-radius: 14px;
+  font-size: 16px; font-weight: 600; font-family: inherit; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: all 0.25s ease; margin-top: 12px;
+  box-shadow: 0 4px 14px rgba(91, 155, 123, 0.32); letter-spacing: 1px;
+}
+.submit-btn .icon { width: 18px; height: 18px; }
+.submit-btn:hover {
+  background: linear-gradient(135deg, var(--green-600) 0%, var(--green-700) 100%);
+  box-shadow: 0 6px 20px rgba(74, 131, 102, 0.40); transform: translateY(-1px);
+}
+.submit-btn:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(91,155,123,0.25); }
+.submit-btn:disabled { background: var(--ink-300); cursor: not-allowed; transform: none; box-shadow: none; }
+
+.success-msg { display: none; text-align: center; animation: fadeUp 0.5s ease-out; }
+.success-msg .card { padding: 56px 28px; }
+.success-msg .check-wrap {
+  width: 84px; height: 84px; margin: 0 auto 22px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--green-100), var(--green-200));
+  display: flex; align-items: center; justify-content: center;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s both;
+}
+.success-msg .check-wrap .icon { width: 42px; height: 42px; color: var(--green-600); stroke-width: 2.5; }
+@keyframes popIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+.success-msg h2 { font-size: 22px; font-weight: 700; color: var(--green-800); margin-bottom: 10px; letter-spacing: 0.5px; }
+.success-msg p { font-size: 15px; color: var(--ink-500); margin-bottom: 28px; line-height: 1.6; }
+.success-msg button {
+  padding: 13px 36px;
+  background: linear-gradient(135deg, var(--green-500), var(--green-600));
+  color: #fff; border: none; border-radius: 11px;
+  font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: all 0.2s ease; box-shadow: 0 3px 10px rgba(91,155,123,0.28); letter-spacing: 0.5px;
+}
+.success-msg button:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(91,155,123,0.38); }
+
+.spinner {
+  display: inline-block; width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff;
+  border-radius: 50%; animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-text { color: var(--warn); font-size: 12px; margin-top: 5px; display: none; font-weight: 500; }
+input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); background: var(--warn-bg); }
+
+.footer { text-align: center; padding: 18px; font-size: 12px; color: var(--ink-300); letter-spacing: 0.5px; }
+
+@media (max-width: 480px) {
+  .form-container { padding: 0 12px 40px; margin-top: -28px; }
+  .header { padding: 36px 16px 50px; }
+  .header h1 { font-size: 20px; }
+  .header-icon { width: 38px; height: 38px; }
+  .card { padding: 22px 18px; border-radius: 16px; }
+  .photo-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-leaf"     viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19.2 2.96a1 1 0 0 1 1.8.5c0 7.83-3.45 13.39-9 14.54"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></symbol>
+    <symbol id="i-user"     viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="i-phone"    viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+    <symbol id="i-message"  viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></symbol>
+    <symbol id="i-tag"      viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol>
+    <symbol id="i-file-text" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></symbol>
+    <symbol id="i-bag"      viewBox="0 0 24 24"><path d="M6 7l1-3h10l1 3"/><rect x="5" y="7" width="14" height="13" rx="2"/></symbol>
+    <symbol id="i-clock"    viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-pin"      viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-map"      viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></symbol>
+    <symbol id="i-camera"   viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+    <symbol id="i-hash"     viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></symbol>
+    <symbol id="i-send"     viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+    <symbol id="i-check"    viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.08"/></symbol>
+    <symbol id="i-info"     viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="i-store"    viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+  </defs>
+</svg>
+
+<div class="header">
+  <svg class="header-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-leaf"/></svg>
+  <h1>和平里 特約商店申請</h1>
+  <div class="subtitle">請填寫以下資料，我們將儘快進行資料審核</div>
+</div>
+
+<div class="form-container">
+  <form id="reportForm" novalidate>
+
+    <!-- 卡片 1：申請人資訊 -->
+    <div class="card">
+      <div class="section-title"><span class="title-bar"></span>申請人資訊</div>
+
+      <div class="field-group">
+        <label class="field-label">
+          <svg class="icon"><use href="#i-user"/></svg> 姓名 <span class="required">*</span>
+        </label>
+        <input type="text" id="f_name" placeholder="真實姓名" required>
+        <div class="error-text">請輸入姓名</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">
+          <svg class="icon"><use href="#i-phone"/></svg> 電話 <span class="required">*</span>
+        </label>
+        <input type="text" inputmode="tel" id="f_phone" placeholder="務必留下手機或住家電話以利聯絡" required>
+        <div class="error-text">請輸入電話</div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:0">
+        <label class="field-label">
+          <svg class="icon"><use href="#i-message"/></svg> Line ID
+        </label>
+        <input type="text" id="f_line" placeholder="請留下 LINE ID 以利聯絡">
+      </div>
+    </div>
+
+    <!-- 卡片 2：申請商家 -->
+    <div class="card">
+      <div class="section-title"><span class="title-bar"></span>申請商家</div>
+
+      <div class="field-group">
+        <label class="field-label">
+          <svg class="icon"><use href="#i-tag"/></svg> 商家類別 <span class="required">*</span>
+        </label>
+        <select id="f_cate" required>
+          <option value="">請選擇類別</option>
+          <option value="食">食</option>
+          <option value="衣">衣</option>
+          <option value="住">住</option>
+          <option value="行">行</option>
+          <option value="育">育</option>
+          <option value="樂">樂</option>
+          <option value="其他">其他</option>
+        </select>
+        <div class="error-text">請選擇商家類別</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">
+          <svg class="icon"><use href="#i-clipboard"/></svg> 店家名稱 <span class="required">*</span>
+        </label>
+        <input type="text" id="f_title" placeholder="請輸入店家名稱" required>
+        <div class="error-text">請輸入店家名稱</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">
+          <svg class="icon"><use href="#i-phone"/></svg> 店家電話
+        </label>
+        <input type="text" inputmode="tel" id="f_store_phone" placeholder="請輸入店家電話（選填）">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">
+          <svg class="icon"><use href="#i-hash"/></svg> 店家統編
+        </label>
+        <input type="text" id="f_num" placeholder="如有店家統編可提供">
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">
+          <svg class="icon"><use href="#i-bag"/></svg> 經營項目 / 服務內容 <span class="required">*</span>
+        </label>
+        <textarea id="f_desc" placeholder="請簡短敘述店家經營項目或服務內容。" rows="4" required></textarea>
+        <div class="error-text">請輸入經營內容</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">
+          <svg class="icon"><use href="#i-file-text"/></svg> 優惠方案 <span class="required">*</span>
+        </label>
+        <textarea id="f_offer" placeholder="請簡短敘述可提供的服務及優惠方案。" rows="4" required></textarea>
+        <div class="error-text">請輸入優惠方案</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">
+          <svg class="icon"><use href="#i-clock"/></svg> 營業時間 <span class="required">*</span>
+        </label>
+        <textarea id="f_clock" placeholder="填寫範例：周一至周五 08:00–12:00、12:30–18:00。" rows="3" required></textarea>
+        <div class="error-text">請輸入營業時間</div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">
+          <svg class="icon"><use href="#i-pin"/></svg> 店家地址 <span class="required">*</span>
+        </label>
+        <input type="text" id="f_addr" placeholder="請輸入完整地址" required>
+        <div class="error-text">請輸入完整地址</div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:0">
+        <label class="field-label">
+          <svg class="icon"><use href="#i-map"/></svg> Google 地圖
+        </label>
+        <input type="url" id="f_map" placeholder="https://maps.app.goo.gl/xxxxxxxxxxxxxxxxxx">
+        <div class="field-hint hint-box">
+          <svg class="icon"><use href="#i-info"/></svg>
+          打開 Google Map → 搜尋店家 → 分享 → 複製連結 → 貼回來
+        </div>
+      </div>
+    </div>
+
+    <!-- 卡片 3：照片附件 -->
+    <div class="card">
+      <div class="section-title"><span class="title-bar"></span>店家照片附件</div>
+
+      <div class="field-group">
+        <div class="photo-row">
+          <div class="photo-upload" id="photo1_area">
+            <input type="file" accept="image/*" id="f_photo1" onchange="previewPhoto(this, 'preview1')">
+            <svg class="icon upload-icon"><use href="#i-camera"/></svg>
+            <div class="upload-text">活動或商家照片 1</div>
+            <img class="preview" id="preview1">
+          </div>
+          <div class="photo-upload" id="photo2_area">
+            <input type="file" accept="image/*" id="f_photo2" onchange="previewPhoto(this, 'preview2')">
+            <svg class="icon upload-icon"><use href="#i-camera"/></svg>
+            <div class="upload-text">活動或商家照片 2</div>
+            <img class="preview" id="preview2">
+          </div>
+          <div class="photo-upload" id="photo3_area">
+            <input type="file" accept="image/*" id="f_photo3" onchange="previewPhoto(this, 'preview3')">
+            <svg class="icon upload-icon"><use href="#i-camera"/></svg>
+            <div class="upload-text">活動或商家照片 3</div>
+            <img class="preview" id="preview3">
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <svg class="icon"><use href="#i-send"/></svg> 送出申請
+      </button>
+    </div>
+
+  </form>
+
+  <!-- 成功畫面 -->
+  <div class="success-msg" id="successMsg">
+    <div class="card">
+      <div class="check-wrap">
+        <svg class="icon"><use href="#i-check"/></svg>
+      </div>
+      <h2>特約商家申請已完成！</h2>
+      <p>我們將儘快審核並公告，感謝您的申請！</p>
+      <button onclick="location.reload()">繼續申請</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer">和平里辦公處 — 特約商店系統</div>
+
+<script src="storeconfig.js"></script>
+<script>
+// 照片預覽
+function previewPhoto(input, previewId) {
+  var preview = document.getElementById(previewId);
+  var area    = input.closest('.photo-upload');
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      area.querySelector('.upload-icon').style.display = 'none';
+      area.querySelector('.upload-text').textContent = input.files[0].name;
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// 壓縮圖片（縮小到 1600px 以內，JPEG 80% 品質）
+function compressImage(file) {
+  return new Promise(function(resolve) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var img = new Image();
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var maxSize = 1600;
+        var w = img.width, h = img.height;
+        if (w > maxSize || h > maxSize) {
+          if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+          else { w = Math.round(w * maxSize / h); h = maxSize; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// 上傳單張照片（循序，避免並發衝突）
+async function uploadPhoto(fileInput) {
+  if (!fileInput.files || !fileInput.files[0]) return '';
+  var file = fileInput.files[0];
+  try {
+    var base64 = await compressImage(file);
+    var res = await fetch(CONFIG.UPLOAD_URL, {
+      method: 'POST', redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        base64: base64, mimeType: 'image/jpeg',
+        fileName: 'store_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_')
+      })
+    });
+    var json = JSON.parse(await res.text());
+    return (json.success && json.url) ? json.url : '';
+  } catch (e) {
+    console.warn('[Upload] 照片上傳失敗:', e);
+    return '';
+  }
+}
+
+// 循序上傳三張照片（避免 Apps Script 並發衝突）
+async function uploadAllPhotos(btn) {
+  var inputs = [
+    document.getElementById('f_photo1'),
+    document.getElementById('f_photo2'),
+    document.getElementById('f_photo3')
+  ];
+  var hasPhotos = inputs.some(function(i) { return i.files && i.files.length > 0; });
+  if (!hasPhotos) return ['', '', ''];
+
+  var results = [];
+  for (var i = 0; i < inputs.length; i++) {
+    btn.innerHTML = '<span class="spinner"></span> 上傳照片 ' + (i + 1) + '/3…';
+    results.push(await uploadPhoto(inputs[i]));
+  }
+  return results;
+}
+
+// 表單驗證
+function validateForm() {
+  var valid = true;
+  var requiredFields = [
+    { id: 'f_name',  msg: '請輸入姓名' },
+    { id: 'f_phone', msg: '請輸入電話' },
+    { id: 'f_cate',  msg: '請選擇商家類別' },
+    { id: 'f_title', msg: '請輸入店家名稱' },
+    { id: 'f_desc',  msg: '請輸入經營內容' },
+    { id: 'f_offer', msg: '請輸入優惠方案' },
+    { id: 'f_clock', msg: '請輸入營業時間' },
+    { id: 'f_addr',  msg: '請輸入完整地址' },
+  ];
+  requiredFields.forEach(function(f) {
+    var el  = document.getElementById(f.id);
+    var err = el.parentElement.querySelector('.error-text');
+    if (!el.value.trim()) {
+      el.classList.add('invalid');
+      if (err) { err.textContent = f.msg; err.style.display = 'block'; }
+      valid = false;
+    } else {
+      el.classList.remove('invalid');
+      if (err) err.style.display = 'none';
+    }
+  });
+  return valid;
+}
+
+// 清除驗證狀態
+document.querySelectorAll('input, textarea, select').forEach(function(el) {
+  el.addEventListener('input', function() {
+    this.classList.remove('invalid');
+    var err = this.parentElement.querySelector('.error-text');
+    if (err) err.style.display = 'none';
+  });
+});
+
+// 送出表單
+document.getElementById('reportForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  if (!validateForm()) {
+    document.querySelector('.invalid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> 準備上傳…';
+
+  try {
+    // 1. 循序上傳照片
+    var photoUrls = await uploadAllPhotos(btn);
+
+    btn.innerHTML = '<span class="spinner"></span> 送出申請中…';
+
+    // 2. 組合資料（含所有欄位）
+    var payload = {
+      name:        document.getElementById('f_name').value.trim(),
+      phone:       document.getElementById('f_phone').value.trim(),
+      lineId:      document.getElementById('f_line').value.trim(),
+      cate:        document.getElementById('f_cate').value,
+      title:       document.getElementById('f_title').value.trim(),
+      storePhone:  document.getElementById('f_store_phone').value.trim(),
+      num:         document.getElementById('f_num').value.trim(),
+      desc:        document.getElementById('f_desc').value.trim(),
+      offer:       document.getElementById('f_offer').value.trim(),
+      clock:       document.getElementById('f_clock').value.trim(),
+      addr:        document.getElementById('f_addr').value.trim(),
+      map:         document.getElementById('f_map').value.trim(),
+      photo1:      photoUrls[0],
+      photo2:      photoUrls[1],
+      photo3:      photoUrls[2],
+    };
+
+    // 3. 送到 Make Webhook
+    var res = await fetch(CONFIG.STORE_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    // 4. 顯示成功
+    document.getElementById('reportForm').style.display = 'none';
+    document.getElementById('successMsg').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (err) {
+    alert('送出失敗，請稍後再試。\n錯誤：' + err.message);
+    btn.disabled = false;
+    btn.innerHTML = '<svg class="icon"><use href="#i-send"/></svg> 送出申請';
+  }
+});
+</script>
+</body>
+</html>

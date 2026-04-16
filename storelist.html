@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特約商店清單 - 和平里</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+img{display:block;max-width:100%}
+button{cursor:pointer;font-family:inherit}
+
+:root{
+  --bg:        #F5F2EE;
+  --card:      #FFFFFF;
+  --border:    #E2D9CF;
+  --divider:   #EDE7DF;
+  --lbl:       #8C7B6A;
+  --val:       #2C2018;
+  --muted:     #B8A898;
+  --heading:   #1E160E;
+  --primary:       #C49A3C;
+  --primary-light: #FDF6E3;
+  --primary-dark:  #A07C28;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --shadow-md: 0 2px 8px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --radius: 10px;
+  --font: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body{ font-family: var(--font); background: var(--bg); color: var(--val); font-size: 15px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ── Page header ── */
+.page-header{
+  background: var(--card); border-bottom: 1px solid var(--border);
+  padding: 0 16px; height: 54px;
+  display: flex; align-items: center; gap: 10px;
+  position: sticky; top: 0; z-index: 100;
+}
+.header-title{ flex: 1; font-size: 16px; font-weight: 700; color: var(--heading); text-align: center; }
+.header-subtitle{ font-size: 12px; font-weight: 400; color: var(--lbl); margin-top: 1px; }
+.admin-btn{
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 13px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--bg);
+  font-size: 13px; font-weight: 600; color: var(--lbl);
+  transition: all .15s; white-space: nowrap;
+}
+.admin-btn:hover{ background: var(--divider); border-color: var(--muted); }
+.apply-btn{
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 13px; border-radius: 8px; border: none;
+  background: var(--primary); font-size: 13px; font-weight: 600; color: #fff;
+  transition: background .15s; white-space: nowrap;
+}
+.apply-btn:hover{ background: var(--primary-dark); }
+
+/* ── Filter bar ── */
+.filter-wrap{ background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 54px; z-index: 90; }
+.filter-bar{ padding: 8px 16px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.search-wrap{ flex: 1; min-width: 180px; position: relative; display: flex; align-items: center; }
+.search-wrap svg{ position: absolute; left: 10px; color: var(--muted); pointer-events: none; }
+.search-input{
+  width: 100%; padding: 7px 10px 7px 34px; border-radius: 7px;
+  border: 1px solid var(--border); background: var(--bg);
+  font-family: var(--font); font-size: 13px; color: var(--val); outline: none; transition: border-color .15s;
+}
+.search-input:focus{ border-color: var(--primary); }
+
+/* ── Dropdown ── */
+.dropdown{ position: relative; }
+.dropdown-btn{
+  display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--bg); font-size: 13px; font-weight: 600;
+  color: var(--lbl); transition: all .15s; white-space: nowrap;
+}
+.dropdown-btn:hover{ background: var(--divider); }
+.dropdown-btn.active{ background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+.dropdown-btn .chevron{ transition: transform .2s; flex-shrink: 0; }
+.dropdown-btn.open .chevron{ transform: rotate(180deg); }
+.dropdown-panel{
+  position: absolute; top: calc(100% + 6px); left: 0;
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.13); z-index: 300; min-width: 160px;
+  display: none; overflow: hidden;
+}
+.dropdown-panel.open{ display: block; }
+.dropdown-list{ max-height: 230px; overflow-y: auto; padding: 4px 0; }
+.dropdown-item{ padding: 8px 14px; font-size: 13px; color: var(--val); cursor: pointer; transition: background .1s; display: flex; align-items: center; gap: 9px; }
+.dropdown-item:hover{ background: var(--bg); }
+.dropdown-item.selected{ color: var(--primary); font-weight: 700; background: var(--primary-light); }
+.item-dot{ width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── Result summary ── */
+.result-bar{ padding: 10px 16px 4px; font-size: 12px; color: var(--lbl); display: flex; align-items: center; gap: 6px; }
+.result-bar strong{ color: var(--primary); }
+
+/* ── Card grid ── */
+.card-grid{ padding: 4px 12px 80px; display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+
+/* ── Store card ── */
+.store-card{
+  background: var(--card); border-radius: var(--radius); border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm); overflow: hidden; cursor: pointer;
+  transition: transform .15s, box-shadow .15s; display: flex; flex-direction: column;
+}
+.store-card:hover{ transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.store-card.status-public  { border-left: 3px solid #2F6836; }
+.store-card.status-pending { border-left: 3px solid #B75D00; }
+.store-card.status-reject  { border-left: 3px solid #B8A898; }
+
+.card-thumb{ width: 100%; aspect-ratio: 16/9; background: var(--divider); overflow: hidden; flex-shrink: 0; position: relative; }
+.card-thumb img{ width: 100%; height: 100%; object-fit: cover; transition: transform .3s; }
+.store-card:hover .card-thumb img{ transform: scale(1.04); }
+.card-thumb-placeholder{
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #F0EBE4 0%, #EDE7DF 100%);
+}
+.no-photo-content{ display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.no-photo-emoji{ font-size: 26px; line-height: 1; filter: grayscale(.3); }
+.no-photo-text{ font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: .3px; }
+
+.card-body{ padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; }
+.card-top{ display: flex; align-items: center; gap: 7px; margin-bottom: 8px; flex-wrap: wrap; }
+.card-id{ font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: .4px; }
+.badge{ display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: .2px; }
+.badge-pending { background: #FFF3E0; color: #B75D00; }
+.badge-public  { background: #EAF3EB; color: #2F6836; }
+.badge-reject  { background: #F0EEEC; color: #7A6E66; }
+.card-title{ font-size: 14px; font-weight: 700; color: var(--heading); line-height: 1.45; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.card-meta{ display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.cate-badge{ display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+.meta-tag{ display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--lbl); background: var(--bg); border: 1px solid var(--divider); padding: 2px 8px; border-radius: 5px; }
+.card-desc{ font-size: 12px; color: var(--lbl); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
+.card-footer{ margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--divider); display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted); }
+
+/* ── Group header ── */
+.group-header{ grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding: 8px 2px 4px; }
+.group-label{ font-size: 12px; font-weight: 700; color: var(--lbl); letter-spacing: .5px; text-transform: uppercase; }
+.group-count{ font-size: 11px; color: var(--muted); background: var(--bg); border: 1px solid var(--divider); padding: 1px 7px; border-radius: 999px; }
+.group-line{ flex: 1; height: 1px; background: var(--divider); }
+
+/* ── State wrap ── */
+.state-wrap{ grid-column: 1 / -1; text-align: center; padding: 60px 24px; color: var(--lbl); }
+.state-wrap svg{ margin: 0 auto 16px; opacity: .4; }
+.state-wrap h3{ font-size: 16px; color: var(--heading); margin-bottom: 6px; }
+.state-wrap p{ font-size: 13px; }
+
+/* ── Skeleton ── */
+.skel{ background: linear-gradient(90deg,var(--divider) 25%,#ece6de 50%,var(--divider) 75%); background-size: 300% 100%; animation: shimmer 1.4s infinite; border-radius: 5px; }
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-card{ background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+
+/* ── RWD ── */
+@media(max-width: 480px){
+  .card-grid{ grid-template-columns: 1fr; padding: 4px 10px 80px; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <button class="admin-btn" onclick="window.location.href='storeadmin.html'">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    管理後台
+  </button>
+  <div class="header-title">
+    <div>特約商店清單</div>
+    <div class="header-subtitle" id="headerSubtitle">和平里特約商店系統</div>
+  </div>
+  <button class="apply-btn" onclick="window.location.href='store.html'">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    申請
+  </button>
+</div>
+
+<div class="filter-wrap">
+<div class="filter-bar">
+
+  <!-- Status dropdown -->
+  <div class="dropdown" id="statusDropdown">
+    <button class="dropdown-btn" id="statusBtn" onclick="toggleDropdown('statusDropdown')">
+      <span id="statusLabel">商店狀態</span>
+      <svg class="chevron" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="dropdown-panel" id="statusPanel">
+      <div class="dropdown-list" id="statusList">
+        <div class="dropdown-item selected" data-value="all"   onclick="selectStatus(this)"><span class="item-dot" style="background:#B8A898"></span>全部狀態</div>
+        <div class="dropdown-item" data-value="申請審核中"        onclick="selectStatus(this)"><span class="item-dot" style="background:#B75D00"></span>申請審核中</div>
+        <div class="dropdown-item" data-value="已公開"          onclick="selectStatus(this)"><span class="item-dot" style="background:#2F6836"></span>已公開</div>
+        <div class="dropdown-item" data-value="不通過"          onclick="selectStatus(this)"><span class="item-dot" style="background:#7A6E66"></span>不通過</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category dropdown -->
+  <div class="dropdown" id="categoryDropdown">
+    <button class="dropdown-btn" id="categoryBtn" onclick="toggleDropdown('categoryDropdown')">
+      <span id="categoryLabel">商家類別</span>
+      <svg class="chevron" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="dropdown-panel" id="categoryPanel">
+      <div class="dropdown-list" id="categoryList">
+        <div class="dropdown-item selected" data-value="all" onclick="selectCategory(this)">全部類別</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" class="search-input" id="searchInput" placeholder="搜尋…" oninput="applyFilters()">
+  </div>
+
+</div>
+</div>
+
+<div class="result-bar" id="resultBar">載入中…</div>
+
+<div class="card-grid" id="cardGrid">
+  <div class="skel-card" style="height:220px"><div class="skel" style="height:130px;border-radius:0"></div><div style="padding:12px 14px"><div class="skel" style="height:12px;width:50%;margin-bottom:8px"></div><div class="skel" style="height:15px;width:85%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:65%"></div></div></div>
+  <div class="skel-card" style="height:220px"><div class="skel" style="height:130px;border-radius:0"></div><div style="padding:12px 14px"><div class="skel" style="height:12px;width:40%;margin-bottom:8px"></div><div class="skel" style="height:15px;width:90%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:70%"></div></div></div>
+  <div class="skel-card" style="height:220px"><div class="skel" style="height:130px;border-radius:0"></div><div style="padding:12px 14px"><div class="skel" style="height:12px;width:55%;margin-bottom:8px"></div><div class="skel" style="height:15px;width:75%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:60%"></div></div></div>
+</div>
+
+<script src="storeconfig.js"></script>
+<script>
+// ── SESSION AUTH ──
+var SESSION_KEY = 'tokuten_admin';
+var SESSION_TTL = 6 * 3600 * 1000;
+function getSession() {
+  try {
+    var d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (!d || !d.sessionToken || Date.now() - d.ts > SESSION_TTL) { localStorage.removeItem(SESSION_KEY); return null; }
+    return d;
+  } catch(e) { return null; }
+}
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+(function(){ if (!getSession()) { location.href = 'storeadmin.html'; } })();
+
+// ── API ──
+function apiCall(action, extra) {
+  var sess = getSession();
+  var payload = Object.assign({ action: action }, extra || {});
+  if (sess) payload.sessionToken = sess.sessionToken;
+  return fetch(CONFIG.SCRIPT_URL, {
+    method: 'POST', redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){ return JSON.parse(t); })
+  .then(function(json){
+    if (json.code === 401) { clearSession(); location.href = 'storeadmin.html'; }
+    return json;
+  });
+}
+
+// ── STATE ──
+var allStores = [];
+var currentStatusFilter   = 'all';
+var currentCategoryFilter = 'all';
+
+// ── CATEGORY COLORS ──
+var CATE_COLOR = {
+  '食': { bg:'#FFF3E0', txt:'#B75D00' },
+  '衣': { bg:'#F3EBFF', txt:'#6B28A8' },
+  '住': { bg:'#EBF3FF', txt:'#1A56A8' },
+  '行': { bg:'#E0F7FA', txt:'#006B6B' },
+  '育': { bg:'#EAF3EB', txt:'#2F6836' },
+  '樂': { bg:'#FEE2E2', txt:'#991B1B' },
+  '其他': { bg:'#F0EEEC', txt:'#7A6E66' },
+};
+function cateBadge(cat) {
+  var c = CATE_COLOR[cat] || { bg:'#F0EEEC', txt:'#7A6E66' };
+  return '<span class="cate-badge" style="background:' + c.bg + ';color:' + c.txt + '">' + esc(cat) + '</span>';
+}
+
+function esc(s){ if (!s && s !== 0) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function badgeCls(s){ if (s==='已公開') return 'badge-public'; if (s==='不通過') return 'badge-reject'; return 'badge-pending'; }
+function cardStatusCls(s){ if (s==='已公開') return 'status-public'; if (s==='不通過') return 'status-reject'; return 'status-pending'; }
+function statusGroupLabel(s){ if (s==='申請審核中') return '🟠 申請審核中'; if (s==='已公開') return '🟢 已公開'; if (s==='不通過') return '⚪ 不通過'; return s || '其他'; }
+function statusWeight(s){ if (s==='申請審核中') return 1; if (s==='已公開') return 2; if (s==='不通過') return 3; return 9; }
+function storeIdNum(id){ if (!id) return 0; var m = String(id).match(/(\d+)/); return m ? parseInt(m[1],10) : 0; }
+
+// ── LOAD ──
+function loadAll() {
+  apiCall('getStores')
+    .then(function(json){
+      if (!json.success) { showError(json.error || '無法取得資料'); return; }
+      allStores = json.stores || [];
+      buildCategoryChips();
+      applyFilters();
+      var today = new Date();
+      document.getElementById('headerSubtitle').textContent =
+        CONFIG.VILLAGE_NAME + '・' + today.getFullYear() + '/' + (today.getMonth()+1) + '/' + today.getDate();
+    })
+    .catch(function(){ showError('資料載入失敗，請稍後再試'); });
+}
+
+// ── DROPDOWN ──
+function toggleDropdown(id) {
+  var panel = document.getElementById(id).querySelector('.dropdown-panel');
+  var btn   = document.getElementById(id).querySelector('.dropdown-btn');
+  var wasOpen = panel.classList.contains('open');
+  closeAllDropdowns();
+  if (!wasOpen) { panel.classList.add('open'); btn.classList.add('open'); }
+}
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown-panel').forEach(function(p){ p.classList.remove('open'); });
+  document.querySelectorAll('.dropdown-btn').forEach(function(b){ b.classList.remove('open'); });
+}
+document.addEventListener('click', function(e){ if (!e.target.closest('.dropdown')) closeAllDropdowns(); });
+
+function selectStatus(el) {
+  currentStatusFilter = el.dataset.value;
+  document.querySelectorAll('#statusList .dropdown-item').forEach(function(i){ i.classList.remove('selected'); });
+  el.classList.add('selected');
+  document.getElementById('statusLabel').textContent = currentStatusFilter === 'all' ? '商店狀態' : el.textContent.trim();
+  document.getElementById('statusBtn').classList.toggle('active', currentStatusFilter !== 'all');
+  closeAllDropdowns(); applyFilters();
+}
+function selectCategory(el) {
+  currentCategoryFilter = el.dataset.value;
+  document.querySelectorAll('#categoryList .dropdown-item').forEach(function(i){ i.classList.remove('selected'); });
+  el.classList.add('selected');
+  document.getElementById('categoryLabel').textContent = currentCategoryFilter === 'all' ? '商家類別' : el.textContent.trim();
+  document.getElementById('categoryBtn').classList.toggle('active', currentCategoryFilter !== 'all');
+  closeAllDropdowns(); applyFilters();
+}
+function buildCategoryChips() {
+  var cats = {};
+  allStores.forEach(function(d){ if (d.category) cats[d.category] = true; });
+  var keys = Object.keys(cats).sort();
+  var list = document.getElementById('categoryList');
+  var html = '<div class="dropdown-item selected" data-value="all" onclick="selectCategory(this)">全部類別</div>';
+  keys.forEach(function(c){ html += '<div class="dropdown-item" data-value="' + esc(c) + '" onclick="selectCategory(this)">' + esc(c) + '</div>'; });
+  list.innerHTML = html;
+}
+
+// ── FILTER & RENDER ──
+function applyFilters() {
+  var q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  var sf = currentStatusFilter;
+  var cf = currentCategoryFilter;
+
+  var filtered = allStores.filter(function(d){
+    if (cf !== 'all' && (d.category || '') !== cf) return false;
+    if (sf !== 'all' && d.status !== sf) return false;
+    if (q) {
+      var hay = [d.storeId, d.storeName, d.addr, d.category, d.desc, d.offer, d.name, d.phone].join(' ').toLowerCase();
+      if (hay.indexOf(q) === -1) return false;
+    }
+    return true;
+  });
+
+  filtered.sort(function(a, b){
+    var wa = statusWeight(a.status), wb = statusWeight(b.status);
+    if (wa !== wb) return wa - wb;
+    return storeIdNum(b.storeId) - storeIdNum(a.storeId);
+  });
+
+  renderGrid(filtered);
+
+  var bar = document.getElementById('resultBar');
+  var isFiltered = sf !== 'all' || cf !== 'all' || q;
+  var tags = '';
+  if (sf !== 'all') tags += ' <span style="background:var(--primary-light);color:var(--primary);padding:1px 6px;border-radius:4px;font-size:11px">' + sf + '</span>';
+  if (cf !== 'all') tags += ' <span style="background:#FFF3E0;color:#B75D00;padding:1px 6px;border-radius:4px;font-size:11px">' + cf + '</span>';
+  if (q)           tags += ' <span style="background:#F3EBFF;color:#6B28A8;padding:1px 6px;border-radius:4px;font-size:11px">「' + esc(q) + '」</span>';
+  bar.innerHTML =
+    '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> ' +
+    '共 <strong>' + filtered.length + '</strong> 間' + (isFiltered ? tags : '・共 ' + allStores.length + ' 間特約商店');
+}
+
+function renderGrid(stores) {
+  var grid = document.getElementById('cardGrid');
+  if (!stores.length) {
+    grid.innerHTML = '<div class="state-wrap"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><h3>沒有符合的商店</h3><p>請嘗試調整搜尋條件或篩選項目</p></div>';
+    return;
+  }
+  var html = '';
+  var lastGroup = null;
+  stores.forEach(function(d){
+    var grp = statusGroupLabel(d.status);
+    if (grp !== lastGroup) {
+      var cnt = stores.filter(function(x){ return statusGroupLabel(x.status) === grp; }).length;
+      html += '<div class="group-header"><span class="group-label">' + grp + '</span><span class="group-count">' + cnt + ' 間</span><div class="group-line"></div></div>';
+      lastGroup = grp;
+    }
+    html += renderCard(d);
+  });
+  grid.innerHTML = html;
+}
+
+function renderCard(d) {
+  var hasPhoto = !!d.photo1;
+  var thumb = hasPhoto
+    ? '<div class="card-thumb"><img src="' + esc(d.photo1) + '" alt="" loading="lazy" onerror="imgFallback(this)"></div>'
+    : '<div class="card-thumb"><div class="card-thumb-placeholder"><div class="no-photo-content"><span class="no-photo-emoji">🏪</span><span class="no-photo-text">尚無照片</span></div></div></div>';
+
+  var dateStr = '';
+  if (d.applyTime) {
+    var dd = new Date(d.applyTime);
+    if (!isNaN(dd.getTime())) { dateStr = (dd.getMonth()+1) + '/' + dd.getDate(); }
+    else { dateStr = String(d.applyTime).slice(0,10); }
+  }
+
+  var html = '<div class="store-card ' + cardStatusCls(d.status) + '" onclick="openStore(\'' + esc(d.storeId) + '\')">';
+  html += thumb;
+  html += '<div class="card-body">';
+  html += '<div class="card-top"><span class="card-id">#' + esc(d.storeId) + '</span><span class="badge ' + badgeCls(d.status) + '">' + esc(d.status) + '</span></div>';
+  html += '<div class="card-title">' + esc(d.storeName || '（無名稱）') + '</div>';
+  html += '<div class="card-meta">';
+  if (d.category) html += cateBadge(d.category);
+  if (d.addr) html += '<span class="meta-tag"><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + esc(d.addr.length > 18 ? d.addr.slice(0,18)+'…' : d.addr) + '</span>';
+  html += '</div>';
+  if (d.offer) html += '<div class="card-desc">' + esc(d.offer) + '</div>';
+  html += '<div class="card-footer">';
+  html += '<span><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline;vertical-align:-1px;margin-right:3px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + dateStr + '</span>';
+  html += '<span><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline;vertical-align:-1px;margin-right:3px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>' + esc(d.name || '') + '</span>';
+  html += '</div></div></div>';
+  return html;
+}
+
+function imgFallback(img) {
+  var wrap = img.parentNode;
+  wrap.innerHTML = '<div class="card-thumb-placeholder"><div class="no-photo-content"><span class="no-photo-emoji">🏪</span><span class="no-photo-text">尚無照片</span></div></div>';
+}
+
+function openStore(id) { window.location.href = 'storedetail.html?id=' + encodeURIComponent(id); }
+
+function showError(msg) {
+  document.getElementById('cardGrid').innerHTML =
+    '<div class="state-wrap"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><h3>載入失敗</h3><p>' + esc(msg) + '</p></div>';
+  document.getElementById('resultBar').textContent = '載入失敗';
+}
+
+// ── AUTO REFRESH ──
+var _refreshing = false;
+function silentRefresh() {
+  if (_refreshing) return;
+  _refreshing = true;
+  apiCall('getStores')
+    .then(function(json){
+      if (!json.success) return;
+      var fresh = json.stores || [];
+      var changed = fresh.length !== allStores.length ||
+        (fresh.length && allStores.length && fresh[0].storeId !== allStores[0].storeId);
+      if (changed) { allStores = fresh; buildCategoryChips(); applyFilters(); }
+    })
+    .catch(function(){})
+    .finally(function(){ _refreshing = false; });
+}
+
+loadAll();
+setInterval(silentRefresh, 60000);
+</script>
+</body>
+</html>
