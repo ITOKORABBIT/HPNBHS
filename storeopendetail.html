@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商店詳情 - 特約商店</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+img{display:block;max-width:100%}
+button{cursor:pointer;font-family:inherit}
+
+:root{
+  --bg:        #F5F2EE;
+  --card:      #FFFFFF;
+  --border:    #E2D9CF;
+  --divider:   #EDE7DF;
+  --lbl:       #8C7B6A;
+  --val:       #2C2018;
+  --muted:     #B8A898;
+  --heading:   #1E160E;
+  --primary:       #C49A3C;
+  --primary-light: #FDF6E3;
+  --primary-dark:  #A07C28;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
+  --shadow-md: 0 2px 8px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --radius:    10px;
+  --font: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body{
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--val);
+  font-size: 15px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Page header ── */
+.page-header{
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 50;
+}
+.back-btn{
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  font-size: 14px; color: var(--lbl);
+  transition: background .15s;
+}
+.back-btn:hover{ background: var(--bg); }
+.page-title{
+  font-size: 16px; font-weight: 700;
+  color: var(--heading); flex: 1;
+  text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.apply-btn{
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 13px;
+  border-radius: 8px; border: none;
+  background: var(--primary);
+  font-size: 13px; font-weight: 600;
+  color: #fff; transition: background .15s; white-space: nowrap;
+}
+.apply-btn:hover{ background: var(--primary-dark); }
+
+/* ── Container ── */
+.container{
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 20px 16px 80px;
+}
+
+/* ── Hero image ── */
+.hero-img{
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+  display: block;
+}
+.hero-placeholder{
+  width: 100%; aspect-ratio: 16/9;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: linear-gradient(135deg, #FDF6E3 0%, #F5EED4 100%);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+}
+
+/* ── Title card ── */
+.title-card{
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  border-left: 4px solid var(--primary);
+}
+.title-meta{
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px; flex-wrap: wrap;
+}
+.cate-badge{
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 9px; border-radius: 5px;
+  font-size: 12px; font-weight: 700;
+}
+.store-name{
+  font-size: 20px; font-weight: 700;
+  color: var(--heading); line-height: 1.35;
+  margin-bottom: 6px;
+}
+.store-phone-hero{
+  display: flex; align-items: center; gap: 6px;
+  font-size: 15px; font-weight: 600;
+  color: var(--primary); margin-top: 4px;
+}
+.store-phone-hero a{
+  color: var(--primary); text-decoration: none;
+}
+.store-phone-hero a:hover{ text-decoration: underline; }
+
+/* ── Card ── */
+.card{
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.card-header{
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--divider);
+  font-size: 13px; font-weight: 700;
+  color: var(--lbl);
+  display: flex; align-items: center; gap: 8px;
+  text-transform: uppercase; letter-spacing: .4px;
+}
+
+/* ── Info table ── */
+.info-table{ padding: 4px 0; }
+.info-row{
+  display: flex;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--divider);
+  gap: 12px;
+}
+.info-row:last-child{ border-bottom: none; }
+.info-lbl{
+  width: 80px; flex-shrink: 0;
+  font-size: 12px; font-weight: 600;
+  color: var(--lbl); padding-top: 2px;
+}
+.info-val{
+  flex: 1; font-size: 14px;
+  color: var(--val); line-height: 1.6;
+  word-break: break-word;
+}
+.info-val a{ color: var(--primary); text-decoration: none; }
+.info-val a:hover{ text-decoration: underline; }
+.info-val.pre{ white-space: pre-wrap; }
+
+/* ── Offer highlight ── */
+.offer-box{
+  margin: 0 18px 14px;
+  padding: 12px 14px;
+  background: var(--primary-light);
+  border-radius: 8px;
+  border-left: 3px solid var(--primary);
+  font-size: 13px; color: var(--primary-dark);
+  line-height: 1.6; white-space: pre-wrap;
+}
+
+/* ── Photo grid ── */
+.photo-grid-wrap{ padding: 12px 18px 14px; }
+.photo-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+.photo-grid img{
+  width: 100%; aspect-ratio: 4/3; object-fit: cover;
+  border-radius: 8px; border: 1px solid var(--border);
+  cursor: pointer; transition: transform .2s;
+}
+.photo-grid img:hover{ transform: scale(1.03); }
+
+/* ── Lightbox ── */
+.lightbox{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.85);
+  z-index: 999;
+  display: none; align-items: center; justify-content: center;
+}
+.lightbox.open{ display: flex; }
+.lightbox img{
+  max-width: 95vw; max-height: 90vh;
+  border-radius: 6px; object-fit: contain;
+}
+.lb-close{
+  position: absolute; top: 16px; right: 20px;
+  color: #fff; font-size: 28px; cursor: pointer;
+  background: none; border: none; line-height: 1;
+}
+
+/* ── Error/Loading ── */
+.state-wrap{
+  text-align: center; padding: 80px 24px;
+  color: var(--lbl);
+}
+.state-wrap svg{ margin: 0 auto 16px; opacity: .4; }
+.state-wrap h3{ font-size: 18px; color: var(--heading); margin-bottom: 8px; }
+.state-wrap p{ font-size: 14px; }
+
+@media(max-width:520px){
+  .photo-grid{ grid-template-columns: repeat(2, 1fr); }
+  .info-lbl{ width: 66px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Lightbox ── -->
+<div class="lightbox" id="lightbox" onclick="closeLb()">
+  <button class="lb-close" onclick="closeLb()">&#215;</button>
+  <img id="lbImg" src="" alt="">
+</div>
+
+<!-- ── Page header ── -->
+<div class="page-header">
+  <button class="back-btn" onclick="history.back()">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    返回
+  </button>
+  <div class="page-title" id="pageTitle">商店詳情</div>
+  <button class="apply-btn" onclick="window.location.href='store.html'">
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    申請
+  </button>
+</div>
+
+<!-- ── Main content ── -->
+<div class="container">
+  <div id="mainContent">
+    <div class="state-wrap">
+      <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      <h3>載入中…</h3>
+    </div>
+  </div>
+</div>
+
+<script src="storeconfig.js"></script>
+<script>
+function apiCall(action, extra) {
+  var payload = Object.assign({ action: action }, extra || {});
+  return fetch(CONFIG.SCRIPT_URL, {
+    method: 'POST', redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){ return JSON.parse(t); });
+}
+
+function esc(s){
+  if (!s && s !== 0) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+var CATE_COLOR = {
+  '食': { bg:'#FFF3E0', txt:'#B75D00' },
+  '衣': { bg:'#F3EBFF', txt:'#6B28A8' },
+  '住': { bg:'#EBF3FF', txt:'#1A56A8' },
+  '行': { bg:'#E0F7FA', txt:'#006B6B' },
+  '育': { bg:'#EAF3EB', txt:'#2F6836' },
+  '樂': { bg:'#FEE2E2', txt:'#991B1B' },
+  '其他': { bg:'#F0EEEC', txt:'#7A6E66' },
+};
+function cateBadge(cat) {
+  var c = CATE_COLOR[cat] || { bg:'#F0EEEC', txt:'#7A6E66' };
+  return '<span class="cate-badge" style="background:' + c.bg + ';color:' + c.txt + '">' + esc(cat) + '</span>';
+}
+
+function openLb(url) {
+  document.getElementById('lbImg').src = url;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLb() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lbImg').src = '';
+}
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeLb(); });
+
+var storeId = new URLSearchParams(location.search).get('id') || '';
+
+function loadStore() {
+  if (!storeId) { showError('缺少商店編號'); return; }
+  apiCall('getPublicStore', { storeId: storeId })
+    .then(function(json){
+      if (!json.success) { showError(json.error || '找不到此商店'); return; }
+      renderStore(json.storeData);
+    })
+    .catch(function(){ showError('載入失敗，請稍後再試'); });
+}
+
+function renderStore(d) {
+  var name = d.pubName || '（未命名）';
+  document.getElementById('pageTitle').textContent = name;
+
+  var html = '';
+
+  // ── 封面照片 ──
+  if (d.photo1) {
+    html += '<img class="hero-img" src="' + esc(d.photo1) + '" alt="" onerror="this.parentNode.replaceChild(makePlaceholder(),this)">';
+  } else {
+    html += '<div class="hero-placeholder"><svg width="48" height="48" fill="none" stroke="#C49A3C" stroke-width="1.5" opacity=".4" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>';
+  }
+
+  // ── 店名 + 類別 ──
+  html += '<div class="title-card">';
+  if (d.pubCate) {
+    html += '<div class="title-meta">' + cateBadge(d.pubCate) + '</div>';
+  }
+  html += '<div class="store-name">' + esc(name) + '</div>';
+  if (d.pubPhone) {
+    html += '<div class="store-phone-hero">';
+    html += '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.25h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.85a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
+    html += '<a href="tel:' + esc(d.pubPhone) + '">' + esc(d.pubPhone) + '</a>';
+    html += '</div>';
+  }
+  html += '</div>';
+
+  // ── 商店資訊 ──
+  html += '<div class="card">';
+  html += '<div class="card-header">';
+  html += '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
+  html += ' 商店資訊</div>';
+  html += '<div class="info-table">';
+
+  if (d.pubAddr) {
+    var addrHtml = esc(d.pubAddr);
+    if (d.pubMapUrl) addrHtml += ' <a href="' + esc(d.pubMapUrl) + '" target="_blank" rel="noopener">地圖 ↗</a>';
+    html += row('地址', addrHtml);
+  }
+  if (d.pubHours) html += row('營業時間', esc(d.pubHours));
+  if (d.pubStoreNum) html += row('統一編號', esc(d.pubStoreNum));
+  if (d.pubDesc) html += row('經營內容', '<span class="pre">' + esc(d.pubDesc) + '</span>');
+
+  html += '</div>';
+
+  // ── 優惠方案 ──
+  if (d.pubOffer) {
+    html += '<div class="offer-box">' +
+      '<div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;opacity:.7;margin-bottom:6px">優惠方案</div>' +
+      esc(d.pubOffer) + '</div>';
+  }
+
+  html += '</div>';
+
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+function row(lbl, val){
+  return '<div class="info-row"><div class="info-lbl">' + lbl + '</div><div class="info-val">' + val + '</div></div>';
+}
+
+function makePlaceholder() {
+  var d = document.createElement('div');
+  d.className = 'hero-placeholder';
+  d.innerHTML = '<svg width="48" height="48" fill="none" stroke="#C49A3C" stroke-width="1.5" opacity=".4" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
+  return d;
+}
+
+function showError(msg) {
+  document.getElementById('mainContent').innerHTML =
+    '<div class="state-wrap">' +
+    '<svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+    '<h3>無法顯示</h3><p>' + esc(msg) + '</p></div>';
+}
+
+window.addEventListener('load', loadStore);
+</script>
+</body>
+</html>

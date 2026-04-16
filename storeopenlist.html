@@ -401,33 +401,30 @@ function renderCard(d) {
       '<svg width="32" height="32" fill="none" stroke="#C49A3C" stroke-width="1.5" opacity=".5" viewBox="0 0 24 24">' +
       '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div></div>';
 
-  var html = '<div class="store-card">';
+  var detailUrl = 'storeopendetail.html?id=' + encodeURIComponent(d.storeId);
+  var html = '<div class="store-card" onclick="location.href=\'' + detailUrl + '\'" style="cursor:pointer">';
   html += thumb;
   html += '<div class="card-body">';
   html += '<div class="card-top">';
   if (d.pubCate) html += cateBadge(d.pubCate);
   html += '</div>';
   html += '<div class="card-name">' + esc(d.pubName || '（未命名）') + '</div>';
+  if (d.pubPhone) {
+    html += '<div style="font-size:12px;color:var(--lbl);margin:-3px 0 6px;display:flex;align-items:center;gap:4px">' +
+      '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.25h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.85a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' +
+      '<a href="tel:' + esc(d.pubPhone) + '" onclick="event.stopPropagation()" style="color:var(--primary);text-decoration:none">' + esc(d.pubPhone) + '</a></div>';
+  }
   if (d.pubDesc) html += '<div class="card-desc">' + esc(d.pubDesc) + '</div>';
   if (d.pubOffer) html += '<div class="card-offer">優惠：' + esc(d.pubOffer) + '</div>';
-  html += '<div class="card-footer">';
-  if (d.pubPhone) {
-    html += '<span><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1.25h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.85a16 16 0 0 0 6.29 6.29l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' +
-      '<a href="tel:' + esc(d.pubPhone) + '" style="color:var(--primary);text-decoration:none">' + esc(d.pubPhone) + '</a></span>';
-  }
   if (d.pubAddr) {
+    html += '<div class="card-footer">';
     html += '<span>' +
       '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
       esc(d.pubAddr.length > 18 ? d.pubAddr.slice(0,18)+'…' : d.pubAddr) +
-      (d.pubMapUrl ? ' <a href="' + esc(d.pubMapUrl) + '" target="_blank" rel="noopener" style="color:var(--primary);text-decoration:none">地圖</a>' : '') +
+      (d.pubMapUrl ? ' <a href="' + esc(d.pubMapUrl) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="color:var(--primary);text-decoration:none">地圖</a>' : '') +
       '</span>';
+    html += '</div>';
   }
-  if (d.pubHours) {
-    html += '<span style="max-width:none">' +
-      '<svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
-      esc(d.pubHours) + '</span>';
-  }
-  html += '</div>';
   html += '</div></div>';
   return html;
 }

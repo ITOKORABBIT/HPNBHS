@@ -33,6 +33,7 @@ function doPost(e) {
       case 'getStore':          return requireAdmin(data, handleGetStore);
       case 'updateStore':       return requireAdmin(data, handleUpdateStore);
       case 'getPublicStores':   return handleGetPublicStores(data);
+      case 'getPublicStore':    return handleGetPublicStore(data);
       default:
         return jsonOut({ success: false, error: 'Unknown action' });
     }
@@ -359,6 +360,20 @@ function rowToStore(r) {
     pubDesc:    String(r[26] || ''), pubOffer:   String(r[27] || ''),
     pubHours:   String(r[28] || ''), pubStoreNum: String(r[29] || ''),
   };
+}
+
+function handleGetPublicStore(data) {
+  var storeId = String(data.storeId || '');
+  if (!storeId) return jsonOut({ success: false, error: 'Missing storeId' });
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_STORES);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var all = sheet.getDataRange().getValues();
+  for (var i = 1; i < all.length; i++) {
+    if (String(all[i][0]) !== storeId) continue;
+    if (String(all[i][2]) !== '已公開') return jsonOut({ success: false, error: '此商店未公開' });
+    return jsonOut({ success: true, storeData: rowToPublicStore(all[i]) });
+  }
+  return jsonOut({ success: false, error: '找不到商店' });
 }
 
 function rowToPublicStore(r) {
