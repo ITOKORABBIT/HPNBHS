@@ -629,7 +629,6 @@ input.invalid, textarea.invalid, select.invalid {
 <script>
 // ====== 設定（從 config.js 讀取）======
 var WEBHOOK_URL = CONFIG.REPORT_WEBHOOK_URL;
-var UPLOAD_URL  = CONFIG.UPLOAD_URL;
 
 // 照片預覽
 function previewPhoto(input, previewId) {
@@ -678,25 +677,21 @@ async function uploadPhoto(fileInput) {
   var file = fileInput.files[0];
   try {
     var base64 = await compressImage(file);
-    var res = await fetch(UPLOAD_URL, {
+    var res = await fetch(CONFIG.SCRIPT_URL, {
       method: 'POST',
       redirect: 'follow',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
+        action: 'uploadPublicPhoto',
+        apiKey: CONFIG.API_KEY,
         base64: base64,
         mimeType: 'image/jpeg',
         fileName: 'report_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_')
       })
     });
-    // Google Apps Script redirect 後取得回應
     var text = await res.text();
-    console.log('[Upload] 回應:', text);
     var json = JSON.parse(text);
-    if (json.success && json.url) {
-      console.log('[Upload] 成功，URL:', json.url);
-      return json.url;
-    }
-    console.warn('[Upload] 回應異常:', json);
+    if (json.success && json.url) return json.url;
     return '';
   } catch (e) {
     console.warn('[Upload] 照片上傳失敗:', e);

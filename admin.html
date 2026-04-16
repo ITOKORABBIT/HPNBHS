@@ -520,38 +520,69 @@ tr.expanded .expand-icon{ transform: rotate(180deg); }
 // ─────────────────────────────────────────────
 // CONFIG
 // ─────────────────────────────────────────────
-var SPREADSHEET_ID  = '1SDwkiqi2EJoW0ICZLeBVRC7IM5ridvHgxS-tFoh_BWE';
-var SHEET_CASES     = '案件清單';
-var SHEET_ADMINS    = '管理員名單';
-
-var COL = {
-  caseId:0, reportTime:1, status:2, category:3,
-  name:4, phone:5, lineId:6,
-  title:7, desc:8, addr:9, mapUrl:10,
-  case1999:11,
-  photo1:12, photo2:13, photo3:14,
-  replyTime:15, lastUpdate:16, replyContent:17,
-  repPhoto1:18, repPhoto2:19, repPhoto3:20,
-  handler:21, note:22,
-  publicFlag:23
-};
-
 // ─────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────
-var gName      = '';
+var adminName  = '';
 var gEmail     = '';
-var adminName  = '';   // display_name from sheet
 var allCases   = [];
-var currentFilter = 'all';
 var sortCol    = 'reportTime';
 var sortAsc    = false;
 var expandedId = null;
 
 // ─────────────────────────────────────────────
-// AUTH — GOOGLE SIGN-IN
+// SESSION（6 小時有效，對齊 server CacheService）
+// ─────────────────────────────────────────────
+var SESSION_KEY = 'hpnbhs_admin';
+var SESSION_TTL = 6 * 3600 * 1000;
+function setSession(token, email, name) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
+    sessionToken: token, email: email, name: name, ts: Date.now()
+  }));
+}
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+function getSession() {
+  try {
+    var d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (!d || !d.sessionToken || Date.now() - d.ts > SESSION_TTL) {
+      clearSession(); return null;
+    }
+    return d;
+  } catch(e) { return null; }
+}
+
+// ─────────────────────────────────────────────
+// API HELPER
+// ─────────────────────────────────────────────
+function apiCall(action, extra) {
+  var sess = getSession();
+  var payload = Object.assign({ action: action }, extra || {});
+  if (sess) payload.sessionToken = sess.sessionToken;
+  return fetch(CONFIG.SCRIPT_URL, {
+    method: 'POST', redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){ return JSON.parse(t); })
+  .then(function(json){
+    if (json.code === 401) { clearSession(); location.reload(); }
+    return json;
+  });
+}
+
+// ─────────────────────────────────────────────
+// AUTH — GOOGLE SIGN-IN（server-side 驗證）
 // ─────────────────────────────────────────────
 function initGoogle() {
+  // 先檢查既有 session，有效就直接進入
+  var sess = getSession();
+  if (sess) {
+    adminName = sess.name || '';
+    gEmail = sess.email || '';
+    enterApp();
+    return;
+  }
   if (!CONFIG.GOOGLE_CLIENT_ID) return;
   if (typeof google === 'undefined') {
     setTimeout(initGoogle, 300); return;
@@ -571,73 +602,41 @@ function initGoogle() {
 }
 
 function onGoogleSignIn(resp) {
-  var parts = resp.credential.split('.');
-  try {
-    var pad = parts[1].replace(/-/g,'+').replace(/_/g,'/');
-    while (pad.length % 4) pad += '=';
-    var payload = JSON.parse(decodeURIComponent(escape(atob(pad))));
-    gName  = payload.name  || payload.given_name || '';
-    gEmail = (payload.email || '').toLowerCase().trim();
-    checkAdminFromSheet();
-  } catch(e) {
-    showLoginError();
-  }
+  document.getElementById('loginError').style.display = 'none';
+  // 送 ID token 到 server 端驗證（不在前端解析 JWT）
+  loginToServer(resp.credential);
 }
 
-// 從試算表「管理員名單」讀取，比對 email
-function checkAdminFromSheet() {
-  var url = 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID
-          + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_ADMINS)
-          + '&headers=1';
-  fetch(url)
-    .then(function(r){ return r.text(); })
-    .then(function(text){
-      var json = JSON.parse(text.replace(/^[^{]*/,'').replace(/\);?\s*$/,''));
-      var rows = (json.table && json.table.rows) || [];
-      // 欄位：username(0) password(1) display_name(2) role(3) active(4) email(5)
-      var matched = rows.find(function(r){
-        var c = r.c || [];
-        var email  = c[5] ? String(c[5].v || '').toLowerCase().trim() : '';
-        var active = c[4] ? String(c[4].v || '').toUpperCase() : '';
-        return email === gEmail && active === 'TRUE';
-      });
-      if (!matched) {
-        showLoginError(); return;
-      }
-      var c = matched.c || [];
-      adminName = (c[2] && c[2].v) ? String(c[2].v) : gName;
-      enterApp();
-    })
-    .catch(function(){ showLoginError(); });
+function loginToServer(idToken) {
+  fetch(CONFIG.SCRIPT_URL, {
+    method: 'POST', redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'login', id_token: idToken })
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){ return JSON.parse(t); })
+  .then(function(json){
+    if (!json.success) { showLoginError(); return; }
+    adminName = json.name || '';
+    gEmail = json.email || '';
+    setSession(json.sessionToken, json.email, json.name);
+    enterApp();
+  })
+  .catch(function(){ showLoginError(); });
 }
 
 function showLoginError() {
   document.getElementById('loginError').style.display = 'block';
 }
 
-// ─── Session 工具（8 小時有效）───
-var SESSION_KEY = 'hpnbhs_admin';
-var SESSION_TTL = 8 * 3600 * 1000;
-function setSession(email, name) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ email: email, name: name, ts: Date.now() }));
-}
-function clearSession() {
-  localStorage.removeItem(SESSION_KEY);
-}
-function getSession() {
-  try {
-    var d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-    if (!d || Date.now() - d.ts > SESSION_TTL) { localStorage.removeItem(SESSION_KEY); return null; }
-    return d;
-  } catch(e) { return null; }
-}
-
 function enterApp() {
-  setSession(gEmail, adminName);   // ← 儲存 session
-  // 若來自其他頁的 redirect，登入後送回去
+  // 安全 redirect：只允許同源 URL
   var redirect = new URLSearchParams(location.search).get('redirect') || '';
-  if (redirect && redirect.indexOf(location.hostname) !== -1) {
-    location.href = redirect; return;
+  if (redirect) {
+    try {
+      var url = new URL(redirect, location.origin);
+      if (url.origin === location.origin) { location.href = redirect; return; }
+    } catch(e) {}
   }
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appShell').style.display = 'block';
@@ -648,7 +647,7 @@ function enterApp() {
 }
 
 function doLogout() {
-  clearSession();   // ← 清除 session
+  clearSession();
   if (typeof google !== 'undefined') google.accounts.id.disableAutoSelect();
   location.reload();
 }
@@ -666,23 +665,10 @@ window.addEventListener('load', function(){
 // DATA
 // ─────────────────────────────────────────────
 function loadCases() {
-  var url = 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID
-          + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_CASES)
-          + '&headers=1';
-  fetch(url)
-    .then(function(r){ return r.text(); })
-    .then(function(text){
-      var json = JSON.parse(text.replace(/^[^{]*/,'').replace(/\);?\s*$/,''));
-      var rows = (json.table && json.table.rows) || [];
-      allCases = rows.map(function(r){
-        var c = r.c || [];
-        var obj = {};
-        Object.keys(COL).forEach(function(k){
-          var cell = c[COL[k]];
-          obj[k] = cell ? (cell.f || cell.v || '') : '';
-        });
-        return obj;
-      }).filter(function(d){ return d.caseId; });
+  apiCall('getCases')
+    .then(function(json){
+      if (!json.success) throw new Error(json.error || '載入失敗');
+      allCases = json.cases || [];
       buildSummaryCounts();
       renderTable();
     })
@@ -715,9 +701,8 @@ function badgeCls(s){
 
 function parseDate(ts){
   if (!ts) return null;
-  var dm = String(ts).match(/Date\((\d+),(\d+),(\d+)/);
-  if (dm) return new Date(+dm[1], +dm[2], +dm[3]);
-  var d = new Date(ts); return isNaN(d) ? null : d;
+  var d = new Date(ts);
+  return isNaN(d.getTime()) ? null : d;
 }
 function fmtDate(ts){
   var d = parseDate(ts); if (!d) return '—';

@@ -604,37 +604,49 @@ body{
 // ──────────────────────────────────────────
 // SESSION AUTH — 無管理員 session 跳回 admin.html
 // ──────────────────────────────────────────
+// ──────────────────────────────────────────
+// SESSION AUTH
+// ──────────────────────────────────────────
+var SESSION_KEY = 'hpnbhs_admin';
+var SESSION_TTL = 6 * 3600 * 1000;
+function getSession() {
+  try {
+    var d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (!d || !d.sessionToken || Date.now() - d.ts > SESSION_TTL) {
+      localStorage.removeItem(SESSION_KEY); return null;
+    }
+    return d;
+  } catch(e) { return null; }
+}
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
 (function(){
-  var SESSION_KEY = 'hpnbhs_admin';
-  var SESSION_TTL = 8 * 3600 * 1000;
-  var d = null;
-  try { d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch(e){}
-  if (!d || Date.now() - d.ts > SESSION_TTL) {
-    localStorage.removeItem(SESSION_KEY);
-    location.href = 'admin.html';
-  }
+  if (!getSession()) { location.href = 'admin.html'; }
 })();
 
 // ──────────────────────────────────────────
 // CONFIG & CONSTANTS
 // ──────────────────────────────────────────
-var SPREADSHEET_ID = '1SDwkiqi2EJoW0ICZLeBVRC7IM5ridvHgxS-tFoh_BWE';
-var SHEET_NAME     = '案件清單';
-var DETAIL_PAGE    = 'detail.html';
+var DETAIL_PAGE = 'detail.html';
 
-var COL = {
-  caseId:0, reportTime:1, status:2, category:3,
-  name:4, phone:5, lineId:6,
-  title:7, desc:8, addr:9, mapUrl:10,
-  case1999:11,
-  photo1:12, photo2:13, photo3:14,
-  replyTime:15, lastUpdate:16, replyContent:17,
-  repPhoto1:18, repPhoto2:19, repPhoto3:20,
-  handler:21, note:22,
-  publicFlag:23, publicTitle:24, publicCate:25,
-  publicLoc:26, publicSummary:27,
-  replyUrl:28
-};
+// ──────────────────────────────────────────
+// API HELPER
+// ──────────────────────────────────────────
+function apiCall(action, extra) {
+  var sess = getSession();
+  var payload = Object.assign({ action: action }, extra || {});
+  if (sess) payload.sessionToken = sess.sessionToken;
+  return fetch(CONFIG.SCRIPT_URL, {
+    method: 'POST', redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){ return JSON.parse(t); })
+  .then(function(json){
+    if (json.code === 401) { clearSession(); location.href = 'admin.html'; }
+    return json;
+  });
+}
 
 // Status sort weight (lower = shown first)
 var STATUS_WEIGHT = {
@@ -713,27 +725,10 @@ var chartInstances = [];
 // LOAD DATA
 // ──────────────────────────────────────────
 function loadAll() {
-  var url = 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID
-          + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_NAME)
-          + '&headers=1';
-
-  fetch(url)
-    .then(function(r){ return r.text(); })
-    .then(function(text){
-      var json = JSON.parse(text.replace(/^[^{]*/,'').replace(/\);?\s*$/,''));
-      var rows = json.table && json.table.rows;
-      if (!rows) { showError('無法取得資料'); return; }
-
-      allCases = rows.map(function(r){
-        var c = r.c || [];
-        var obj = {};
-        Object.keys(COL).forEach(function(k){
-          var cell = c[COL[k]];
-          obj[k] = cell ? (cell.f || cell.v || '') : '';
-        });
-        return obj;
-      }).filter(function(d){ return d.caseId; }); // skip empty rows
-
+  apiCall('getCases')
+    .then(function(json){
+      if (!json.success) { showError(json.error || '無法取得資料'); return; }
+      allCases = json.cases || [];
       buildCategoryChips();
       applyFilters();
       document.getElementById('headerSubtitle').textContent =
@@ -913,14 +908,11 @@ function renderCard(d) {
   // Format date
   var dateStr = '';
   if (d.reportTime) {
-    var ts = String(d.reportTime);
-    // Try parse Date(y,m,d,...)
-    var dm = ts.match(/Date\((\d+),(\d+),(\d+)/);
-    if (dm) {
-      var dd = new Date(parseInt(dm[1]), parseInt(dm[2]), parseInt(dm[3]));
+    var dd = new Date(d.reportTime);
+    if (!isNaN(dd.getTime())) {
       dateStr = (dd.getMonth()+1) + '/' + dd.getDate();
     } else {
-      dateStr = ts.slice(0,10);
+      dateStr = String(d.reportTime).slice(0,10);
     }
   }
 
@@ -1018,10 +1010,8 @@ function renderStats() {
   // Parse reportTime
   function parseDate(ts) {
     if (!ts) return null;
-    var dm = String(ts).match(/Date\((\d+),(\d+),(\d+)/);
-    if (dm) return new Date(parseInt(dm[1]), parseInt(dm[2]), parseInt(dm[3]));
     var d = new Date(ts);
-    return isNaN(d) ? null : d;
+    return isNaN(d.getTime()) ? null : d;
   }
 
   var monthCount = 0, yearCount = 0;

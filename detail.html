@@ -557,48 +557,51 @@ body{
 // ────────────────────────────────────────────────────────────
 // CONFIG
 // ────────────────────────────────────────────────────────────
-var SPREADSHEET_ID = '1SDwkiqi2EJoW0ICZLeBVRC7IM5ridvHgxS-tFoh_BWE';
-var SHEET_NAME     = '案件清單';
-var UPLOAD_URL     = CONFIG.UPLOAD_URL;
-var REPLY_WEBHOOK  = CONFIG.REPLY_WEBHOOK_URL;
-
-var COL = {
-  caseId:0, reportTime:1, status:2, category:3,
-  name:4, phone:5, lineId:6,
-  title:7, desc:8, addr:9, mapUrl:10,
-  case1999:11,
-  photo1:12, photo2:13, photo3:14,
-  replyTime:15, lastUpdate:16, replyContent:17,
-  repPhoto1:18, repPhoto2:19, repPhoto3:20,
-  handler:21, note:22,
-  publicFlag:23, publicTitle:24, publicCate:25,
-  publicLoc:26, publicSummary:27,
-  replyUrl:28
-};
-
 var PUBLIC_CATES = ['生活','校園','交通','環境','治安','修繕','其他'];
 
 // ────────────────────────────────────────────────────────────
-// SESSION AUTH — 從 admin.html 儲存的 localStorage 驗證
+// SESSION AUTH
 // ────────────────────────────────────────────────────────────
 var SESSION_KEY = 'hpnbhs_admin';
-var SESSION_TTL = 8 * 3600 * 1000;
+var SESSION_TTL = 6 * 3600 * 1000;
 function getSession() {
   try {
     var d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-    if (!d || Date.now() - d.ts > SESSION_TTL) { localStorage.removeItem(SESSION_KEY); return null; }
+    if (!d || !d.sessionToken || Date.now() - d.ts > SESSION_TTL) {
+      localStorage.removeItem(SESSION_KEY); return null;
+    }
     return d;
   } catch(e) { return null; }
 }
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
 
 var _sess = getSession();
 if (!_sess) {
-  // 未登入或 session 過期 → 跳回 admin.html，帶 redirect 參數回來
   location.href = 'admin.html?redirect=' + encodeURIComponent(location.href);
 }
 var gName  = _sess ? _sess.name  : '';
 var gEmail = _sess ? _sess.email : '';
-var isAdmin = true;   // 能到這裡就一定是管理員
+var isAdmin = true;
+
+// ────────────────────────────────────────────────────────────
+// API HELPER
+// ────────────────────────────────────────────────────────────
+function apiCall(action, extra) {
+  var sess = getSession();
+  var payload = Object.assign({ action: action }, extra || {});
+  if (sess) payload.sessionToken = sess.sessionToken;
+  return fetch(CONFIG.SCRIPT_URL, {
+    method: 'POST', redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){ return JSON.parse(t); })
+  .then(function(json){
+    if (json.code === 401) { clearSession(); location.href = 'admin.html'; }
+    return json;
+  });
+}
 
 window.addEventListener('load', function() { loadCase(); });
 
@@ -613,29 +616,16 @@ function loadCase() {
     showError('缺少案件編號', '請確認網址是否正確（需包含 ?id=案件編號）');
     return;
   }
-  var tq  = encodeURIComponent("SELECT * WHERE A='" + caseId.replace(/'/g,"\\'") + "' LIMIT 1");
-  var url = 'https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID
-          + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_NAME)
-          + '&headers=1&tq=' + tq;
-
-  fetch(url)
-    .then(function(r){ return r.text(); })
-    .then(function(text){
-      var json = JSON.parse(text.replace(/^[^{]*/,'').replace(/\);?\s*$/,''));
-      var rows = json.table && json.table.rows;
-      if (!rows || !rows.length) {
-        showError('找不到案件', '案件編號「' + caseId + '」不存在或尚未建立');
+  apiCall('getCase', { caseId: caseId })
+    .then(function(json){
+      if (!json.success) {
+        showError('找不到案件', json.error || '案件編號「' + caseId + '」不存在或尚未建立');
         return;
       }
-      var row = rows[0].c;
-      caseData = {};
-      Object.keys(COL).forEach(function(k){
-        var c = row[COL[k]];
-        caseData[k] = c ? (c.f || c.v || '') : '';
-      });
+      caseData = json.caseData;
       renderCase();
     })
-    .catch(function(err){
+    .catch(function(){
       showError('載入失敗', '無法讀取資料，請稍後再試');
     });
 }
@@ -950,11 +940,18 @@ async function uploadPhoto(fileInput){
   var file = fileInput.files[0];
   try {
     var base64 = await compressImage(file);
-    var res = await fetch(UPLOAD_URL, {
+    var sess = getSession();
+    var payload = {
+      action: 'uploadAdminPhoto',
+      sessionToken: sess ? sess.sessionToken : '',
+      base64: base64,
+      mimeType: 'image/jpeg',
+      fileName: 'reply_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g,'_')
+    };
+    var res = await fetch(CONFIG.SCRIPT_URL, {
       method: 'POST', redirect: 'follow',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ base64, mimeType: 'image/jpeg',
-        fileName: 'reply_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g,'_') })
+      body: JSON.stringify(payload)
     });
     var json = JSON.parse(await res.text());
     return (json.success && json.url) ? json.url : '';
@@ -1009,9 +1006,13 @@ async function submitReply(){
   };
 
   try {
-    var scriptPayload = Object.assign({ action: 'updateReply' }, payload);
+    var sess = getSession();
+    var scriptPayload = Object.assign({
+      action: 'updateReply',
+      sessionToken: sess ? sess.sessionToken : ''
+    }, payload);
     var res = await fetch(CONFIG.SCRIPT_URL, {
-      method: 'POST',
+      method: 'POST', redirect: 'follow',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(scriptPayload)
     });
