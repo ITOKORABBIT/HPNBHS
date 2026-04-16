@@ -82,9 +82,7 @@ function verifyGoogleToken(idToken) {
     if (res.getResponseCode() !== 200) return null;
 
     var p = JSON.parse(res.getContentText());
-    // 確認 audience 是我們的 Client ID
     if (p.aud !== GOOGLE_CLIENT_ID) return null;
-    // 確認 email 已驗證
     if (p.email_verified === 'false') return null;
     return p;
   } catch (e) {
