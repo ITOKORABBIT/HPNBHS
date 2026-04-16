@@ -421,7 +421,7 @@ function onGoogleSignIn(resp) {
   .then(function(r){ return r.text(); })
   .then(function(t){ return JSON.parse(t); })
   .then(function(json){
-    if (!json.success) { document.getElementById('loginError').style.display = 'block'; return; }
+    if (!json.success) { var el = document.getElementById('loginError'); el.style.display = 'block'; el.textContent = json.error || '此帳號沒有管理員權限，請聯絡系統管理員。'; return; }
     adminName = json.name || ''; gEmail = json.email || '';
     setSession(json.sessionToken, json.email, json.name);
     enterApp();
