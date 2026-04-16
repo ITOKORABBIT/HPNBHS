@@ -11,7 +11,7 @@ const CONFIG = {
 
   // Make Webhook URL（商店申請通報用）
   // ⚠️ 建議在 Make 重新產生此 URL 以確保安全
-  STORE_WEBHOOK_URL: 'https://hook.us2.make.com/4i3b2bwghyiey2gapx003ate1w6upxpa',
+  STORE_WEBHOOK_URL: 'https://hook.us2.make.com/h9dkeqo7b1brd8fmqgjrcq73n1yqiu7c',
 
   // Google Apps Script（照片上傳，公開，無需登入）
   UPLOAD_URL: 'https://script.google.com/macros/s/AKfycbx-cXnsVlLf1uHObO4V8tym6hK68O5MRriEY-aF_19HRN346IxDZ9vI2tL_qxwgh5Kl0Q/exec',
