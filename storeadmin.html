@@ -426,7 +426,7 @@ function onGoogleSignIn(resp) {
     setSession(json.sessionToken, json.email, json.name);
     enterApp();
   })
-  .catch(function(){ document.getElementById('loginError').style.display = 'block'; });
+  .catch(function(err){ var el = document.getElementById('loginError'); el.style.display = 'block'; el.textContent = 'fetch錯誤: ' + err; });
 }
 
 function enterApp() {
