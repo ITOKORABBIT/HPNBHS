@@ -120,7 +120,7 @@ function requireAdmin(data, handler) {
 // 19(S)=管理員備註, 20(T)=最後更新,   21(U)=審核人,
 // 22(V)=公開店名,   23(W)=公開類別,   24(X)=公開電話,
 // 25(Y)=公開地址,   26(Z)=公開地圖,   27(AA)=公開經營內容,
-// 28(AB)=公開優惠,  29(AC)=公開營業時間
+// 28(AB)=公開優惠,  29(AC)=公開營業時間, 30(AD)=公開統一編號
 
 function handleGetStores(data) {
   var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_STORES);
@@ -190,24 +190,26 @@ function rowToStore(r) {
     pubPhone:   String(r[23] || ''),
     pubAddr:    String(r[24] || ''),
     pubMapUrl:  String(r[25] || ''),
-    pubDesc:    String(r[26] || ''),
-    pubOffer:   String(r[27] || ''),
-    pubHours:   String(r[28] || ''),
+    pubDesc:     String(r[26] || ''),
+    pubOffer:    String(r[27] || ''),
+    pubHours:    String(r[28] || ''),
+    pubStoreNum: String(r[29] || ''),
   };
 }
 
 function rowToPublicStore(r) {
   return {
-    storeId:   String(r[0]  || ''),
-    photo1:    String(r[15] || ''),    // 代表照片
-    pubName:   String(r[21] || ''),
-    pubCate:   String(r[22] || ''),
-    pubPhone:  String(r[23] || ''),
-    pubAddr:   String(r[24] || ''),
-    pubMapUrl: String(r[25] || ''),
-    pubDesc:   String(r[26] || ''),
-    pubOffer:  String(r[27] || ''),
-    pubHours:  String(r[28] || ''),
+    storeId:     String(r[0]  || ''),
+    photo1:      String(r[15] || ''),    // 代表照片
+    pubName:     String(r[21] || ''),
+    pubCate:     String(r[22] || ''),
+    pubPhone:    String(r[23] || ''),
+    pubAddr:     String(r[24] || ''),
+    pubMapUrl:   String(r[25] || ''),
+    pubDesc:     String(r[26] || ''),
+    pubOffer:    String(r[27] || ''),
+    pubHours:    String(r[28] || ''),
+    pubStoreNum: String(r[29] || ''),
   };
 }
 
@@ -253,7 +255,8 @@ function handleUpdateStore(data) {
     sheet.getRange(rowIndex, 26).setValue(data.pubMapUrl || '');  // Z: 公開地圖
     sheet.getRange(rowIndex, 27).setValue(data.pubDesc   || '');  // AA: 公開經營內容
     sheet.getRange(rowIndex, 28).setValue(data.pubOffer  || '');  // AB: 公開優惠
-    sheet.getRange(rowIndex, 29).setValue(data.pubHours  || '');  // AC: 公開營業時間
+    sheet.getRange(rowIndex, 29).setValue(data.pubHours    || '');  // AC: 公開營業時間
+    sheet.getRange(rowIndex, 30).setValue(data.pubStoreNum || '');  // AD: 公開統一編號
   }
 
   return jsonOut({ success: true });

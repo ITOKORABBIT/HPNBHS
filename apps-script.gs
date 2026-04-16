@@ -300,7 +300,7 @@ function handleGetPublicCase(data) {
 // 19(S)=管理員備註, 20(T)=最後更新,   21(U)=審核人,
 // 22(V)=公開店名,   23(W)=公開類別,   24(X)=公開電話,
 // 25(Y)=公開地址,   26(Z)=公開地圖,   27(AA)=公開經營內容,
-// 28(AB)=公開優惠,  29(AC)=公開營業時間
+// 28(AB)=公開優惠,  29(AC)=公開營業時間, 30(AD)=公開統一編號
 
 function handleGetStores(data) {
   var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_STORES);
@@ -357,17 +357,18 @@ function rowToStore(r) {
     pubCate:    String(r[22] || ''), pubPhone:   String(r[23] || ''),
     pubAddr:    String(r[24] || ''), pubMapUrl:  String(r[25] || ''),
     pubDesc:    String(r[26] || ''), pubOffer:   String(r[27] || ''),
-    pubHours:   String(r[28] || ''),
+    pubHours:   String(r[28] || ''), pubStoreNum: String(r[29] || ''),
   };
 }
 
 function rowToPublicStore(r) {
   return {
-    storeId:   String(r[0]  || ''), photo1:    String(r[15] || ''),
-    pubName:   String(r[21] || ''), pubCate:   String(r[22] || ''),
-    pubPhone:  String(r[23] || ''), pubAddr:   String(r[24] || ''),
-    pubMapUrl: String(r[25] || ''), pubDesc:   String(r[26] || ''),
-    pubOffer:  String(r[27] || ''), pubHours:  String(r[28] || ''),
+    storeId:     String(r[0]  || ''), photo1:      String(r[15] || ''),
+    pubName:     String(r[21] || ''), pubCate:     String(r[22] || ''),
+    pubPhone:    String(r[23] || ''), pubAddr:     String(r[24] || ''),
+    pubMapUrl:   String(r[25] || ''), pubDesc:     String(r[26] || ''),
+    pubOffer:    String(r[27] || ''), pubHours:    String(r[28] || ''),
+    pubStoreNum: String(r[29] || ''),
   };
 }
 
@@ -399,9 +400,10 @@ function handleUpdateStore(data) {
     sheet.getRange(rowIndex, 24).setValue(data.pubPhone  || '');
     sheet.getRange(rowIndex, 25).setValue(data.pubAddr   || '');
     sheet.getRange(rowIndex, 26).setValue(data.pubMapUrl || '');
-    sheet.getRange(rowIndex, 27).setValue(data.pubDesc   || '');
-    sheet.getRange(rowIndex, 28).setValue(data.pubOffer  || '');
-    sheet.getRange(rowIndex, 29).setValue(data.pubHours  || '');
+    sheet.getRange(rowIndex, 27).setValue(data.pubDesc     || '');
+    sheet.getRange(rowIndex, 28).setValue(data.pubOffer    || '');
+    sheet.getRange(rowIndex, 29).setValue(data.pubHours    || '');
+    sheet.getRange(rowIndex, 30).setValue(data.pubStoreNum || '');
   }
 
   return jsonOut({ success: true });
