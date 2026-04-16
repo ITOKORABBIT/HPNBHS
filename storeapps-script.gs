@@ -5,7 +5,7 @@
 // ============================================================
 
 // ⚠️ 填入你的 Google Sheet ID
-var SHEET_ID     = '1fdEOITu9z5tXYTbhvRpobBsOaQkJTPSfSJEmqSHrmdc';
+var SHEET_ID     = '1SDwkiqi2EJoW0ICZLeBVRC7IM5ridvHgxS-tFoh_BWE';
 var SHEET_STORES = '商店清單';      // 工作表名稱
 var SHEET_ADMINS = '管理員名單';    // 工作表名稱（與 HPNBHS 共用或新建）
 
