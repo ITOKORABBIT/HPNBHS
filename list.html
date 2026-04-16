@@ -64,6 +64,7 @@ body{
   flex: 1;
   font-size: 16px; font-weight: 700;
   color: var(--heading);
+  text-align: center;
 }
 .header-subtitle{
   font-size: 12px; font-weight: 400;
@@ -705,6 +706,26 @@ function esc(s) {
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── 類別彩色標籤 ──
+var CATE_COLOR = {
+  '交通':    { bg:'#EBF3FF', txt:'#1A56A8' },
+  '環境':    { bg:'#EAF3EB', txt:'#2F6836' },
+  '噪音':    { bg:'#FFF3E0', txt:'#B75D00' },
+  '公共設施': { bg:'#E0F7FA', txt:'#006B6B' },
+  '治安':    { bg:'#FEE2E2', txt:'#991B1B' },
+  '衛生':    { bg:'#F5F3FF', txt:'#5B21B6' },
+  '道路':    { bg:'#E8EAF6', txt:'#303F9F' },
+  '消防':    { bg:'#FFF3E0', txt:'#E53935' },
+  '水電':    { bg:'#FFF8E1', txt:'#F57F17' },
+  '其他':    { bg:'#F0EEEC', txt:'#7A6E66' },
+};
+function cateBadge(cat) {
+  var c = CATE_COLOR[cat] || { bg:'#F0EEEC', txt:'#7A6E66' };
+  return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;background:' + c.bg + ';color:' + c.txt + '">' +
+    '<svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/></svg>' +
+    esc(cat) + '</span>';
+}
+
 // Extract numeric part from caseId for sort (e.g. "HP-00123" → 123)
 function caseIdNum(id) {
   if (!id) return 0;
@@ -928,9 +949,7 @@ function renderCard(d) {
   // Meta tags
   html += '<div class="card-meta">';
   if (d.category) {
-    html += '<span class="meta-tag">' +
-      '<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/></svg>' +
-      esc(d.category) + '</span>';
+    html += cateBadge(d.category);
   }
   if (d.addr) {
     html += '<span class="meta-tag">' +
@@ -1236,9 +1255,38 @@ openSidebar = function() {
 };
 
 // ──────────────────────────────────────────
+// AUTO REFRESH（每 60 秒靜默背景更新）
+// ──────────────────────────────────────────
+var _refreshing = false;
+function silentRefresh() {
+  if (_refreshing) return;
+  _refreshing = true;
+  apiCall('getCases')
+    .then(function(json){
+      if (!json.success) return;
+      var fresh = json.cases || [];
+      // 比較總筆數 + 最後一筆 ID，有差異才重繪
+      var changed = fresh.length !== allCases.length ||
+        (fresh.length && allCases.length &&
+         fresh[0].caseId !== allCases[0].caseId) ||
+        (fresh.length && allCases.length &&
+         fresh[fresh.length-1].lastUpdate !== allCases[allCases.length-1].lastUpdate);
+      if (changed) {
+        allCases = fresh;
+        buildCategoryChips();
+        applyFilters();
+        if (sidebarOpen) { chartsDrawn = false; renderStats(); }
+      }
+    })
+    .catch(function(){})
+    .finally(function(){ _refreshing = false; });
+}
+
+// ──────────────────────────────────────────
 // INIT
 // ──────────────────────────────────────────
 loadAll();
+setInterval(silentRefresh, 60000);
 </script>
 </body>
 </html>

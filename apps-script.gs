@@ -29,6 +29,8 @@ function doPost(e) {
       case 'updateReply':       return requireAdmin(data, handleUpdateReply);
       case 'uploadAdminPhoto':  return requireAdmin(data, handleUploadPhoto);
       case 'uploadPublicPhoto': return handlePublicUpload(data);
+      case 'getPublicCases':    return handleGetPublicCases(data);
+      case 'getPublicCase':     return handleGetPublicCase(data);
       default:
         return jsonOut({ success: false, error: 'Unknown action' });
     }
@@ -265,17 +267,73 @@ function doUpload(data) {
     return jsonOut({ success: false, error: 'File too large (max 5MB)' });
   }
 
-  // 找到或建立 HPNBHS_Photos 資料夾
-  var folders = DriveApp.getFoldersByName('HPNBHS_Photos');
-  var folder  = folders.hasNext() ? folders.next() : DriveApp.createFolder('HPNBHS_Photos');
+  // 直接用資料夾 ID 定位 Photos 資料夾（避免同名資料夾問題）
+  var folder = DriveApp.getFolderById('10M_y9gRB3FIGILLi4Dq-wxTqjHqNSC_o');
 
   var file = folder.createFile(blob);
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
   return jsonOut({
     success: true,
-    url: 'https://drive.google.com/uc?id=' + file.getId()
+    url: 'https://lh3.googleusercontent.com/d/' + file.getId()
   });
+}
+
+// ══════════════════════════════════════════════
+// 公開端點（不需 session，只回傳公開欄位）
+// ══════════════════════════════════════════════
+
+function handleGetPublicCases(data) {
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_CASES);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var all = sheet.getDataRange().getValues();
+  var cases = [];
+  for (var i = 1; i < all.length; i++) {
+    if (!all[i][0]) continue;
+    var r = all[i];
+    var pub = String(r[23] || '');
+    if (pub !== '是' && pub.toUpperCase() !== 'TRUE') continue;
+    cases.push({
+      caseId:        String(r[0]  || ''),
+      replyTime:     fmtDate(r[15]),
+      publicTitle:   String(r[24] || ''),
+      publicCate:    String(r[25] || ''),
+      publicLoc:     String(r[26] || ''),
+      publicSummary: String(r[27] || ''),
+      repPhoto1:     String(r[18] || ''),
+    });
+  }
+  cases.sort(function(a, b) { return b.caseId.localeCompare(a.caseId); });
+  return jsonOut({ success: true, cases: cases });
+}
+
+function handleGetPublicCase(data) {
+  var caseId = String(data.caseId || '');
+  if (!caseId) return jsonOut({ success: false, error: 'Missing caseId' });
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_CASES);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var all = sheet.getDataRange().getValues();
+  for (var i = 1; i < all.length; i++) {
+    if (String(all[i][0]) !== caseId) continue;
+    var r = all[i];
+    var pub = String(r[23] || '');
+    if (pub !== '是' && pub.toUpperCase() !== 'TRUE') {
+      return jsonOut({ success: false, error: '此案件未公開' });
+    }
+    return jsonOut({ success: true, caseData: {
+      caseId:        String(r[0]  || ''),
+      replyTime:     fmtDate(r[15]),
+      replyContent:  String(r[17] || ''),
+      repPhoto1:     String(r[18] || ''),
+      repPhoto2:     String(r[19] || ''),
+      repPhoto3:     String(r[20] || ''),
+      publicTitle:   String(r[24] || ''),
+      publicCate:    String(r[25] || ''),
+      publicLoc:     String(r[26] || ''),
+      publicSummary: String(r[27] || ''),
+    }});
+  }
+  return jsonOut({ success: false, error: '找不到案件' });
 }
 
 // ── 輸出 ──

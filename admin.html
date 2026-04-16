@@ -644,6 +644,10 @@ function enterApp() {
   document.getElementById('topbarAvatar').textContent = initial;
   document.getElementById('topbarName').textContent = adminName;
   loadCases();
+  // 每 60 秒靜默背景刷新
+  setInterval(function(){
+    if (getSession()) loadCases();
+  }, 60000);
 }
 
 function doLogout() {

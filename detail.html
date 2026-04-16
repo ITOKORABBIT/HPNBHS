@@ -639,6 +639,26 @@ function esc(s){
 }
 function v(s){ return s ? esc(s) : '<span class="empty">—</span>'; }
 
+// ── 類別彩色標籤 ──
+var CATE_COLOR = {
+  '交通':    { bg:'#EBF3FF', txt:'#1A56A8' },
+  '環境':    { bg:'#EAF3EB', txt:'#2F6836' },
+  '噪音':    { bg:'#FFF3E0', txt:'#B75D00' },
+  '公共設施': { bg:'#E0F7FA', txt:'#006B6B' },
+  '治安':    { bg:'#FEE2E2', txt:'#991B1B' },
+  '衛生':    { bg:'#F5F3FF', txt:'#5B21B6' },
+  '道路':    { bg:'#E8EAF6', txt:'#303F9F' },
+  '消防':    { bg:'#FFF3E0', txt:'#E53935' },
+  '水電':    { bg:'#FFF8E1', txt:'#F57F17' },
+  '其他':    { bg:'#F0EEEC', txt:'#7A6E66' },
+};
+function cateBadge(cat) {
+  var c = CATE_COLOR[cat] || { bg:'#F0EEEC', txt:'#7A6E66' };
+  return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:5px;font-size:12px;font-weight:700;background:' + c.bg + ';color:' + c.txt + '">' +
+    '<svg width="9" height="9" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/></svg>' +
+    esc(cat) + '</span>';
+}
+
 function badgeCls(s){
   if (!s) return 'badge-proc';
   if (s.indexOf('新案件') !== -1) return 'badge-new';
@@ -674,7 +694,7 @@ function renderCase(){
   html += '</div>';
   html += '<div class="info-table">';
   html += row('通報時間', v(d.reportTime));
-  html += row('通報類別', v(d.category));
+  html += row('通報類別', d.category ? cateBadge(d.category) : '<span class="empty">—</span>');
   html += row('發生地點', d.addr ? (esc(d.addr) + (d.mapUrl ? ' <a href="' + esc(d.mapUrl) + '" target="_blank" rel="noopener">地圖 ↗</a>' : '')) : '<span class="empty">—</span>');
   if (d.case1999) html += row('1999案號', esc(d.case1999));
   if (d.desc) html += row('問題描述', '<span class="desc">' + esc(d.desc) + '</span>');
@@ -703,7 +723,7 @@ function renderCase(){
     var pubLbl = (d.publicFlag === true || d.publicFlag === 'TRUE' || d.publicFlag === '是') ? '是' : '否';
     html += row('公開顯示', pubLbl);
     if (d.publicTitle)   html += row('公開主旨', esc(d.publicTitle));
-    if (d.publicCate)    html += row('公開類別', esc(d.publicCate));
+    if (d.publicCate)    html += row('公開類別', cateBadge(d.publicCate));
     if (d.publicLoc)     html += row('公開地點', esc(d.publicLoc));
     if (d.publicSummary) html += row('公開摘要', '<span class="desc">' + esc(d.publicSummary) + '</span>');
     html += '</div>';
@@ -893,6 +913,16 @@ function togglePub(){
   var on = wrap.classList.toggle('on');
   cb.checked = on;
   fields.classList.toggle('open', on);
+
+  // 第一次開啟公開設定時，自動帶入原始通報資料（欄位有值則保留不覆蓋）
+  if (on && caseData) {
+    var titleEl = document.getElementById('m_pub_title');
+    var cateEl  = document.getElementById('m_pub_cate');
+    var locEl   = document.getElementById('m_pub_loc');
+    if (!titleEl.value && caseData.title)    titleEl.value = caseData.title;
+    if (!cateEl.value  && caseData.category) cateEl.value  = caseData.category;
+    if (!locEl.value   && caseData.addr)     locEl.value   = caseData.addr;
+  }
 }
 
 // ────────────────────────────────────────────────────────────
