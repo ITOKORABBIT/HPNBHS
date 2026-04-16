@@ -368,6 +368,20 @@ function renderStore() {
   if (d.lastUpdate) html += row('最後更新', v(d.lastUpdate));
   html += '</div>';
 
+  // ── 公開資訊（若已公開） ──
+  if (d.status === '已公開') {
+    html += '<div class="card">';
+    html += '<div class="card-header" style="color:var(--primary)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> 對外公開資訊</div>';
+    html += row('公開店名',    v(d.pubName));
+    html += row('公開類別',    d.pubCate ? cateBadge(d.pubCate) : '<span class="empty">—</span>');
+    html += row('公開電話',    d.pubPhone ? '<a href="tel:' + esc(d.pubPhone) + '">' + esc(d.pubPhone) + '</a>' : '<span class="empty">—</span>');
+    html += row('公開地址',    d.pubAddr ? (esc(d.pubAddr) + (d.pubMapUrl ? ' <a href="' + esc(d.pubMapUrl) + '" target="_blank" rel="noopener">地圖 ↗</a>' : '')) : '<span class="empty">—</span>');
+    if (d.pubDesc)  html += row('公開經營內容', '<span class="desc">' + esc(d.pubDesc) + '</span>');
+    if (d.pubOffer) html += row('公開優惠方案', '<span class="desc">' + esc(d.pubOffer) + '</span>');
+    if (d.pubHours) html += row('公開營業時間', v(d.pubHours));
+    html += '</div>';
+  }
+
   // ── 照片 ──
   if (photos.length) {
     html += '<div class="card">';
@@ -382,6 +396,8 @@ function renderStore() {
 }
 
 // ── MODAL ──
+var CATE_OPTIONS = ['食','衣','住','行','育','樂','其他'];
+
 function openModal() {
   if (!storeData) return;
   var d = storeData;
@@ -390,7 +406,7 @@ function openModal() {
 
   // 狀態
   html += '<div class="field"><div class="field-label">商店狀態 <span class="req">*</span></div>';
-  html += '<select id="m_status">';
+  html += '<select id="m_status" onchange="togglePubSection()">';
   html += '<option value="">請選擇</option>';
   ['申請審核中', '已公開', '不通過'].forEach(function(s){
     html += '<option value="' + s + '"' + (d.status === s ? ' selected' : '') + '>' + s + '</option>';
@@ -399,16 +415,67 @@ function openModal() {
 
   // 管理員備註
   html += '<div class="field"><div class="field-label">管理員備註</div>';
-  html += '<textarea id="m_note" rows="4" placeholder="內部備註（不對外顯示）">' + esc(d.note || '') + '</textarea></div>';
+  html += '<textarea id="m_note" rows="3" placeholder="內部備註（不對外顯示）">' + esc(d.note || '') + '</textarea></div>';
 
   // 審核人（唯讀，自動帶入登入帳號）
   html += '<div class="field"><div class="field-label">審核人</div>';
   html += '<input type="text" id="m_reviewer" value="' + esc(gName) + '" readonly>';
   html += '<div style="font-size:12px;color:var(--primary);margin-top:4px">✓ 已登入為 ' + esc(gName) + '</div></div>';
 
+  // ── 公開資訊區塊 ──
+  var pubVisible = (d.status === '已公開') ? '' : 'display:none';
+  html += '<div id="pubSection" style="' + pubVisible + '">';
+  html += '<div style="margin:18px -20px 18px;border-top:1px solid var(--divider)"></div>';
+  html += '<div style="font-size:12px;font-weight:700;color:var(--lbl);letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px">公開資訊設定</div>';
+  html += '<div style="font-size:12px;color:var(--muted);margin-bottom:16px;background:var(--primary-light);padding:10px 12px;border-radius:8px;border-left:3px solid var(--primary)">以下為對外公開顯示的內容，可在原始資料基礎上調整後再公開。原始申請資料不受影響。</div>';
+
+  // 原始資料參考（唯讀）
+  html += '<div style="background:var(--bg);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--lbl)">';
+  html += '<div style="font-weight:700;margin-bottom:8px;color:var(--val)">原始申請資料（唯讀參考）</div>';
+  html += '<div style="display:grid;grid-template-columns:80px 1fr;gap:4px 8px">';
+  [['店名',d.storeName],['類別',d.category],['電話',d.storePhone],['地址',d.addr],['經營內容',d.desc],['優惠方案',d.offer],['營業時間',d.hours]].forEach(function(pair){
+    if (pair[1]) {
+      html += '<span style="color:var(--muted)">' + pair[0] + '</span>';
+      html += '<span style="color:var(--val);word-break:break-all">' + esc(pair[1]) + '</span>';
+    }
+  });
+  html += '</div></div>';
+
+  // 公開欄位編輯
+  html += mf('公開店名 <span class="req">*</span>', '<input type="text" id="m_pubName" value="' + esc(d.pubName || d.storeName || '') + '" placeholder="對外顯示的店名">');
+
+  html += mf('公開類別 <span class="req">*</span>', (function(){
+    var sel = '<select id="m_pubCate">';
+    CATE_OPTIONS.forEach(function(c){
+      var cur = d.pubCate || d.category || '';
+      sel += '<option value="' + c + '"' + (cur === c ? ' selected' : '') + '>' + c + '</option>';
+    });
+    sel += '</select>';
+    return sel;
+  })());
+
+  html += mf('公開電話', '<input type="text" id="m_pubPhone" value="' + esc(d.pubPhone || d.storePhone || '') + '" placeholder="對外顯示的電話">');
+  html += mf('公開地址', '<input type="text" id="m_pubAddr" value="' + esc(d.pubAddr || d.addr || '') + '" placeholder="對外顯示的地址">');
+  html += mf('地圖連結', '<input type="text" id="m_pubMapUrl" value="' + esc(d.pubMapUrl || d.mapUrl || '') + '" placeholder="Google Maps 連結">');
+  html += mf('公開經營內容', '<textarea id="m_pubDesc" rows="3" placeholder="對外顯示的經營內容">' + esc(d.pubDesc || d.desc || '') + '</textarea>');
+  html += mf('公開優惠方案', '<textarea id="m_pubOffer" rows="3" placeholder="對外顯示的優惠方案">' + esc(d.pubOffer || d.offer || '') + '</textarea>');
+  html += mf('公開營業時間', '<input type="text" id="m_pubHours" value="' + esc(d.pubHours || d.hours || '') + '" placeholder="例：週一至週五 09:00–18:00">');
+
+  html += '</div>'; // end pubSection
+
   document.getElementById('modalBody').innerHTML = html;
   document.getElementById('reviewModal').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+function mf(lbl, input) {
+  return '<div class="field"><div class="field-label">' + lbl + '</div>' + input + '</div>';
+}
+
+function togglePubSection() {
+  var s = document.getElementById('m_status').value;
+  var sec = document.getElementById('pubSection');
+  if (sec) sec.style.display = (s === '已公開') ? '' : 'none';
 }
 
 function closeModal() {
@@ -432,13 +499,22 @@ async function submitReview() {
 
   try {
     var sess = getSession();
+    function gv(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; }
     var payload = {
       action: 'updateStore',
       sessionToken: sess ? sess.sessionToken : '',
       storeId: storeId,
       status:  status,
-      note:    (document.getElementById('m_note').value || '').trim(),
-      reviewer: (document.getElementById('m_reviewer').value || '').trim(),
+      note:    gv('m_note'),
+      reviewer: gv('m_reviewer'),
+      pubName:   gv('m_pubName'),
+      pubCate:   gv('m_pubCate'),
+      pubPhone:  gv('m_pubPhone'),
+      pubAddr:   gv('m_pubAddr'),
+      pubMapUrl: gv('m_pubMapUrl'),
+      pubDesc:   gv('m_pubDesc'),
+      pubOffer:  gv('m_pubOffer'),
+      pubHours:  gv('m_pubHours'),
     };
     var res = await fetch(CONFIG.SCRIPT_URL, {
       method: 'POST', redirect: 'follow',
