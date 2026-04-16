@@ -295,6 +295,7 @@ function handleGetPublicCases(data) {
     if (pub !== '是' && pub.toUpperCase() !== 'TRUE') continue;
     cases.push({
       caseId:        String(r[0]  || ''),
+      status:        String(r[2]  || ''),
       replyTime:     fmtDate(r[15]),
       publicTitle:   String(r[24] || ''),
       publicCate:    String(r[25] || ''),
@@ -322,8 +323,8 @@ function handleGetPublicCase(data) {
     }
     return jsonOut({ success: true, caseData: {
       caseId:        String(r[0]  || ''),
+      status:        String(r[2]  || ''),
       replyTime:     fmtDate(r[15]),
-      replyContent:  String(r[17] || ''),
       repPhoto1:     String(r[18] || ''),
       repPhoto2:     String(r[19] || ''),
       repPhoto3:     String(r[20] || ''),

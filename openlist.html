@@ -360,6 +360,17 @@ var CATE_COLOR = {
   '水電':    { bg:'#FFF8E1', txt:'#F57F17' },
   '其他':    { bg:'#F0EEEC', txt:'#7A6E66' },
 };
+var STATUS_COLOR = {
+  '已處理':  { bg:'#EAF3EB', txt:'#2F6836' },
+  '處理中':  { bg:'#FFF8E1', txt:'#B75D00' },
+  '待確認':  { bg:'#EBF3FF', txt:'#1A56A8' },
+  '已結案':  { bg:'#F0EEEC', txt:'#7A6E66' },
+};
+function statusBadge(status) {
+  if (!status) return '';
+  var c = STATUS_COLOR[status] || { bg:'#F0EEEC', txt:'#7A6E66' };
+  return '<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;background:' + c.bg + ';color:' + c.txt + '">' + esc(status) + '</span>';
+}
 function cateBadge(cat) {
   var c = CATE_COLOR[cat] || { bg:'#F0EEEC', txt:'#7A6E66' };
   return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;background:' + c.bg + ';color:' + c.txt + '">' +
@@ -488,7 +499,7 @@ function renderCard(d) {
   html += thumb;
   html += '<div class="card-body">';
   html += '<div class="card-top">';
-  html += '<span class="badge-done">✓ 已處理</span>';
+  if (d.status) html += statusBadge(d.status);
   if (d.publicCate) html += cateBadge(d.publicCate);
   html += '</div>';
   html += '<div class="card-title">' + esc(d.publicTitle || '（無標題）') + '</div>';
