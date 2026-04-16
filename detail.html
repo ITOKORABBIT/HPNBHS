@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- Google GSI 已移除，改用 admin.html session -->
 <style>
 /* ────────── Reset ────────── */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -505,15 +505,7 @@ body{
   <button onclick="location.reload()" style="margin-top:20px;padding:12px 36px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">返回查看</button>
 </div>
 
-<!-- ── Login Required Overlay ── -->
-<div id="loginOverlay" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:150;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;">
-  <div style="width:68px;height:68px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
-    <svg width="32" height="32" fill="none" stroke="var(--primary)" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-  </div>
-  <h2 style="font-size:20px;font-weight:700;color:var(--heading);margin-bottom:10px;">請先登入</h2>
-  <p style="font-size:14px;color:var(--lbl);line-height:1.7;margin-bottom:24px;">此頁面需要登入 Google 帳號<br>才能查看案件內容</p>
-  <div id="loginOverlayBtn" style="display:flex;justify-content:center;"></div>
-</div>
+<!-- loginOverlay 已移除，改由 session 驗證 -->
 
 <!-- ── Reply Modal ── -->
 <div class="modal-overlay" id="replyModal">
@@ -587,121 +579,28 @@ var COL = {
 var PUBLIC_CATES = ['生活','校園','交通','環境','治安','修繕','其他'];
 
 // ────────────────────────────────────────────────────────────
-// GOOGLE SIGN-IN
+// SESSION AUTH — 從 admin.html 儲存的 localStorage 驗證
 // ────────────────────────────────────────────────────────────
-var gName  = '';
-var gEmail = '';
-var isAdmin = false;
-
-function onGoogleSignIn(resp) {
-  var parts = resp.credential.split('.');
+var SESSION_KEY = 'hpnbhs_admin';
+var SESSION_TTL = 8 * 3600 * 1000;
+function getSession() {
   try {
-    var pad = parts[1].replace(/-/g,'+').replace(/_/g,'/');
-    while (pad.length % 4) pad += '=';
-    // 使用 decodeURIComponent + escape 確保 UTF-8（含中文姓名）正確解碼
-    var payload = JSON.parse(decodeURIComponent(escape(atob(pad))));
-    gName  = payload.name || payload.given_name || '';
-    gEmail = (payload.email || '').toLowerCase().trim();
-
-    // 從試算表「管理員名單」比對 email，取得 display_name
-    checkAdminAndProceed();
-  } catch(e) {}
+    var d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (!d || Date.now() - d.ts > SESSION_TTL) { localStorage.removeItem(SESSION_KEY); return null; }
+    return d;
+  } catch(e) { return null; }
 }
 
-function checkAdminAndProceed() {
-  var SHEET_ADMINS = '管理員名單';
-  var url = 'https://docs.google.com/spreadsheets/d/'
-          + '1SDwkiqi2EJoW0ICZLeBVRC7IM5ridvHgxS-tFoh_BWE'
-          + '/gviz/tq?tqx=out:json&sheet=' + encodeURIComponent(SHEET_ADMINS)
-          + '&headers=1';
-  fetch(url)
-    .then(function(r){ return r.text(); })
-    .then(function(text){
-      var json = JSON.parse(text.replace(/^[^{]*/,'').replace(/\);?\s*$/,''));
-      var rows = (json.table && json.table.rows) || [];
-      // 欄位：username(0) password(1) display_name(2) role(3) active(4) email(5)
-      var matched = rows.find(function(r){
-        var c = r.c || [];
-        var email  = c[5] ? String(c[5].v || '').toLowerCase().trim() : '';
-        var active = c[4] ? String(c[4].v || '').toUpperCase() : '';
-        return email === gEmail && active === 'TRUE';
-      });
-      if (matched) {
-        var c = matched.c || [];
-        // 優先使用試算表的 display_name，否則 fallback 到 Google 名稱
-        if (c[2] && c[2].v) gName = String(c[2].v);
-        isAdmin = true;
-      }
-      afterSignIn();
-    })
-    .catch(function(){
-      // 無法讀取試算表時 fallback 到 config.js 的 ALLOWED_EMAILS
-      var allowed = (CONFIG.ALLOWED_EMAILS || []).map(function(e){ return e.toLowerCase().trim(); });
-      isAdmin = allowed.indexOf(gEmail) !== -1;
-      afterSignIn();
-    });
+var _sess = getSession();
+if (!_sess) {
+  // 未登入或 session 過期 → 跳回 admin.html，帶 redirect 參數回來
+  location.href = 'admin.html?redirect=' + encodeURIComponent(location.href);
 }
+var gName  = _sess ? _sess.name  : '';
+var gEmail = _sess ? _sess.email : '';
+var isAdmin = true;   // 能到這裡就一定是管理員
 
-function afterSignIn() {
-  // Hide login overlay
-  var lo = document.getElementById('loginOverlay');
-  if (lo) lo.style.display = 'none';
-
-  // Load case data (first time), or update contact card (signed in later)
-  if (!caseData) {
-    loadCase();
-  } else {
-    renderContactCard();
-    document.getElementById('actionBar').style.display = isAdmin ? 'flex' : 'none';
-  }
-
-  // Update handler field if modal is open
-  var el = document.getElementById('m_handler');
-  if (el) { el.value = gName; el.readOnly = true; }
-  var btn = document.getElementById('googleSignInBtn');
-  if (btn) btn.style.display = 'none';
-  var hint = document.getElementById('handlerHint');
-  if (hint) hint.innerHTML = '✓ 已從 Google 帳號取得';
-}
-
-function showLoginOverlay() {
-  if (gName) return; // already signed in
-  var lo = document.getElementById('loginOverlay');
-  if (!lo) return;
-  lo.style.display = 'flex';
-  if (typeof google !== 'undefined' && CONFIG.GOOGLE_CLIENT_ID) {
-    var btnDiv = document.getElementById('loginOverlayBtn');
-    if (btnDiv && !btnDiv.hasChildNodes()) {
-      google.accounts.id.renderButton(btnDiv, {
-        type: 'standard', theme: 'filled_blue', size: 'large',
-        text: 'signin_with', locale: 'zh-TW', width: 280
-      });
-    }
-  }
-}
-
-function initGoogle() {
-  if (!CONFIG.GOOGLE_CLIENT_ID) { loadCase(); return; }
-  if (typeof google === 'undefined') { showLoginOverlay(); return; }
-  google.accounts.id.initialize({
-    client_id: CONFIG.GOOGLE_CLIENT_ID,
-    callback: onGoogleSignIn,
-    auto_select: true,
-  });
-  google.accounts.id.prompt();
-  // Show login overlay if auto sign-in doesn't fire within 3 seconds
-  setTimeout(function() { if (!gName) showLoginOverlay(); }, 3000);
-}
-
-window.addEventListener('load', function() {
-  var tries = 0;
-  var t = setInterval(function() {
-    if (typeof google !== 'undefined' || ++tries > 20) {
-      clearInterval(t);
-      initGoogle();
-    }
-  }, 300);
-});
+window.addEventListener('load', function() { loadCase(); });
 
 // ────────────────────────────────────────────────────────────
 // DATA LOAD
@@ -843,33 +742,16 @@ function renderContactCard() {
   var el = document.getElementById('contactCard');
   if (!el || !caseData) return;
   var d = caseData;
+  // 已是管理員，直接顯示通報人資訊
   var html = '<div class="card">';
   html += '<div class="card-header">' + icon('user') + ' 通報人資訊</div>';
-  if (gName) {
-    html += '<div class="info-table">';
-    html += row('姓名', v(d.name));
-    html += row('電話', d.phone ? '<a href="tel:' + esc(d.phone) + '">' + esc(d.phone) + '</a>' : '<span class="empty">—</span>');
-    if (d.lineId) html += row('LINE ID', esc(d.lineId));
-    html += '</div>';
-  } else {
-    html += '<div style="padding:24px 18px;text-align:center;color:var(--muted);">';
-    html += '<div style="margin-bottom:10px"><svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>';
-    html += '<div style="font-size:14px;margin-bottom:14px">請先登入以查看聯絡資訊</div>';
-    html += '<div id="contactSignInBtn" style="display:flex;justify-content:center"></div>';
-    html += '</div>';
-  }
+  html += '<div class="info-table">';
+  html += row('姓名', v(d.name));
+  html += row('電話', d.phone ? '<a href="tel:' + esc(d.phone) + '">' + esc(d.phone) + '</a>' : '<span class="empty">—</span>');
+  if (d.lineId) html += row('LINE ID', esc(d.lineId));
+  html += '</div>';
   html += '</div>';
   el.innerHTML = html;
-
-  if (!gName && CONFIG.GOOGLE_CLIENT_ID && typeof google !== 'undefined') {
-    var btnDiv = document.getElementById('contactSignInBtn');
-    if (btnDiv) {
-      google.accounts.id.renderButton(btnDiv, {
-        type: 'standard', theme: 'outline', size: 'medium',
-        text: 'signin_with', locale: 'zh-TW'
-      });
-    }
-  }
 }
 
 function icon(name){
@@ -896,10 +778,7 @@ function openModal(){
   var isPublic = d.publicFlag === true || d.publicFlag === 'TRUE' || d.publicFlag === '是';
 
   var handlerVal  = gName || d.handler || '';
-  var handlerAttr = gName ? 'readonly' : '';
-  var handlerHint = gName
-    ? '<div class="google-hint"><svg width="14" height="14" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>已從 Google 帳號取得</div>'
-    : '<div id="googleSignInBtn" style="margin-top:6px"></div><div class="field-hint" id="handlerHint">點上方按鈕以 Google 帳號登入，自動帶入姓名</div>';
+  var handlerHint = '<div class="field-hint" style="color:var(--primary)">✓ 已登入為 ' + esc(gName) + '</div>';
 
   var cateOptions = PUBLIC_CATES.map(function(c){
     return '<option value="' + c + '"' + (d.publicCate === c ? ' selected' : '') + '>' + c + '</option>';
@@ -955,7 +834,7 @@ function openModal(){
   // 承辦人（移至公開設定上方）
   html += '<div class="field">';
   html += '<div class="field-label">承辦人 <span class="req">*</span></div>';
-  html += '<input type="text" id="m_handler" placeholder="承辦人姓名" value="' + esc(handlerVal) + '" ' + handlerAttr + '>';
+  html += '<input type="text" id="m_handler" placeholder="承辦人姓名" value="' + esc(handlerVal) + '" readonly>';
   html += handlerHint;
   html += '</div>';
 

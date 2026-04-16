@@ -615,7 +615,30 @@ function showLoginError() {
   document.getElementById('loginError').style.display = 'block';
 }
 
+// ─── Session 工具（8 小時有效）───
+var SESSION_KEY = 'hpnbhs_admin';
+var SESSION_TTL = 8 * 3600 * 1000;
+function setSession(email, name) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ email: email, name: name, ts: Date.now() }));
+}
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+function getSession() {
+  try {
+    var d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    if (!d || Date.now() - d.ts > SESSION_TTL) { localStorage.removeItem(SESSION_KEY); return null; }
+    return d;
+  } catch(e) { return null; }
+}
+
 function enterApp() {
+  setSession(gEmail, adminName);   // ← 儲存 session
+  // 若來自其他頁的 redirect，登入後送回去
+  var redirect = new URLSearchParams(location.search).get('redirect') || '';
+  if (redirect && redirect.indexOf(location.hostname) !== -1) {
+    location.href = redirect; return;
+  }
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appShell').style.display = 'block';
   var initial = adminName ? adminName.charAt(0) : '?';
@@ -625,6 +648,7 @@ function enterApp() {
 }
 
 function doLogout() {
+  clearSession();   // ← 清除 session
   if (typeof google !== 'undefined') google.accounts.id.disableAutoSelect();
   location.reload();
 }

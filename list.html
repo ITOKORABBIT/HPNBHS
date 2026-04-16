@@ -602,6 +602,20 @@ body{
 <script src="config.js"></script>
 <script>
 // ──────────────────────────────────────────
+// SESSION AUTH — 無管理員 session 跳回 admin.html
+// ──────────────────────────────────────────
+(function(){
+  var SESSION_KEY = 'hpnbhs_admin';
+  var SESSION_TTL = 8 * 3600 * 1000;
+  var d = null;
+  try { d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch(e){}
+  if (!d || Date.now() - d.ts > SESSION_TTL) {
+    localStorage.removeItem(SESSION_KEY);
+    location.href = 'admin.html';
+  }
+})();
+
+// ──────────────────────────────────────────
 // CONFIG & CONSTANTS
 // ──────────────────────────────────────────
 var SPREADSHEET_ID = '1SDwkiqi2EJoW0ICZLeBVRC7IM5ridvHgxS-tFoh_BWE';
