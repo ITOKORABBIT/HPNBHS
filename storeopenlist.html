@@ -13,19 +13,19 @@ img{display:block;max-width:100%}
 button{cursor:pointer;font-family:inherit}
 
 :root{
-  --bg:        #F5F2EE;
+  --bg:        #EDF5FF;
   --card:      #FFFFFF;
-  --border:    #E2D9CF;
-  --divider:   #EDE7DF;
-  --lbl:       #8C7B6A;
-  --val:       #2C2018;
-  --muted:     #B8A898;
-  --heading:   #1E160E;
-  --primary:       #C49A3C;
-  --primary-light: #FDF6E3;
-  --primary-dark:  #A07C28;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,.07);
-  --shadow-md: 0 2px 8px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --border:    #B8D4EE;
+  --divider:   #CCE2F5;
+  --lbl:       #456280;
+  --val:       #182C44;
+  --muted:     #80AACB;
+  --heading:   #0E2038;
+  --primary:       #4A92C4;
+  --primary-light: #E3F2FF;
+  --primary-dark:  #3070A0;
+  --shadow-sm: 0 1px 3px rgba(20,60,100,.07);
+  --shadow-md: 0 2px 8px rgba(20,60,100,.09), 0 1px 2px rgba(20,60,100,.05);
   --radius: 10px;
   --font: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -62,11 +62,11 @@ body{
   display: flex; align-items: center; gap: 5px;
   padding: 7px 13px;
   border-radius: 8px; border: none;
-  background: var(--primary);
+  background: #F2C843;
   font-size: 13px; font-weight: 600;
-  color: #fff; transition: background .15s; white-space: nowrap;
+  color: #5A3E00; transition: background .15s; white-space: nowrap;
 }
-.apply-btn:hover{ background: var(--primary-dark); }
+.apply-btn:hover{ background: #DEB030; }
 
 /* ── Filter bar ── */
 .filter-wrap{
@@ -155,7 +155,7 @@ body{
 .card-thumb-placeholder{
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, #FDF6E3 0%, #F5EED4 100%);
+  background: linear-gradient(135deg, #DCEEFF 0%, #C8E2F8 100%);
 }
 
 .card-body{
@@ -213,7 +213,7 @@ body{
 .state-wrap p{ font-size: 13px; }
 
 .skel{
-  background: linear-gradient(90deg,var(--divider) 25%,#ece6de 50%,var(--divider) 75%);
+  background: linear-gradient(90deg,var(--divider) 25%,#b4d0ea 50%,var(--divider) 75%);
   background-size: 300% 100%;
   animation: shimmer 1.4s infinite;
   border-radius: 5px;
@@ -390,7 +390,7 @@ function renderGrid(stores) {
 
 function imgFallback(img) {
   img.parentNode.innerHTML = '<div class="card-thumb-placeholder">' +
-    '<svg width="32" height="32" fill="none" stroke="#C49A3C" stroke-width="1.5" opacity=".5" viewBox="0 0 24 24">' +
+    '<svg width="32" height="32" fill="none" stroke="#4A92C4" stroke-width="1.5" opacity=".5" viewBox="0 0 24 24">' +
     '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>';
 }
 
@@ -398,7 +398,7 @@ function renderCard(d) {
   var thumb = d.photo1
     ? '<div class="card-thumb"><img src="' + esc(d.photo1) + '" alt="" loading="lazy" onerror="imgFallback(this)"></div>'
     : '<div class="card-thumb"><div class="card-thumb-placeholder">' +
-      '<svg width="32" height="32" fill="none" stroke="#C49A3C" stroke-width="1.5" opacity=".5" viewBox="0 0 24 24">' +
+      '<svg width="32" height="32" fill="none" stroke="#4A92C4" stroke-width="1.5" opacity=".5" viewBox="0 0 24 24">' +
       '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div></div>';
 
   var detailUrl = 'storeopendetail.html?id=' + encodeURIComponent(d.storeId);
