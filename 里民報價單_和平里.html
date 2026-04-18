@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>服務報價單｜和平里</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    font-size: 14px;
+    color: #1a1a2e;
+    background: #fff;
+    padding: 40px;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 24px;
+    border-bottom: 3px solid #1a4a7a;
+    margin-bottom: 28px;
+  }
+  .header .brand h1 { font-size: 22px; color: #1a4a7a; }
+  .header .brand p { font-size: 12px; color: #888; margin-top: 4px; }
+  .header .doc-info { text-align: right; font-size: 13px; color: #555; line-height: 1.9; }
+  .header .doc-info .doc-no { font-size: 18px; color: #1a4a7a; font-weight: bold; }
+
+  /* Parties */
+  .parties {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 28px;
+  }
+  .party-box {
+    flex: 1;
+    border: 1px solid #d0dce8;
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .party-box .party-label {
+    font-size: 11px;
+    color: #888;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  .party-box .party-name { font-size: 15px; font-weight: bold; color: #1a4a7a; }
+  .party-box p { font-size: 12px; color: #666; margin-top: 4px; line-height: 1.8; }
+
+  /* Table */
+  h3 {
+    font-size: 14px;
+    color: #1a4a7a;
+    border-left: 3px solid #3ba0c0;
+    padding-left: 8px;
+    margin: 24px 0 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  th {
+    background: #1a4a7a;
+    color: white;
+    padding: 9px 12px;
+    text-align: left;
+    font-weight: normal;
+  }
+  th.right { text-align: right; }
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e5e5e5;
+    vertical-align: top;
+    line-height: 1.7;
+  }
+  td.right { text-align: right; }
+  tr:nth-child(even) td { background: #f7fafc; }
+
+  .subtotal td { font-weight: bold; background: #eef4fa !important; }
+  .total-row td {
+    background: #1a4a7a !important;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 12px;
+  }
+  .total-row td.right { text-align: right; }
+
+  /* Trial block */
+  .trial-block {
+    border: 2px solid #3ba0c0;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 20px 0;
+    background: #f0f9fd;
+  }
+  .trial-block h4 {
+    color: #1a4a7a;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  .trial-grid {
+    display: flex;
+    gap: 20px;
+  }
+  .trial-item {
+    flex: 1;
+    background: white;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  .trial-item .t-label { color: #888; font-size: 11px; margin-bottom: 4px; }
+  .trial-item .t-value { font-size: 16px; font-weight: bold; color: #1a4a7a; }
+  .trial-item .t-desc { color: #666; font-size: 12px; margin-top: 4px; line-height: 1.6; }
+
+  /* Terms */
+  .terms {
+    background: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 16px 18px;
+    font-size: 13px;
+    color: #444;
+    margin: 20px 0;
+    line-height: 1.9;
+  }
+  .terms h4 { color: #1a4a7a; margin-bottom: 8px; font-size: 13px; }
+  .terms ol { margin-left: 18px; }
+  .terms li { margin-bottom: 4px; }
+
+  .note {
+    background: #fff8e1;
+    border-left: 3px solid #f5a623;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #666;
+    margin: 10px 0;
+    line-height: 1.7;
+  }
+
+  /* Sign */
+  .sign-area {
+    display: flex;
+    gap: 28px;
+    margin-top: 50px;
+  }
+  .sign-box {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 16px 18px;
+    font-size: 13px;
+    color: #555;
+    text-align: center;
+  }
+  .sign-box .s-label { font-weight: bold; color: #1a4a7a; margin-bottom: 32px; }
+  .sign-box .s-line {
+    border-top: 1px solid #aaa;
+    margin-top: 16px;
+    padding-top: 6px;
+    font-size: 12px;
+  }
+
+  @media print {
+    body { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="brand">
+    <h1>🐇 糸子兔資訊工作室</h1>
+    <p>ITOKO RABBIT｜客製化網頁開發 × 系統整合</p>
+  </div>
+  <div class="doc-info">
+    <div class="doc-no">報 價 單</div>
+    <div>文件編號：IR-2026-0415-HP</div>
+    <div>報價日期：2026 年 4 月 15 日</div>
+    <div>有效期限：2026 年 5 月 15 日</div>
+  </div>
+</div>
+
+<!-- Parties -->
+<div class="parties">
+  <div class="party-box">
+    <div class="party-label">買方 / 甲方</div>
+    <div class="party-name">台中市北屯區和平里辦公處</div>
+    <p>
+      聯絡人：里長<br>
+      地址：台中市北屯區<br>
+      電話：<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>
+    </p>
+  </div>
+  <div class="party-box">
+    <div class="party-label">賣方 / 乙方</div>
+    <div class="party-name">糸子兔資訊工作室</div>
+    <p>
+      負責人：紀孫逸<br>
+      Email：<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u><br>
+      電話：<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>
+    </p>
+  </div>
+</div>
+
+<!-- Fee Table -->
+<h3>費用明細</h3>
+<table>
+  <thead>
+    <tr>
+      <th style="width:5%">#</th>
+      <th style="width:30%">服務項目</th>
+      <th>說明</th>
+      <th class="right" style="width:12%">數量</th>
+      <th class="right" style="width:15%">金額（NTD）</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td><strong>系統建置費</strong></td>
+      <td>
+        固定模組建置，包含：里民陳情通報系統（里民端 + 里長後台）、
+        特約商店系統（公開頁 + 審核後台）、LINE OA 串接設定、
+        統計儀表板、操作手冊提供
+      </td>
+      <td class="right">1 式</td>
+      <td class="right">含於年費</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><strong>年度維運費</strong></td>
+      <td>
+        系統維護、技術支援（工作日 09:00–18:00）、
+        定期安全更新、年度小幅調整（2次）、
+        系統異常 4 小時內回覆
+      </td>
+      <td class="right">12 個月</td>
+      <td class="right">9,600</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>客製化調整費</td>
+      <td>超出標準模組範圍之功能需求，另行報價</td>
+      <td class="right">—</td>
+      <td class="right">另報</td>
+    </tr>
+    <tr class="subtotal">
+      <td colspan="4">小計（未稅）</td>
+      <td class="right">9,143</td>
+    </tr>
+    <tr class="subtotal">
+      <td colspan="4">營業稅（5%）</td>
+      <td class="right">457</td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="4">合計（含稅）</td>
+      <td class="right">NT$ 9,600</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note">
+  本報價採含稅總價計算，NT$ 9,600 即為最終應付金額。
+  乙方將依法開立三聯式統一發票（如甲方有統一編號）或二聯式發票。
+</div>
+
+<!-- Trial Period -->
+<div class="trial-block">
+  <h4>三個月試用保障機制</h4>
+  <div class="trial-grid">
+    <div class="trial-item">
+      <div class="t-label">合約期間</div>
+      <div class="t-value">12 個月</div>
+      <div class="t-desc">自系統正式上線日起算</div>
+    </div>
+    <div class="trial-item">
+      <div class="t-label">試用期</div>
+      <div class="t-value">前 3 個月</div>
+      <div class="t-desc">系統上線日起 90 天內</div>
+    </div>
+    <div class="trial-item">
+      <div class="t-label">試用期費用</div>
+      <div class="t-value">NT$ 2,400</div>
+      <div class="t-desc">800 元 × 3 個月（不退）</div>
+    </div>
+    <div class="trial-item">
+      <div class="t-label">退款金額</div>
+      <div class="t-value">NT$ 7,200</div>
+      <div class="t-desc">試用期內提出申請可退</div>
+    </div>
+  </div>
+</div>
+
+<!-- Terms -->
+<div class="terms">
+  <h4>服務條款重點摘要</h4>
+  <ol>
+    <li>
+      <strong>付款方式：</strong>簽約後 7 日內一次付清 NT$ 9,600，
+      乙方於收款確認後 2 工作日內開始建置作業。
+    </li>
+    <li>
+      <strong>試用退款條件：</strong>系統正式上線日起 90 天內，
+      甲方得以書面（Email 或 LINE）通知乙方申請退款。
+      退款事由限於：系統功能與本規格書明訂項目不符、
+      重大功能缺失且乙方無法於 14 工作日內修復。
+      一般操作習慣或喜好問題不在退款範圍內。
+    </li>
+    <li>
+      <strong>退款流程：</strong>乙方於收到退款申請後 14 工作日內完成退款，
+      退款金額為 NT$ 7,200（已使用 3 個月費用 NT$ 2,400 不退）。
+      退款完成後系統同步停止服務。
+    </li>
+    <li>
+      <strong>合約續約：</strong>合約到期前 30 日，乙方以 Email / LINE 通知甲方是否續約，
+      未收到終止通知則視為同意以同等條件自動續約一年。
+    </li>
+    <li>
+      <strong>資料歸屬：</strong>系統內所有里民資料、案件資料歸甲方所有，
+      合約終止後乙方提供完整資料匯出，並於 30 日後刪除相關資料。
+    </li>
+    <li>
+      <strong>不可抗力：</strong>因天災、政府命令、第三方平台（LINE/雲端服務）
+      中斷等不可抗力因素造成之服務中斷，乙方不負賠償責任，
+      但應積極協助恢復，並延長等同中斷時間之服務年限作為補償。
+    </li>
+  </ol>
+</div>
+
+<!-- Payment -->
+<h3>付款資訊</h3>
+<table>
+  <tbody>
+    <tr>
+      <td style="width:25%">銀行名稱</td>
+      <td><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+    </tr>
+    <tr>
+      <td>銀行代碼</td>
+      <td><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+    </tr>
+    <tr>
+      <td>帳號</td>
+      <td><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+    </tr>
+    <tr>
+      <td>戶名</td>
+      <td>糸子兔資訊工作室</td>
+    </tr>
+    <tr>
+      <td>匯款備註</td>
+      <td>和平里系統 + 甲方聯絡人姓名</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Sign -->
+<div class="sign-area">
+  <div class="sign-box">
+    <div class="s-label">甲方確認｜台中市北屯區和平里</div>
+    <div class="s-line">里長 簽名</div>
+    <div class="s-line">日期：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日</div>
+  </div>
+  <div class="sign-box">
+    <div class="s-label">乙方確認｜糸子兔資訊工作室</div>
+    <div class="s-line">負責人 簽名</div>
+    <div class="s-line">日期：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日</div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>里民數位服務系統規格書｜和平里</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    font-size: 14px;
+    color: #1a1a2e;
+    background: #fff;
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .cover {
+    text-align: center;
+    padding: 60px 0 40px;
+    border-bottom: 3px solid #1a4a7a;
+    margin-bottom: 40px;
+  }
+  .cover .logo-text {
+    font-size: 13px;
+    color: #888;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+  .cover h1 {
+    font-size: 28px;
+    color: #1a4a7a;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .cover h2 {
+    font-size: 18px;
+    color: #555;
+    font-weight: normal;
+    margin-bottom: 24px;
+  }
+  .cover .meta {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    font-size: 13px;
+    color: #666;
+  }
+  .meta span { display: block; }
+  .meta strong { color: #1a4a7a; }
+
+  h3 {
+    font-size: 16px;
+    color: #1a4a7a;
+    border-left: 4px solid #3ba0c0;
+    padding-left: 10px;
+    margin: 32px 0 14px;
+  }
+  p { line-height: 1.9; color: #333; margin-bottom: 8px; }
+  ul, ol { margin-left: 20px; line-height: 2; color: #333; }
+  li { margin-bottom: 4px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 13px;
+  }
+  th {
+    background: #1a4a7a;
+    color: white;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: normal;
+  }
+  td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: top;
+    line-height: 1.7;
+  }
+  tr:nth-child(even) td { background: #f7fafc; }
+
+  .section {
+    margin-bottom: 32px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eee;
+  }
+  .tag {
+    display: inline-block;
+    background: #e8f4fa;
+    color: #1a4a7a;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 4px;
+  }
+  .note {
+    background: #fff8e1;
+    border-left: 3px solid #f5a623;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #555;
+    margin: 12px 0;
+    line-height: 1.7;
+  }
+  .sign-area {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 60px;
+    gap: 40px;
+  }
+  .sign-box {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 20px;
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+  }
+  .sign-box .label { font-weight: bold; color: #333; margin-bottom: 40px; }
+  .sign-box .line { border-top: 1px solid #999; margin-top: 20px; padding-top: 6px; }
+
+  @media print {
+    body { padding: 20px; }
+    .section { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="logo-text">糸子兔 ITOKO RABBIT × 台中市北屯區和平里</div>
+  <h1>里民數位服務系統<br>系統規格書</h1>
+  <h2>陳情系統 × 特約商店 整合方案</h2>
+  <div class="meta">
+    <div><strong>文件版本</strong><span>v1.0</span></div>
+    <div><strong>建立日期</strong><span>2026 年 4 月 15 日</span></div>
+    <div><strong>服務單位</strong><span>台中市北屯區和平里</span></div>
+  </div>
+</div>
+
+<!-- 1. 服務概述 -->
+<div class="section">
+  <h3>1. 服務概述</h3>
+  <p>
+    本系統由糸子兔資訊工作室（以下稱「乙方」）為台中市北屯區和平里（以下稱「甲方」）
+    客製化建置之里民數位服務整合平台，包含「里民陳情通報系統」與「特約商店系統」兩大模組，
+    透過 LINE Official Account 整合介面，提供里民便捷的數位服務體驗。
+  </p>
+</div>
+
+<!-- 2. 系統模組 -->
+<div class="section">
+  <h3>2. 系統模組與功能範圍</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:20%">模組</th>
+        <th style="width:25%">功能項目</th>
+        <th>說明</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan="5"><strong>里民陳情<br>通報系統</strong></td>
+        <td>案件通報</td>
+        <td>里民可透過 LINE 或網頁表單提交通報，支援文字說明、照片上傳（最多3張）、地點標記</td>
+      </tr>
+      <tr>
+        <td>案件追蹤</td>
+        <td>里民可查詢自己案件之處理狀態（新案件 / 處理中 / 已轉交相關單位 / 已結案）</td>
+      </tr>
+      <tr>
+        <td>里長後台</td>
+        <td>里長端可查看所有案件清單、篩選狀態與類別、更新案件進度、上傳處理照片與回覆說明</td>
+      </tr>
+      <tr>
+        <td>公開案件牆</td>
+        <td>里長審核後可公開案件資訊，供里民了解社區改善狀況（可設定公開/不公開）</td>
+      </tr>
+      <tr>
+        <td>統計儀表板</td>
+        <td>顯示案件狀態分布圓餅圖、案件類別分布（交通/環境/校園/治安/橋梁/其他）</td>
+      </tr>
+      <tr>
+        <td rowspan="4"><strong>特約商店<br>系統</strong></td>
+        <td>商家申請</td>
+        <td>商家可透過線上表單申請加入，填寫店家名稱、電話、統編、地址、經營項目、優惠方案</td>
+      </tr>
+      <tr>
+        <td>里長審核</td>
+        <td>里長後台可審核商家申請（新申請 / 資訊待確認 / 已公開），並可編輯商家資訊</td>
+      </tr>
+      <tr>
+        <td>公開商家頁</td>
+        <td>審核通過的商家顯示於公開頁面，附優惠方案說明、店家照片、Google 地圖連結</td>
+      </tr>
+      <tr>
+        <td>商家管理</td>
+        <td>支援商家分類篩選、狀態篩選、關鍵字搜尋</td>
+      </tr>
+      <tr>
+        <td rowspan="3"><strong>LINE 整合<br>通知</strong></td>
+        <td>里民通報推播</td>
+        <td>里民通報後，里長透過 LINE OA 收到即時通知</td>
+      </tr>
+      <tr>
+        <td>里長回覆推播</td>
+        <td>里長回覆案件後，通報里民透過 LINE 收到處理結果通知</td>
+      </tr>
+      <tr>
+        <td>廣播通知</td>
+        <td>里長可發送里政公告、活動資訊給已加入 LINE OA 的里民</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    ⚠️ 本規格書所列功能為標準固定模組範圍。若甲方提出超出本規格之客製化需求，將另行評估報價。
+  </div>
+</div>
+
+<!-- 3. 不含項目 -->
+<div class="section">
+  <h3>3. 本次服務不含項目</h3>
+  <ul>
+    <li>LINE Official Account 申請費用（由甲方自行申請，乙方協助設定串接）</li>
+    <li>網域名稱申請費用（如需自訂網域由甲方自行購買）</li>
+    <li>活動報名系統（可列為後續擴充模組）</li>
+    <li>點數互通機制（可列為後續擴充模組）</li>
+    <li>APP 原生應用程式開發</li>
+    <li>資料移轉服務（若有現有資料庫需討論）</li>
+  </ul>
+</div>
+
+<!-- 4. 技術架構 -->
+<div class="section">
+  <h3>4. 技術架構概述</h3>
+  <table>
+    <thead>
+      <tr><th>項目</th><th>說明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>前端介面</td><td>響應式網頁（RWD），支援手機、平板、桌機瀏覽</td></tr>
+      <tr><td>後台系統</td><td>低代碼平台建置，操作介面直覺，無需技術背景</td></tr>
+      <tr><td>資料庫</td><td>雲端資料庫，資料加密儲存，定期備份</td></tr>
+      <tr><td>LINE 串接</td><td>Make 自動化平台串接 LINE Messaging API</td></tr>
+      <tr><td>系統存取</td><td>網頁瀏覽器存取，無需安裝應用程式</td></tr>
+      <tr><td>裝置支援</td><td>iOS / Android / Windows / macOS 主流瀏覽器</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5. 建置時程 -->
+<div class="section">
+  <h3>5. 建置時程規劃</h3>
+  <table>
+    <thead>
+      <tr><th>階段</th><th>工作項目</th><th>預計時間</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Step 1｜需求確認</td><td>確認功能細節、LINE OA 資訊、商家類別設定</td><td>1–2 工作天</td></tr>
+      <tr><td>Step 2｜系統建置</td><td>後台建置、LINE 串接、測試環境驗收</td><td>5–8 工作天</td></tr>
+      <tr><td>Step 3｜教育訓練</td><td>里長端操作說明、圖文手冊交付</td><td>1 工作天</td></tr>
+      <tr><td>Step 4｜正式上線</td><td>切換正式環境，里民推廣導入</td><td>依甲方進度</td></tr>
+    </tbody>
+  </table>
+  <p>總建置期：約 <strong>2 週</strong>內完成（自需求確認完成後起算）</p>
+</div>
+
+<!-- 6. 維運服務 -->
+<div class="section">
+  <h3>6. 維運服務內容</h3>
+  <ul>
+    <li>系統異常問題回報處理（工作日 09:00–18:00，4 小時內回覆）</li>
+    <li>定期系統安全性更新與優化</li>
+    <li>操作問題線上諮詢支援</li>
+    <li>年度功能小幅調整（每年2次，每次1工作天內範圍）</li>
+    <li>每月系統正常運作率目標：99%</li>
+  </ul>
+  <div class="note">
+    緊急故障（系統完全無法使用）：承諾 24 小時內恢復，若超過 24 小時未恢復，
+    依實際中斷天數按比例延長服務年限補償。
+  </div>
+</div>
+
+<!-- 7. 甲方義務 -->
+<div class="section">
+  <h3>7. 甲方配合事項</h3>
+  <ul>
+    <li>提供 LINE Official Account 帳號存取權限（用於 Messaging API 串接）</li>
+    <li>於建置期間指定一位窗口（里長或授權人員），負責確認細節</li>
+    <li>驗收確認：系統建置完成後 3 工作天內完成驗收，逾期視同通過</li>
+    <li>里民個人資料之蒐集、使用，依個人資料保護法由甲方自行負責</li>
+  </ul>
+</div>
+
+<!-- 簽名欄 -->
+<div class="sign-area">
+  <div class="sign-box">
+    <div class="label">甲方｜台中市北屯區和平里</div>
+    <div class="line">里長 簽名／用印</div>
+    <div class="line">日期：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日</div>
+  </div>
+  <div class="sign-box">
+    <div class="label">乙方｜糸子兔資訊工作室</div>
+    <div class="line">負責人 簽名／用印</div>
+    <div class="line">日期：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日</div>
+  </div>
+</div>
+
+</body>
+</html>

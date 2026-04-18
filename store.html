@@ -232,6 +232,96 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
 
 .footer { text-align: center; padding: 18px; font-size: 12px; color: var(--ink-300); letter-spacing: 0.5px; }
 
+/* ── 方案選擇 ── */
+.plan-options { display: flex; flex-direction: column; gap: 10px; }
+.plan-option { position: relative; cursor: pointer; display: block; }
+.plan-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.plan-card {
+  border: 2px solid var(--ink-200); border-radius: 14px;
+  padding: 14px 16px; transition: all 0.2s ease;
+  background: var(--blue-50); position: relative; overflow: hidden;
+}
+.plan-card:hover { border-color: var(--blue-300); background: #fff; transform: translateY(-1px); }
+.plan-option input:checked + .plan-card { border-color: var(--blue-500); background: #fff; box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+.plan-option--premium input:checked + .plan-card { border-color: #D97706; box-shadow: 0 0 0 3px rgba(217,119,6,.12); }
+.plan-option--free input:checked + .plan-card { border-color: var(--ink-300); box-shadow: 0 0 0 3px rgba(100,130,160,.10); }
+.plan-card-top { display: flex; align-items: center; gap: 10px; }
+.plan-icon { font-size: 20px; line-height: 1; }
+.plan-name { font-size: 15px; font-weight: 700; color: var(--ink-900); }
+.plan-price { margin-left: auto; font-size: 15px; font-weight: 700; }
+.plan-price-free { color: var(--ink-500); }
+.plan-price-std { color: var(--blue-600); }
+.plan-price-premium { color: #B45309; }
+.plan-benefits { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--ink-100); display: flex; flex-direction: column; gap: 5px; }
+.plan-benefit { display: flex; align-items: flex-start; gap: 7px; font-size: 12px; color: var(--ink-700); line-height: 1.5; }
+.pbc { width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-size: 9px; color: #fff; }
+.pbc-free { background: var(--ink-300); }
+.pbc-std { background: var(--blue-500); }
+.pbc-premium { background: #D97706; }
+.plan-recommended {
+  position: absolute; top: -1px; right: 16px;
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  color: #fff; font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 0 0 8px 8px; letter-spacing: .5px;
+}
+.plan-trial-note {
+  margin-top: 12px; padding: 10px 14px;
+  background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+  border: 1.5px solid #93C5FD; border-radius: 10px;
+  font-size: 12px; color: var(--blue-700);
+  display: flex; align-items: flex-start; gap: 8px; line-height: 1.6;
+}
+
+/* ── 方案確認 Overlay ── */
+.plan-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(15,30,50,.72);
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.plan-overlay.open { display: flex; }
+.poc {
+  background: #fff; border-radius: 20px;
+  max-width: 380px; width: 100%;
+  box-shadow: 0 24px 64px rgba(15,30,50,.24);
+  animation: fadeUp .28s ease-out;
+  overflow: hidden;
+}
+.poc-head { padding: 24px 24px 16px; text-align: center; }
+.poc-emoji { font-size: 44px; margin-bottom: 10px; }
+.poc-title { font-size: 19px; font-weight: 700; color: var(--ink-900); margin-bottom: 6px; }
+.poc-sub { font-size: 13px; color: var(--ink-500); line-height: 1.6; }
+.poc-body { padding: 0 24px 20px; }
+.poc-plan-label {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; font-size: 15px; font-weight: 700;
+  padding: 10px 16px; border-radius: 10px; margin-bottom: 12px;
+}
+.poc-plan-label.std { background: #EFF6FF; color: var(--blue-700); }
+.poc-plan-label.premium { background: #FFFBEB; color: #B45309; }
+.poc-free-banner {
+  background: linear-gradient(135deg, #22C55E, #16A34A);
+  color: #fff; text-align: center; font-size: 13px; font-weight: 700;
+  padding: 9px 16px; border-radius: 10px; margin-bottom: 14px; letter-spacing: .3px;
+}
+.poc-features { display: flex; flex-direction: column; gap: 6px; margin-bottom: 6px; }
+.poc-feature { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-700); }
+.poc-foot { padding: 0 24px 22px; display: flex; flex-direction: column; gap: 8px; }
+.poc-confirm-btn {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #F2C843, #E0B030);
+  color: #5A3E00; border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  font-family: inherit; letter-spacing: .5px; transition: all .2s;
+}
+.poc-confirm-btn:hover { background: linear-gradient(135deg, #E0B030, #CC9A18); transform: translateY(-1px); }
+.poc-back-btn {
+  width: 100%; padding: 10px; background: transparent;
+  border: 1.5px solid var(--ink-200); border-radius: 10px;
+  font-size: 13px; color: var(--ink-500); cursor: pointer;
+  font-family: inherit; transition: all .15s;
+}
+.poc-back-btn:hover { background: var(--blue-50); }
+
 @media (max-width: 480px) {
   .form-container { padding: 0 12px 40px; margin-top: -28px; }
   .header { padding: 36px 16px 50px; }
@@ -272,6 +362,26 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
   <div class="subtitle">請填寫以下資料，我們將儘快進行資料審核</div>
 </div>
 
+<!-- ── 方案確認 Overlay ── -->
+<div class="plan-overlay" id="planOverlay">
+  <div class="poc">
+    <div class="poc-head">
+      <div class="poc-emoji" id="pocEmoji">⭐</div>
+      <div class="poc-title" id="pocTitle">確認特約方案</div>
+      <div class="poc-sub">選擇後即完成申請，里辦公室審核通過後正式上線</div>
+    </div>
+    <div class="poc-body">
+      <div class="poc-plan-label" id="pocPlanLabel">精選方案</div>
+      <div class="poc-free-banner">🎉 試用期間完全免費！享有完整功能，無需付費</div>
+      <div class="poc-features" id="pocFeatures"></div>
+    </div>
+    <div class="poc-foot">
+      <button type="button" class="poc-confirm-btn" id="pocConfirmBtn">確認方案，送出申請</button>
+      <button type="button" class="poc-back-btn" onclick="closePlanOverlay()">返回修改</button>
+    </div>
+  </div>
+</div>
+
 <div class="form-container">
   <form id="reportForm" novalidate>
 
@@ -303,7 +413,75 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
       </div>
     </div>
 
-    <!-- 卡片 2：申請商家 -->
+    <!-- 卡片 2：特約方案 -->
+    <div class="card">
+      <div class="section-title"><span class="title-bar"></span>選擇特約方案</div>
+
+      <div class="plan-options">
+
+        <!-- 免費方案 -->
+        <label class="plan-option plan-option--free">
+          <input type="radio" name="plan" value="免費" checked onchange="onPlanChange()">
+          <div class="plan-card">
+            <div class="plan-card-top">
+              <span class="plan-icon">🏠</span>
+              <span class="plan-name">免費方案</span>
+              <span class="plan-price plan-price-free">免費</span>
+            </div>
+            <div class="plan-benefits">
+              <div class="plan-benefit"><span class="pbc pbc-free">✓</span>刊登於特約商店頁面</div>
+              <div class="plan-benefit"><span class="pbc pbc-free">✓</span>顯示店家介紹、聯絡資訊</div>
+              <div class="plan-benefit"><span class="pbc pbc-free">✓</span>里民可直接查看店家詳情</div>
+            </div>
+          </div>
+        </label>
+
+        <!-- 精選方案 -->
+        <label class="plan-option plan-option--std">
+          <input type="radio" name="plan" value="精選" onchange="onPlanChange()">
+          <div class="plan-card">
+            <div class="plan-card-top">
+              <span class="plan-icon">⭐</span>
+              <span class="plan-name">精選方案</span>
+              <span class="plan-price plan-price-std">$300 / 月</span>
+            </div>
+            <div class="plan-benefits">
+              <div class="plan-benefit"><span class="pbc pbc-std">✓</span>包含所有免費方案權益</div>
+              <div class="plan-benefit"><span class="pbc pbc-std">✓</span>顯示 <strong>⭐ 精選商家</strong> 藍色標章</div>
+              <div class="plan-benefit"><span class="pbc pbc-std">✓</span>提升里民搜尋能見度</div>
+            </div>
+          </div>
+        </label>
+
+        <!-- 優選方案 -->
+        <label class="plan-option plan-option--premium">
+          <input type="radio" name="plan" value="優選" onchange="onPlanChange()">
+          <div class="plan-card">
+            <div class="plan-recommended">推薦</div>
+            <div class="plan-card-top">
+              <span class="plan-icon">👑</span>
+              <span class="plan-name">優選方案</span>
+              <span class="plan-price plan-price-premium">$500 / 月</span>
+            </div>
+            <div class="plan-benefits">
+              <div class="plan-benefit"><span class="pbc pbc-premium">✓</span>包含所有精選方案權益</div>
+              <div class="plan-benefit"><span class="pbc pbc-premium">✓</span><strong>置頂顯示</strong>，優先出現在商店列表最上方</div>
+              <div class="plan-benefit"><span class="pbc pbc-premium">✓</span>專屬 <strong>👑 優選推薦</strong> 金色標章</div>
+              <div class="plan-benefit"><span class="pbc pbc-premium">✓</span>搶先觸及每一位瀏覽的里民</div>
+            </div>
+          </div>
+        </label>
+
+      </div>
+
+      <div class="plan-trial-note" id="planTrialNote" style="display:none">
+        <svg class="icon" style="flex-shrink:0;color:#3B82F6"><use href="#i-info"/></svg>
+        <span>🎉 <strong>試用期間完全免費！</strong> 現在申請即可享有所選方案的完整功能，無需任何費用，後續收費方式將另行公告。</span>
+      </div>
+
+    </div>
+
+    <!-- 卡片 3：申請商家 -->
     <div class="card">
       <div class="section-title"><span class="title-bar"></span>申請商家</div>
 
@@ -390,7 +568,7 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
       </div>
     </div>
 
-    <!-- 卡片 3：照片附件 -->
+    <!-- 卡片 4：照片附件 -->
     <div class="card">
       <div class="section-title"><span class="title-bar"></span>店家照片附件</div>
 
@@ -441,6 +619,46 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
 
 <script src="storeconfig.js"></script>
 <script>
+// ── 方案選擇邏輯 ──
+var PLAN_FEATURES = {
+  '精選': ['刊登於特約商店頁面', '顯示 ⭐ 精選商家 藍色標章', '提升里民搜尋能見度'],
+  '優選': ['置頂顯示，出現在商店列表最上方', '顯示 👑 優選推薦 金色標章', '搶先觸及每一位瀏覽的里民'],
+};
+
+function getSelectedPlan() {
+  var radios = document.querySelectorAll('input[name="plan"]');
+  for (var i = 0; i < radios.length; i++) {
+    if (radios[i].checked) return radios[i].value;
+  }
+  return '免費';
+}
+
+function onPlanChange() {
+  var plan = getSelectedPlan();
+  var note = document.getElementById('planTrialNote');
+  note.style.display = (plan !== '免費') ? 'flex' : 'none';
+}
+
+function openPlanOverlay() {
+  var plan = getSelectedPlan();
+  var emoji = plan === '優選' ? '👑' : '⭐';
+  var cls   = plan === '優選' ? 'premium' : 'std';
+  document.getElementById('pocEmoji').textContent = emoji;
+  document.getElementById('pocTitle').textContent = '確認' + plan + '方案';
+  var label = document.getElementById('pocPlanLabel');
+  label.textContent = emoji + '  ' + plan + '方案';
+  label.className = 'poc-plan-label ' + cls;
+  var feats = PLAN_FEATURES[plan] || [];
+  document.getElementById('pocFeatures').innerHTML = feats.map(function(f) {
+    return '<div class="poc-feature"><span style="font-size:14px">✅</span>' + f + '</div>';
+  }).join('');
+  document.getElementById('planOverlay').classList.add('open');
+}
+
+function closePlanOverlay() {
+  document.getElementById('planOverlay').classList.remove('open');
+}
+
 // 照片預覽
 function previewPhoto(input, previewId) {
   var preview = document.getElementById(previewId);
@@ -487,10 +705,12 @@ async function uploadPhoto(fileInput) {
   var file = fileInput.files[0];
   try {
     var base64 = await compressImage(file);
-    var res = await fetch(CONFIG.UPLOAD_URL, {
+    var res = await fetch(CONFIG.SCRIPT_URL, {
       method: 'POST', redirect: 'follow',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({
+        action: 'uploadStorePhoto',
+        apiKey: CONFIG.API_KEY,
         base64: base64, mimeType: 'image/jpeg',
         fileName: 'store_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_')
       })
@@ -558,26 +778,16 @@ document.querySelectorAll('input, textarea, select').forEach(function(el) {
   });
 });
 
-// 送出表單
-document.getElementById('reportForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-
-  if (!validateForm()) {
-    document.querySelector('.invalid').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-
+// 實際送出（不論有無 overlay）
+async function doSubmit() {
   var btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> 準備上傳…';
 
   try {
-    // 1. 循序上傳照片
     var photoUrls = await uploadAllPhotos(btn);
-
     btn.innerHTML = '<span class="spinner"></span> 送出申請中…';
 
-    // 2. 組合資料（含所有欄位）
     var payload = {
       name:        document.getElementById('f_name').value.trim(),
       phone:       document.getElementById('f_phone').value.trim(),
@@ -594,9 +804,9 @@ document.getElementById('reportForm').addEventListener('submit', async function(
       photo1:      photoUrls[0],
       photo2:      photoUrls[1],
       photo3:      photoUrls[2],
+      planType:    getSelectedPlan(),
     };
 
-    // 3. 送到 Make Webhook
     var res = await fetch(CONFIG.STORE_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -605,15 +815,36 @@ document.getElementById('reportForm').addEventListener('submit', async function(
 
     if (!res.ok) throw new Error('HTTP ' + res.status);
 
-    // 4. 顯示成功
+    closePlanOverlay();
     document.getElementById('reportForm').style.display = 'none';
     document.getElementById('successMsg').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
   } catch (err) {
+    closePlanOverlay();
     alert('送出失敗，請稍後再試。\n錯誤：' + err.message);
     btn.disabled = false;
     btn.innerHTML = '<svg class="icon"><use href="#i-send"/></svg> 送出申請';
+  }
+}
+
+// overlay 確認按鈕觸發真正送出
+document.getElementById('pocConfirmBtn').addEventListener('click', doSubmit);
+
+// 送出表單：免費直送、精選/優選先開 overlay
+document.getElementById('reportForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  if (!validateForm()) {
+    document.querySelector('.invalid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  var plan = getSelectedPlan();
+  if (plan === '精選' || plan === '優選') {
+    openPlanOverlay();
+  } else {
+    await doSubmit();
   }
 });
 </script>

@@ -345,11 +345,12 @@ function renderStore() {
   var html = '';
 
   // ── 狀態＋申請人 bar ──
+  var planIcon = d.planType === '優選' ? '👑 ' : d.planType === '精選' ? '⭐ ' : '🏠 ';
   html += '<div class="status-bar">';
   html += '<div class="status-bar-item"><div class="sb-lbl">狀態</div><div class="sb-val"><span class="badge ' + badgeCls(d.status) + '">' + esc(d.status) + '</span></div></div>';
+  html += '<div class="status-bar-item"><div class="sb-lbl">特約方案</div><div class="sb-val">' + planIcon + esc(d.planType || '免費') + (d.pinOrder > 0 ? ' 📌#' + d.pinOrder : '') + '</div></div>';
   html += '<div class="status-bar-item"><div class="sb-lbl">申請人姓名</div><div class="sb-val">' + (v(d.name)) + '</div></div>';
   html += '<div class="status-bar-item"><div class="sb-lbl">申請人電話</div><div class="sb-val">' + (d.phone ? '<a href="tel:' + esc(d.phone) + '">' + esc(d.phone) + '</a>' : '—') + '</div></div>';
-  html += '<div class="status-bar-item"><div class="sb-lbl">申請人 Line ID</div><div class="sb-val">' + (v(d.lineId)) + '</div></div>';
   html += '</div>';
 
   // ── 商家資訊 ──
@@ -414,6 +415,22 @@ function openModal() {
   });
   html += '</select></div>';
 
+  // 特約方案
+  html += '<div class="field"><div class="field-label">特約方案</div>';
+  html += '<select id="m_planType">';
+  ['免費','精選','優選'].forEach(function(p){
+    var icon = p === '優選' ? '👑 ' : p === '精選' ? '⭐ ' : '🏠 ';
+    var priceHint = p === '優選' ? '（$500/月）' : p === '精選' ? '（$300/月）' : '（免費）';
+    html += '<option value="' + p + '"' + ((d.planType || '免費') === p ? ' selected' : '') + '>' + icon + p + ' ' + priceHint + '</option>';
+  });
+  html += '</select></div>';
+
+  // 置頂順序（精選/優選才顯示）
+  html += '<div class="field" id="pinOrderField" style="' + ((d.planType === '精選' || d.planType === '優選') ? '' : 'display:none') + '">';
+  html += '<div class="field-label">置頂順序 <span style="font-size:11px;color:var(--muted);font-weight:400">（0=不置頂，1=最優先）</span></div>';
+  html += '<input type="number" id="m_pinOrder" min="0" max="99" value="' + (d.pinOrder || 0) + '" placeholder="0">';
+  html += '</div>';
+
   // 管理員備註
   html += '<div class="field"><div class="field-label">管理員備註</div>';
   html += '<textarea id="m_note" rows="3" placeholder="內部備註（不對外顯示）">' + esc(d.note || '') + '</textarea></div>';
@@ -468,6 +485,15 @@ function openModal() {
   document.getElementById('modalBody').innerHTML = html;
   document.getElementById('reviewModal').classList.add('open');
   document.body.style.overflow = 'hidden';
+
+  // 方案切換時顯示/隱藏置頂順序欄
+  var planSel = document.getElementById('m_planType');
+  if (planSel) {
+    planSel.addEventListener('change', function(){
+      var f = document.getElementById('pinOrderField');
+      if (f) f.style.display = (this.value === '精選' || this.value === '優選') ? '' : 'none';
+    });
+  }
 }
 
 function mf(lbl, input) {
@@ -502,6 +528,7 @@ async function submitReview() {
   try {
     var sess = getSession();
     function gv(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+    var pinOrderEl = document.getElementById('m_pinOrder');
     var payload = {
       action: 'updateStore',
       sessionToken: sess ? sess.sessionToken : '',
@@ -509,6 +536,8 @@ async function submitReview() {
       status:  status,
       note:    gv('m_note'),
       reviewer: gv('m_reviewer'),
+      planType: gv('m_planType') || '免費',
+      pinOrder: pinOrderEl ? parseInt(pinOrderEl.value, 10) || 0 : 0,
       pubName:       gv('m_pubName'),
       pubCate:       gv('m_pubCate'),
       pubStoreNum:   gv('m_pubStoreNum'),

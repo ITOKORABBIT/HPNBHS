@@ -10,8 +10,10 @@ var SHEET_STORES = '商店清單';
 var SHEET_ADMINS = '管理員名單';
 
 var GOOGLE_CLIENT_ID = '998009736888-v0hng93jchshicessbc6pjf4e6eiolju.apps.googleusercontent.com';
-var API_KEY      = 'hpnbhs_sk_Qm7Kp2Xa9Wv8Ld5Rn6Yf4Jb';
-var SESSION_TTL  = 21600;
+var API_KEY          = 'hpnbhs_sk_Qm7Kp2Xa9Wv8Ld5Rn6Yf4Jb';
+var NBH_FOLDER_ID    = '10M_y9gRB3FIGILLi4Dq-wxTqjHqNSC_o'; // Photos/NBH — 里民通報照片
+var STOR_FOLDER_ID   = '';                                     // Photos/STOR — 特約商店照片（待填入）
+var SESSION_TTL      = 21600;
 
 // ── 路由 ──
 function doPost(e) {
@@ -26,14 +28,22 @@ function doPost(e) {
       case 'updateReply':       return requireAdmin(data, handleUpdateReply);
       case 'uploadAdminPhoto':  return requireAdmin(data, handleUploadPhoto);
       case 'uploadPublicPhoto': return handlePublicUpload(data);
+      case 'uploadStorePhoto':  return handleStorePublicUpload(data);
       case 'getPublicCases':    return handleGetPublicCases(data);
       case 'getPublicCase':     return handleGetPublicCase(data);
       // ── 特約商店系統 ──
       case 'getStores':         return requireAdmin(data, handleGetStores);
       case 'getStore':          return requireAdmin(data, handleGetStore);
       case 'updateStore':       return requireAdmin(data, handleUpdateStore);
+      case 'setPinStore':       return requireAdmin(data, handleSetPinStore);
       case 'getPublicStores':   return handleGetPublicStores(data);
       case 'getPublicStore':    return handleGetPublicStore(data);
+      // ── 置頂功能 ──
+      case 'pinCase':           return requireAdmin(data, handlePinCase);
+      case 'getAdmins':         return requireAdmin(data, handleGetAdmins);
+      case 'addAdmin':          return requireAdmin(data, handleAddAdmin);
+      case 'updateAdmin':       return requireAdmin(data, handleUpdateAdmin);
+      case 'deleteAdmin':       return requireAdmin(data, handleDeleteAdmin);
       default:
         return jsonOut({ success: false, error: 'Unknown action' });
     }
@@ -173,7 +183,8 @@ function rowToCase(r) {
     publicCate:    String(r[25] || ''),
     publicLoc:     String(r[26] || ''),
     publicSummary: String(r[27] || ''),
-    replyUrl:      String(r[28] || '')
+    replyUrl:      String(r[28] || ''),
+    pinOrder:      Number(r[29]  || 0)   // AD欄：置頂順序（0=不置頂）
   };
 }
 
@@ -217,14 +228,20 @@ function handleUpdateReply(data) {
 // 照片上傳
 // ══════════════════════════════════════════════
 
-function handleUploadPhoto(data) { return doUpload(data); }
+function handleUploadPhoto(data) { return doUpload(data, NBH_FOLDER_ID); }
 
 function handlePublicUpload(data) {
   if (data.apiKey !== API_KEY) return jsonOut({ success: false, error: 'Invalid API key' });
-  return doUpload(data);
+  return doUpload(data, NBH_FOLDER_ID);
 }
 
-function doUpload(data) {
+function handleStorePublicUpload(data) {
+  if (data.apiKey !== API_KEY) return jsonOut({ success: false, error: 'Invalid API key' });
+  return doUpload(data, STOR_FOLDER_ID);
+}
+
+function doUpload(data, folderId) {
+  if (!folderId) return jsonOut({ success: false, error: 'Folder ID not configured' });
   var base64   = data.base64 || '';
   var mimeType = data.mimeType || 'image/jpeg';
   var fileName = (data.fileName || 'photo_' + new Date().getTime() + '.jpg')
@@ -234,7 +251,7 @@ function doUpload(data) {
   if (blob.getBytes().length > 5 * 1024 * 1024) {
     return jsonOut({ success: false, error: 'File too large (max 5MB)' });
   }
-  var folder = DriveApp.getFolderById('10M_y9gRB3FIGILLi4Dq-wxTqjHqNSC_o');
+  var folder = DriveApp.getFolderById(folderId);
   var file = folder.createFile(blob);
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   return jsonOut({ success: true, url: 'https://lh3.googleusercontent.com/d/' + file.getId() });
@@ -359,6 +376,8 @@ function rowToStore(r) {
     pubAddr:    String(r[24] || ''), pubMapUrl:  String(r[25] || ''),
     pubDesc:    String(r[26] || ''), pubOffer:   String(r[27] || ''),
     pubHours:   String(r[28] || ''), pubStoreNum: String(r[29] || ''),
+    planType:   String(r[30] || '免費'),          // AE欄：方案類型（免費/精選/優選）
+    pinOrder:   Number(r[31]  || 0),               // AF欄：置頂順序（0=不置頂）
   };
 }
 
@@ -384,6 +403,8 @@ function rowToPublicStore(r) {
     pubMapUrl:   String(r[25] || ''), pubDesc:     String(r[26] || ''),
     pubOffer:    String(r[27] || ''), pubHours:    String(r[28] || ''),
     pubStoreNum: String(r[29] || ''),
+    planType:    String(r[30] || '免費'),           // AE欄：方案類型
+    pinOrder:    Number(r[31]  || 0),               // AF欄：置頂順序
   };
 }
 
@@ -421,7 +442,116 @@ function handleUpdateStore(data) {
     sheet.getRange(rowIndex, 30).setValue(data.pubStoreNum || '');
   }
 
+  // 方案類型（AE欄）與置頂順序（AF欄）可隨時更新，不限狀態
+  if (data.planType !== undefined) sheet.getRange(rowIndex, 31).setValue(data.planType || '免費');
+  if (data.pinOrder !== undefined) sheet.getRange(rowIndex, 32).setValue(Number(data.pinOrder || 0));
+
   return jsonOut({ success: true });
+}
+
+// ══════════════════════════════════════════════
+// 帳號管理
+// ══════════════════════════════════════════════
+
+function handleGetAdmins(data) {
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_ADMINS);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found: ' + SHEET_ADMINS });
+  var rows = sheet.getDataRange().getValues();
+  var admins = [];
+  for (var i = 1; i < rows.length; i++) {
+    if (!rows[i][0] && !rows[i][3]) continue;
+    admins.push({
+      display_name: String(rows[i][0] || ''),
+      role:         String(rows[i][1] || ''),
+      active:       String(rows[i][2] || '').toUpperCase() === 'TRUE',
+      email:        String(rows[i][3] || ''),
+    });
+  }
+  return jsonOut({ success: true, admins: admins });
+}
+
+function handleAddAdmin(data) {
+  var email = (data.email || '').toLowerCase().trim();
+  if (!email) return jsonOut({ success: false, error: '缺少 email' });
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_ADMINS);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var rows = sheet.getDataRange().getValues();
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][3] || '').toLowerCase() === email)
+      return jsonOut({ success: false, error: '此 email 已存在' });
+  }
+  sheet.appendRow([
+    data.display_name || '',
+    data.role || '管理員',
+    data.active === false ? 'FALSE' : 'TRUE',
+    email,
+  ]);
+  return jsonOut({ success: true });
+}
+
+function handleUpdateAdmin(data) {
+  var email = (data.target_email || data.email || '').toLowerCase().trim();
+  if (!email) return jsonOut({ success: false, error: '缺少 email' });
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_ADMINS);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var rows = sheet.getDataRange().getValues();
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][3] || '').toLowerCase() !== email) continue;
+    var row = i + 1;
+    if (data.display_name !== undefined) sheet.getRange(row, 1).setValue(data.display_name);
+    if (data.role         !== undefined) sheet.getRange(row, 2).setValue(data.role);
+    if (data.active       !== undefined) sheet.getRange(row, 3).setValue(data.active ? 'TRUE' : 'FALSE');
+    return jsonOut({ success: true });
+  }
+  return jsonOut({ success: false, error: '找不到帳號: ' + email });
+}
+
+function handleDeleteAdmin(data) {
+  var email = (data.target_email || data.email || '').toLowerCase().trim();
+  if (!email) return jsonOut({ success: false, error: '缺少 email' });
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_ADMINS);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var rows = sheet.getDataRange().getValues();
+  for (var i = rows.length - 1; i >= 1; i--) {
+    if (String(rows[i][3] || '').toLowerCase() === email) {
+      sheet.deleteRow(i + 1);
+      return jsonOut({ success: true });
+    }
+  }
+  return jsonOut({ success: false, error: '找不到帳號: ' + email });
+}
+
+// ══════════════════════════════════════════════
+// 置頂功能
+// ══════════════════════════════════════════════
+
+function handlePinCase(data) {
+  var caseId = String(data.caseId || '');
+  if (!caseId) return jsonOut({ success: false, error: 'Missing caseId' });
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_CASES);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var all = sheet.getDataRange().getValues();
+  for (var i = 1; i < all.length; i++) {
+    if (String(all[i][0]) !== caseId) continue;
+    sheet.getRange(i + 1, 30).setValue(Number(data.pinOrder || 0)); // AD欄
+    return jsonOut({ success: true });
+  }
+  return jsonOut({ success: false, error: '找不到案件: ' + caseId });
+}
+
+function handleSetPinStore(data) {
+  var storeId = String(data.storeId || '');
+  if (!storeId) return jsonOut({ success: false, error: 'Missing storeId' });
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_STORES);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var all = sheet.getDataRange().getValues();
+  for (var i = 1; i < all.length; i++) {
+    if (String(all[i][0]) !== storeId) continue;
+    if (data.planType !== undefined) sheet.getRange(i + 1, 31).setValue(data.planType || '免費'); // AE欄
+    sheet.getRange(i + 1, 32).setValue(Number(data.pinOrder || 0)); // AF欄
+    return jsonOut({ success: true });
+  }
+  return jsonOut({ success: false, error: '找不到商店: ' + storeId });
 }
 
 // ── 共用輸出 ──

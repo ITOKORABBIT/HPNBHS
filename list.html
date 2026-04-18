@@ -463,6 +463,24 @@ body{
 .chart-wrap.bar-wrap{ height: 160px; }
 .chart-wrap.line-wrap{ height: 150px; }
 
+/* ── 置頂功能 ── */
+.pin-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 6px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--muted); font-size: 13px; transition: all .15s;
+  cursor: pointer; flex-shrink: 0; padding: 0;
+}
+.pin-btn:hover { background: #FFF8E1; border-color: #F59E0B; color: #B45309; }
+.pin-btn.pinned { background: #FFF8E1; border-color: #F59E0B; color: #B45309; }
+.case-card.is-pinned { border-left: 3px solid #F59E0B; }
+.pin-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 7px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: .2px;
+  background: #FFF8E1; color: #B45309; border: 1px solid #FCD34D;
+}
+
 /* ── RWD ── */
 @media(max-width: 480px){
   .card-grid{
@@ -857,12 +875,14 @@ function applyFilters() {
     return true;
   });
 
-  // Sort: by status weight asc, then by caseId numeric desc
+  // 排序：置頂優先（pinOrder asc），再依狀態權重，再依案件號 desc
   filtered.sort(function(a, b){
+    var pa = a.pinOrder > 0 ? a.pinOrder : 999999;
+    var pb = b.pinOrder > 0 ? b.pinOrder : 999999;
+    if (pa !== pb) return pa - pb;
     var wa = statusWeight(a.status);
     var wb = statusWeight(b.status);
     if (wa !== wb) return wa - wb;
-    // Same status: higher caseId first (newer first)
     return caseIdNum(b.caseId) - caseIdNum(a.caseId);
   });
 
@@ -894,17 +914,32 @@ function renderGrid(cases) {
 
   var html = '';
   var lastGroup = null;
+  var shownPinHeader = false;
+  var shownNormalHeader = false;
 
   cases.forEach(function(d){
-    var grp = statusGroupLabel(d.status);
-    if (grp !== lastGroup) {
-      // Count how many in this group (for the current filtered list)
-      var cnt = cases.filter(function(x){ return statusGroupLabel(x.status) === grp; }).length;
+    var isPinned = d.pinOrder > 0;
+    // 置頂組標頭
+    if (isPinned && !shownPinHeader) {
+      var pinCnt = cases.filter(function(x){ return x.pinOrder > 0; }).length;
       html += '<div class="group-header">' +
-        '<span class="group-label">' + grp + '</span>' +
-        '<span class="group-count">' + cnt + ' 筆</span>' +
+        '<span class="group-label">📌 置頂案件</span>' +
+        '<span class="group-count">' + pinCnt + ' 筆</span>' +
         '<div class="group-line"></div></div>';
-      lastGroup = grp;
+      shownPinHeader = true;
+      lastGroup = '📌 置頂案件';
+    }
+    // 一般狀態組標頭
+    if (!isPinned) {
+      var grp = statusGroupLabel(d.status);
+      if (grp !== lastGroup) {
+        var cnt = cases.filter(function(x){ return !x.pinOrder && statusGroupLabel(x.status) === grp; }).length;
+        html += '<div class="group-header">' +
+          '<span class="group-label">' + grp + '</span>' +
+          '<span class="group-count">' + cnt + ' 筆</span>' +
+          '<div class="group-line"></div></div>';
+        lastGroup = grp;
+      }
     }
     html += renderCard(d);
   });
@@ -934,12 +969,16 @@ function renderCard(d) {
     }
   }
 
-  var html = '<div class="case-card ' + cardStatusCls(d.status) + '" onclick="openCase(\'' + esc(d.caseId) + '\')">';
+  var isPinned = d.pinOrder > 0;
+  var cardCls = 'case-card ' + cardStatusCls(d.status) + (isPinned ? ' is-pinned' : '');
+  var html = '<div class="' + cardCls + '" onclick="openCase(\'' + esc(d.caseId) + '\')">';
   html += thumb;
   html += '<div class="card-body">';
   html += '<div class="card-top">';
   html += '<span class="card-id">#' + esc(d.caseId) + '</span>';
   html += '<span class="badge ' + badgeCls(d.status) + '">' + esc(d.status) + '</span>';
+  if (isPinned) html += '<span class="pin-badge">📌 置頂</span>';
+  html += '<button class="pin-btn' + (isPinned ? ' pinned' : '') + '" title="' + (isPinned ? '取消置頂' : '設為置頂') + '" onclick="event.stopPropagation();togglePin(\'' + esc(d.caseId) + '\',' + (d.pinOrder || 0) + ')">📌</button>';
   html += '</div>';
   html += '<div class="card-title">' + esc(d.title || '（無標題）') + '</div>';
 
@@ -979,6 +1018,29 @@ function noPhotoHtml() {
 
 function openCase(id) {
   window.location.href = DETAIL_PAGE + '?id=' + encodeURIComponent(id);
+}
+
+// ──────────────────────────────────────────
+// 置頂功能
+// ──────────────────────────────────────────
+function togglePin(caseId, currentPinOrder) {
+  var newOrder;
+  if (currentPinOrder > 0) {
+    newOrder = 0; // 取消置頂
+  } else {
+    // 自動找到最大 pin_order + 1
+    var maxPin = 0;
+    allCases.forEach(function(c){ if (c.pinOrder > maxPin) maxPin = c.pinOrder; });
+    newOrder = maxPin + 1;
+  }
+  apiCall('pinCase', { caseId: caseId, pinOrder: newOrder })
+    .then(function(json) {
+      if (!json.success) { alert('置頂操作失敗：' + (json.error || '')); return; }
+      var idx = allCases.findIndex(function(c){ return c.caseId === caseId; });
+      if (idx !== -1) allCases[idx].pinOrder = newOrder;
+      applyFilters();
+    })
+    .catch(function() { alert('網路錯誤，請稍後再試'); });
 }
 
 function showError(msg) {

@@ -128,6 +128,7 @@ body{
 
 /* ── Store card ── */
 .store-card{
+  position: relative;
   background: var(--card);
   border-radius: var(--radius);
   border: 1px solid var(--border);
@@ -201,6 +202,75 @@ body{
   display: -webkit-box; -webkit-line-clamp: 1;
   -webkit-box-orient: vertical; overflow: hidden;
 }
+
+/* ── Plan tier cards：漸層邊框 + 舌型徽章（沿用深色稿美感，適配淺藍主題） ── */
+/* 色票 */
+:root{
+  --gold-1:#C9922A; --gold-2:#F5D180; --gold-3:#E8B84B;
+  --pink-1:#9B5A7A; --pink-2:#C47090; --pink-3:#E8A8C0;
+}
+
+/* 優選：金色漸層邊框 */
+.store-card.plan-premium{
+  border: 1.5px solid transparent;
+  background-image:
+    linear-gradient(var(--card), var(--card)),
+    linear-gradient(135deg, var(--gold-1), var(--gold-2) 45%, var(--gold-3), var(--gold-1));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: 0 2px 14px rgba(201,146,42,.22), var(--shadow-sm);
+}
+.store-card.plan-premium:hover{
+  box-shadow: 0 4px 20px rgba(201,146,42,.32), var(--shadow-md);
+}
+.store-card.plan-premium .card-name{ color: #9E6A12; }
+
+/* 精選：粉色漸層邊框 */
+.store-card.plan-std{
+  border: 1.5px solid transparent;
+  background-image:
+    linear-gradient(var(--card), var(--card)),
+    linear-gradient(135deg, var(--pink-1), var(--pink-3) 50%, var(--pink-2), var(--pink-1));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  box-shadow: 0 2px 12px rgba(155,90,122,.15), var(--shadow-sm);
+}
+.store-card.plan-std:hover{
+  box-shadow: 0 4px 16px rgba(155,90,122,.22), var(--shadow-md);
+}
+.store-card.plan-std .card-name{ color: #8A4968; }
+
+/* 舌型下垂徽章 */
+.plan-tongue{
+  position: absolute; top: -1px; right: 18px;
+  padding: 5px 12px 9px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .3px;
+  color: var(--heading);
+  z-index: 2;
+  clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.plan-tongue.premium{
+  background: linear-gradient(135deg, var(--gold-2), var(--gold-3));
+}
+.plan-tongue.std{
+  background: linear-gradient(135deg, var(--pink-3), var(--pink-2));
+  color: #FFFFFF;
+}
+
+/* ── 區塊標題（優選推薦 / 其他商店） ── */
+.section-header {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 2px 2px;
+}
+.section-header-label {
+  font-size: 12px; font-weight: 700; color: var(--lbl);
+  letter-spacing: .5px; text-transform: uppercase;
+  display: flex; align-items: center; gap: 6px;
+}
+.section-header-line { flex: 1; height: 1px; background: var(--divider); }
 
 /* ── Empty / Loading ── */
 .state-wrap{
@@ -360,6 +430,13 @@ function selectCate(el) {
   applyFilters();
 }
 
+function planWeight(d) {
+  if ((d.planType === '優選') && d.pinOrder > 0) return 1;
+  if (d.planType === '優選') return 2;
+  if (d.planType === '精選') return 3;
+  return 4;
+}
+
 function applyFilters() {
   var q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
   var filtered = allStores.filter(function(d){
@@ -370,10 +447,24 @@ function applyFilters() {
     }
     return true;
   });
+
+  // 排序：優選置頂 > 優選 > 精選 > 免費，同級按 pinOrder asc
+  filtered.sort(function(a, b) {
+    var wa = planWeight(a), wb = planWeight(b);
+    if (wa !== wb) return wa - wb;
+    if (wa <= 2) return (a.pinOrder || 0) - (b.pinOrder || 0);
+    return 0;
+  });
+
   renderGrid(filtered);
   document.getElementById('resultBar').innerHTML =
     '共 <strong>' + filtered.length + '</strong> 家商店' +
     (allStores.length !== filtered.length ? '・全部 ' + allStores.length + ' 家' : '');
+}
+
+function sectionHeader(label) {
+  return '<div class="section-header"><span class="section-header-label">' + label + '</span>' +
+    '<div class="section-header-line"></div></div>';
 }
 
 function renderGrid(stores) {
@@ -385,7 +476,20 @@ function renderGrid(stores) {
       '<h3>沒有符合的商店</h3><p>請嘗試調整搜尋條件</p></div>';
     return;
   }
-  grid.innerHTML = stores.map(renderCard).join('');
+
+  var html = '';
+  var lastGroup = null;
+  stores.forEach(function(d) {
+    var grp = (d.planType === '優選') ? 'premium' : (d.planType === '精選') ? 'std' : 'free';
+    if (grp !== lastGroup) {
+      if (grp === 'premium') html += sectionHeader('👑 優選推薦商家');
+      else if (grp === 'std' && lastGroup === 'premium') html += sectionHeader('⭐ 精選商家');
+      else if (grp === 'free' && (lastGroup === 'premium' || lastGroup === 'std')) html += sectionHeader('🏠 更多商家');
+      lastGroup = grp;
+    }
+    html += renderCard(d);
+  });
+  grid.innerHTML = html;
 }
 
 function imgFallback(img) {
@@ -401,8 +505,15 @@ function renderCard(d) {
       '<svg width="32" height="32" fill="none" stroke="#4A92C4" stroke-width="1.5" opacity=".5" viewBox="0 0 24 24">' +
       '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div></div>';
 
+  var isPremium = d.planType === '優選';
+  var isStd     = d.planType === '精選';
   var detailUrl = 'storeopendetail.html?id=' + encodeURIComponent(d.storeId);
-  var html = '<div class="store-card" onclick="location.href=\'' + detailUrl + '\'" style="cursor:pointer">';
+  var cardCls = 'store-card' +
+    (isPremium ? ' plan-premium' : '') +
+    (isStd     ? ' plan-std'     : '');
+  var html = '<div class="' + cardCls + '" onclick="location.href=\'' + detailUrl + '\'" style="cursor:pointer">';
+  if (isPremium) html += '<div class="plan-tongue premium">優選</div>';
+  else if (isStd) html += '<div class="plan-tongue std">精選</div>';
   html += thumb;
   html += '<div class="card-body">';
   html += '<div class="card-top">';

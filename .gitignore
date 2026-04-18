@@ -1,0 +1,12 @@
+# Secrets
+google-service-account.json
+*.pem
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

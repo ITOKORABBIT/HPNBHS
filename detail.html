@@ -1048,6 +1048,23 @@ async function submitReply(){
     });
     var json = JSON.parse(await res.text());
     if (!json.success) throw new Error(json.error || '寫入失敗');
+
+    // Scenario B：官方LINE回覆推播（best effort，不擋主流程）
+    if (CONFIG.REPLY_WEBHOOK_URL) {
+      fetch(CONFIG.REPLY_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          caseId:        payload.caseId,
+          status:        payload.status,
+          handler:       payload.handler,
+          reply_content: payload.reply_content,
+          public:        payload.public,
+          public_title:  payload.public_title || ''
+        })
+      }).catch(function(){});
+    }
+
     closeModal();
     document.getElementById('successOverlay').classList.add('open');
     document.body.style.overflow = 'hidden';

@@ -9,9 +9,10 @@ const CONFIG = {
   VILLAGE_NAME: '北屯區和平里',
   SYSTEM_NAME: '里民通報系統',
 
-  // Make Webhook URL（里民通報用）
-  // ⚠️ 建議在 Make 重新產生此 URL 以確保安全
-  REPORT_WEBHOOK_URL: 'https://hook.us2.make.com/wa9jtsqq171jf7yoycpb7upnpii30m5g',
+  // Make Webhook URLs
+  REPORT_WEBHOOK_URL: 'https://hook.us2.make.com/wa9jtsqq171jf7yoycpb7upnpii30m5g', // Scenario A 案件通報推播
+  REPLY_WEBHOOK_URL:  '',  // Scenario B 官方LINE回覆推播（填入 Make Scenario B webhook URL）
+  STORE_WEBHOOK_URL:  '',  // Scenario C 特約商店申請推播（填入 Make Scenario C webhook URL）
 
   // Google Apps Script（統一 API 端點，所有資料讀寫都經過此處驗證）
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzrkTqHoddzXyCj5dlRlmZL2eAFrr8zeqJ9IiVIJnc59g7ibZjZ8wAxxGdrJnyQkaatTw/exec',
