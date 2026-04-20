@@ -28,5 +28,5 @@ const CONFIG = {
   GOOGLE_CLIENT_ID: '998009736888-v0hng93jchshicessbc6pjf4e6eiolju.apps.googleusercontent.com',
 
   // API Key（公開端點基本保護）
-  API_KEY: 'tokuten_sk_Qm7Kp2Xa9Wv8Ld5Rn6Yf4Jb',
+  API_KEY: 'hpnbhs_sk_Qm7Kp2Xa9Wv8Ld5Rn6Yf4Jb',
 };

@@ -489,13 +489,13 @@ var TAB_ACCENT = {
 // ══════════════════════════════════════════════
 // SESSION
 // ══════════════════════════════════════════════
-function setSession(token, email, name) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify({ sessionToken: token, email, name, ts: Date.now() }));
+function setSession(token, email, name, role) {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ sessionToken: token, email, name, role, ts: Date.now() }));
 }
-function clearSession() { localStorage.removeItem(SESSION_KEY); }
+function clearSession() { sessionStorage.removeItem(SESSION_KEY); }
 function getSession() {
   try {
-    var d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    var d = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
     if (!d || !d.sessionToken || Date.now() - d.ts > SESSION_TTL) { clearSession(); return null; }
     return d;
   } catch(e) { return null; }
@@ -526,7 +526,7 @@ function apiCall(action, extra) {
 // ══════════════════════════════════════════════
 function initGoogle() {
   var sess = getSession();
-  if (sess) { adminName = sess.name || ''; gEmail = sess.email || ''; enterApp(); return; }
+  if (sess) { adminName = sess.name || ''; gEmail = sess.email || ''; adminRole = sess.role || ''; enterApp(); return; }
   if (!CONFIG.GOOGLE_CLIENT_ID) return;
   if (typeof google === 'undefined') { setTimeout(initGoogle, 300); return; }
   google.accounts.id.initialize({ client_id: CONFIG.GOOGLE_CLIENT_ID, callback: onGoogleSignIn, auto_select: true });
@@ -545,8 +545,8 @@ function onGoogleSignIn(resp) {
   .then(r => r.text()).then(t => JSON.parse(t))
   .then(json => {
     if (!json.success) { document.getElementById('loginError').style.display = 'block'; return; }
-    adminName = json.name || ''; gEmail = json.email || '';
-    setSession(json.sessionToken, json.email, json.name);
+    adminName = json.name || ''; gEmail = json.email || ''; adminRole = json.role || '';
+    setSession(json.sessionToken, json.email, json.name, json.role || '');
     enterApp();
   })
   .catch(() => { document.getElementById('loginError').style.display = 'block'; });

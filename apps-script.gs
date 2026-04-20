@@ -12,9 +12,15 @@ var SHEET_BULLETIN = '公佈欄';
 
 var GOOGLE_CLIENT_ID = '998009736888-v0hng93jchshicessbc6pjf4e6eiolju.apps.googleusercontent.com';
 var API_KEY          = 'hpnbhs_sk_Qm7Kp2Xa9Wv8Ld5Rn6Yf4Jb';
+var REPORT_WEBHOOK_URL = 'https://hook.us2.make.com/wa9jtsqq171jf7yoycpb7upnpii30m5g';
 var NBH_FOLDER_ID    = '10M_y9gRB3FIGILLi4Dq-wxTqjHqNSC_o'; // Photos/NBH — 里民通報照片
 var STOR_FOLDER_ID   = '';                                     // Photos/STOR — 特約商店照片（待填入）
 var SESSION_TTL      = 21600;
+var PUBLIC_FORM_MIN_MS      = 3000;
+var PUBLIC_FORM_MAX_MS      = 2 * 60 * 60 * 1000;
+var PUBLIC_SUBMIT_COOLDOWN  = 300;
+var UPLOAD_RATE_LIMIT = 10;
+var UPLOAD_RATE_WINDOW = 60;
 
 // ── 路由 ──
 function doPost(e) {
@@ -24,12 +30,13 @@ function doPost(e) {
       // ── 通用 ──
       case 'login':             return handleLogin(data);
       case 'refreshSession':    return handleRefreshSession(data);
+      case 'submitReport':      return handleSubmitReport(data);
       // ── 里民通報系統 ──
       case 'getCases':          return requireAdmin(data, handleGetCases);
       case 'getCase':           return requireAdmin(data, handleGetCase);
       case 'updateReply':       return requireAdmin(data, handleUpdateReply);
       case 'uploadAdminPhoto':  return requireAdmin(data, handleUploadPhoto);
-      case 'uploadPublicPhoto': return handlePublicUpload(data, e);
+      case 'uploadPublicPhoto': return jsonOut({ success: false, error: 'uploadPublicPhoto 已停用，請改用 submitReport' });
       case 'uploadStorePhoto':  return handleStorePublicUpload(data, e);
       case 'getPublicCases':    return handleGetPublicCases(data);
       case 'getPublicCase':     return handleGetPublicCase(data);
@@ -48,10 +55,10 @@ function doPost(e) {
       case 'deleteBulletin':     return requireAdmin(data, handleDeleteBulletin);
       // ── 置頂功能 ──
       case 'pinCase':           return requireAdmin(data, handlePinCase);
-      case 'getAdmins':         return requireAdmin(data, handleGetAdmins);
-      case 'addAdmin':          return requireAdmin(data, handleAddAdmin);
-      case 'updateAdmin':       return requireAdmin(data, handleUpdateAdmin);
-      case 'deleteAdmin':       return requireAdmin(data, handleDeleteAdmin);
+      case 'getAdmins':         return requireSuperAdmin(data, handleGetAdmins);
+      case 'addAdmin':          return requireSuperAdmin(data, handleAddAdmin);
+      case 'updateAdmin':       return requireSuperAdmin(data, handleUpdateAdmin);
+      case 'deleteAdmin':       return requireSuperAdmin(data, handleDeleteAdmin);
       default:
         return jsonOut({ success: false, error: 'Unknown action' });
     }
@@ -83,11 +90,11 @@ function handleLogin(data) {
   var sessionToken = Utilities.getUuid();
   CacheService.getScriptCache().put(
     'sess_' + sessionToken,
-    JSON.stringify({ email: email, name: admin.name }),
+    JSON.stringify({ email: email, name: admin.name, role: admin.role || '' }),
     SESSION_TTL
   );
 
-  return jsonOut({ success: true, sessionToken: sessionToken, name: admin.name, email: email });
+  return jsonOut({ success: true, sessionToken: sessionToken, name: admin.name, email: email, role: admin.role || '' });
 }
 
 function verifyGoogleToken(idToken) {
@@ -112,7 +119,7 @@ function checkAdmin(email) {
     var rowEmail = String(data[i][3] || '').toLowerCase().trim();
     var active   = String(data[i][2] || '').toUpperCase();
     if (rowEmail === email && active === 'TRUE') {
-      return { valid: true, name: String(data[i][0] || '') };
+      return { valid: true, name: String(data[i][0] || ''), role: String(data[i][1] || '') };
     }
   }
   return { valid: false };
@@ -142,6 +149,153 @@ function requireAdmin(data, handler) {
   if (!sess) return jsonOut({ success: false, error: 'Unauthorized', code: 401 });
   data._session = sess;
   return handler(data);
+}
+
+function requireSuperAdmin(data, handler) {
+  var sess = getSession(data.sessionToken);
+  if (!sess) return jsonOut({ success: false, error: 'Unauthorized', code: 401 });
+  if (!isSuperAdminRole(sess.role)) return jsonOut({ success: false, error: 'Forbidden', code: 403 });
+  data._session = sess;
+  return handler(data);
+}
+
+function isSuperAdminRole(role) {
+  var text = String(role || '').toLowerCase();
+  return text.indexOf('super') !== -1 ||
+         text.indexOf('owner') !== -1 ||
+         text.indexOf('root')  !== -1 ||
+         text.indexOf('超級')  !== -1;
+}
+
+// ══════════════════════════════════════════════
+// 里民通報系統 — 公開送出通報
+// ══════════════════════════════════════════════
+
+function handleSubmitReport(data) {
+  var validationError = validatePublicReport_(data);
+  if (validationError) return jsonOut({ success: false, error: validationError });
+
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_CASES);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+
+  var now = new Date();
+  var nowText = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd HH:mm');
+  var caseId = nextCaseId_(sheet, 'HP');
+  var photos = uploadPublicReportPhotos_(data.photos, caseId);
+
+  sheet.appendRow([
+    caseId, nowText, 'NEW',
+    String(data.cate    || '').trim(),
+    String(data.name    || '').trim(),
+    String(data.phone   || '').trim(),
+    String(data.lineId  || '').trim(),
+    String(data.title   || '').trim(),
+    String(data.desc    || '').trim(),
+    String(data.addr    || '').trim(),
+    String(data.map     || '').trim(),
+    String(data.case1999 || data['1999'] || '').trim(),
+    photos[0], photos[1], photos[2],
+    '', nowText, '', '', '', '', '', '', 'FALSE', '', '', '', '', '', 0
+  ]);
+
+  notifyNewReport_({
+    caseId: caseId, reportTime: nowText, status: 'NEW',
+    cate:  String(data.cate  || '').trim(),
+    name:  String(data.name  || '').trim(),
+    phone: String(data.phone || '').trim(),
+    lineId: String(data.lineId || '').trim(),
+    title: String(data.title || '').trim(),
+    desc:  String(data.desc  || '').trim(),
+    addr:  String(data.addr  || '').trim(),
+    map:   String(data.map   || '').trim(),
+    case1999: String(data.case1999 || data['1999'] || '').trim(),
+    photo1: photos[0], photo2: photos[1], photo3: photos[2]
+  });
+
+  return jsonOut({ success: true, caseId: caseId });
+}
+
+function validatePublicReport_(data) {
+  if (String(data.website || '').trim()) return 'bot_rejected';
+
+  var formTs = parseInt(data.formTs || '0', 10);
+  var elapsed = Date.now() - formTs;
+  if (!formTs || elapsed < PUBLIC_FORM_MIN_MS || elapsed > PUBLIC_FORM_MAX_MS) return 'form_expired';
+
+  var requiredFields = ['name', 'phone', 'cate', 'title', 'desc', 'addr'];
+  for (var i = 0; i < requiredFields.length; i++) {
+    if (!String(data[requiredFields[i]] || '').trim()) return 'missing_required_fields';
+  }
+
+  var photos = Array.isArray(data.photos) ? data.photos : [];
+  if (photos.length > 3) return 'too_many_photos';
+
+  var phone = normalizePhone_(data.phone);
+  if (!phone || phone.length < 8) return 'invalid_phone';
+
+  var title = String(data.title || '').trim();
+  var addr  = String(data.addr  || '').trim();
+  var dedupeKey = 'report_' + Utilities.base64EncodeWebSafe(phone + '|' + title + '|' + addr).substring(0, 120);
+  var cache = CacheService.getScriptCache();
+  if (cache.get(dedupeKey)) return 'too_many_requests';
+  cache.put(dedupeKey, '1', PUBLIC_SUBMIT_COOLDOWN);
+
+  return '';
+}
+
+function normalizePhone_(phone) {
+  return String(phone || '').replace(/[^\d]/g, '');
+}
+
+function nextCaseId_(sheet, prefix) {
+  var all = sheet.getDataRange().getValues();
+  var maxNum = 0;
+  for (var i = 1; i < all.length; i++) {
+    var match = String(all[i][0] || '').match(/(\d+)/);
+    if (match) maxNum = Math.max(maxNum, parseInt(match[1], 10) || 0);
+  }
+  return String(prefix || 'HP') + '-' + Utilities.formatString('%05d', maxNum + 1);
+}
+
+function uploadPublicReportPhotos_(photos, caseId) {
+  var result = ['', '', ''];
+  var items = Array.isArray(photos) ? photos.slice(0, 3) : [];
+  for (var i = 0; i < items.length; i++) {
+    if (!items[i] || !items[i].base64) continue;
+    try {
+      result[i] = createUploadedFileUrl_(
+        items[i].base64, items[i].mimeType || 'image/jpeg',
+        NBH_FOLDER_ID, String(caseId || 'report') + '_' + (i + 1)
+      );
+    } catch (e) { console.error('[uploadPublicReportPhotos_]', e.toString()); }
+  }
+  return result;
+}
+
+function notifyNewReport_(payload) {
+  if (!REPORT_WEBHOOK_URL) return;
+  try {
+    UrlFetchApp.fetch(REPORT_WEBHOOK_URL, {
+      method: 'post', contentType: 'application/json',
+      payload: JSON.stringify(payload), muteHttpExceptions: true
+    });
+  } catch (err) { console.error('[notifyNewReport_]', err.toString()); }
+}
+
+function createUploadedFileUrl_(base64, mimeType, folderId, fileNamePrefix) {
+  if (!folderId) throw new Error('Folder ID not configured');
+  var normalizedMime = String(mimeType || 'image/jpeg').toLowerCase().split(';')[0].trim();
+  if (!ALLOWED_MIME[normalizedMime]) throw new Error('不支援的檔案類型');
+  var ext = ALLOWED_MIME[normalizedMime];
+  var safePrefix = String(fileNamePrefix || 'photo').replace(/[^a-zA-Z0-9_-]/g, '_');
+  var fileName = safePrefix + '_' + new Date().getTime() + '.' + ext;
+  var b64 = String(base64 || '').replace(/^data:image\/\w+;base64,/, '');
+  var blob = Utilities.newBlob(Utilities.base64Decode(b64), normalizedMime, fileName);
+  if (blob.getBytes().length > 5 * 1024 * 1024) throw new Error('檔案太大（上限 5MB）');
+  var folder = DriveApp.getFolderById(folderId);
+  var file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  return 'https://lh3.googleusercontent.com/d/' + file.getId();
 }
 
 // ══════════════════════════════════════════════

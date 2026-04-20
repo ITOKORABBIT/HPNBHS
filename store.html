@@ -711,8 +711,9 @@ async function uploadPhoto(fileInput) {
       body: JSON.stringify({
         action: 'uploadStorePhoto',
         apiKey: CONFIG.API_KEY,
-        base64: base64, mimeType: 'image/jpeg',
-        fileName: 'store_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_')
+        origin: location.origin,
+        base64: base64,
+        mimeType: file.type || 'image/jpeg'
       })
     });
     var json = JSON.parse(await res.text());

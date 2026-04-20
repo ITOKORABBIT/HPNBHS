@@ -566,14 +566,14 @@ var SESSION_KEY = 'hpnbhs_admin';
 var SESSION_TTL = 6 * 3600 * 1000;
 function getSession() {
   try {
-    var d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    var d = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
     if (!d || !d.sessionToken || Date.now() - d.ts > SESSION_TTL) {
-      localStorage.removeItem(SESSION_KEY); return null;
+      sessionStorage.removeItem(SESSION_KEY); return null;
     }
     return d;
   } catch(e) { return null; }
 }
-function clearSession() { localStorage.removeItem(SESSION_KEY); }
+function clearSession() { sessionStorage.removeItem(SESSION_KEY); }
 
 var _sess = getSession();
 if (!_sess) {
