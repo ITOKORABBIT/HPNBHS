@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公佈欄管理 - 和平里後台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+img{display:block;max-width:100%}
+button{cursor:pointer;font-family:inherit}
+
+:root{
+  --bg:#F5F2EE;--card:#FFF;--border:#E2D9CF;--divider:#EDE7DF;
+  --lbl:#8C7B6A;--val:#2C2018;--muted:#B8A898;--heading:#1E160E;
+  --warn:#C0582A;--warn-bg:#FDF0EA;
+  --accent:#4B7A52;--accent-l:#EAF3EB;--accent-d:#3A5E3F;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.07);
+  --radius:10px;
+  --font:'Noto Sans TC',-apple-system,BlinkMacSystemFont,sans-serif;
+  --topbar-h:56px;
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--val);font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ── Login ── */
+#loginScreen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;padding:40px}
+.login-logo{width:72px;height:72px;background:var(--accent);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 6px 20px rgba(75,122,82,.35)}
+.login-title{font-size:22px;font-weight:700;color:var(--heading);margin-bottom:6px}
+.login-sub{font-size:14px;color:var(--lbl);margin-bottom:32px;text-align:center;line-height:1.6}
+#loginBtnWrap{display:flex;justify-content:center}
+.login-error{margin-top:16px;font-size:13px;color:var(--warn);background:var(--warn-bg);padding:10px 18px;border-radius:8px;display:none}
+
+/* ── App ── */
+#appShell{display:none}
+
+/* ── Topbar ── */
+.topbar{height:var(--topbar-h);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px 0 20px;gap:12px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm)}
+.topbar-brand{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700;color:var(--heading)}
+.topbar-icon{width:30px;height:30px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.topbar-spacer{flex:1}
+.topbar-user{font-size:13px;color:var(--lbl)}
+.logout-btn{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;font-size:12px;color:var(--lbl);transition:background .15s}
+.logout-btn:hover{background:var(--bg)}
+
+/* ── Content ── */
+.content{padding:20px 16px 80px;max-width:640px;margin:0 auto}
+
+/* ── Add button ── */
+.add-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 16px;border-radius:8px;border:none;
+  background:var(--accent);color:#fff;
+  font-size:14px;font-weight:600;
+  margin-bottom:16px;
+  transition:background .15s;
+}
+.add-btn:hover{background:var(--accent-d)}
+
+/* ── Bulletin list ── */
+.bull-item{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow-sm);
+  margin-bottom:10px;overflow:hidden;
+  border-left:4px solid var(--accent);
+}
+.bull-item.draft{border-left-color:var(--muted);opacity:.8}
+.bull-item.pinned{border-left-color:#F5A623}
+.bull-header{display:flex;align-items:flex-start;gap:10px;padding:12px 14px}
+.bull-info{flex:1;min-width:0}
+.bull-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.badge-pub{background:var(--accent-l);color:var(--accent)}
+.badge-draft{background:var(--divider);color:var(--muted)}
+.badge-pin{background:#FFF3CD;color:#9A6A00}
+.bull-date{font-size:11px;color:var(--muted)}
+.bull-title{font-size:14px;font-weight:700;color:var(--heading);line-height:1.4;margin-bottom:4px}
+.bull-preview{font-size:12px;color:var(--lbl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.bull-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.btn-edit,.btn-del{
+  padding:5px 11px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid;
+  transition:all .15s;white-space:nowrap;
+}
+.btn-edit{background:transparent;border-color:var(--accent);color:var(--accent)}
+.btn-edit:hover{background:var(--accent-l)}
+.btn-del{background:transparent;border-color:var(--warn);color:var(--warn)}
+.btn-del:hover{background:var(--warn-bg)}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:48px 16px;color:var(--muted);font-size:13px}
+
+/* ── Skeleton ── */
+.skel-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);border-left:4px solid var(--divider);padding:14px;margin-bottom:10px;overflow:hidden}
+.skel-line{height:11px;border-radius:4px;background:linear-gradient(90deg,var(--divider) 25%,#e8dfd7 50%,var(--divider) 75%);background-size:300% 100%;animation:skel-anim 1.5s infinite;margin-bottom:9px}
+.skel-line.short{width:35%}.skel-line.med{width:60%}
+@keyframes skel-anim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* touch-action */
+.add-btn,.btn-edit,.btn-del,.btn-primary,.btn-ghost,.logout-btn{touch-action:manipulation}
+
+/* ── Modal ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:16px}
+.overlay.open{display:flex}
+.modal{background:var(--card);border-radius:14px;width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.modal-header h2{flex:1;font-size:16px;font-weight:700;color:var(--heading)}
+.modal-close{width:30px;height:30px;border:none;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.modal-body{padding:18px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:14px}
+.modal-footer{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+/* ── Form elements ── */
+.field label{display:block;font-size:12px;font-weight:700;color:var(--lbl);letter-spacing:.4px;margin-bottom:5px}
+.field input,.field textarea{
+  width:100%;padding:9px 11px;border-radius:7px;
+  border:1px solid var(--border);background:var(--bg);
+  font-family:var(--font);font-size:13px;color:var(--val);outline:none;
+  transition:border-color .15s;
+}
+.field input:focus,.field textarea:focus{border-color:var(--accent)}
+.field textarea{resize:vertical;min-height:100px;line-height:1.6}
+.field-row{display:flex;gap:12px;align-items:center}
+.field-row label{font-size:13px;color:var(--val);display:flex;align-items:center;gap:6px;cursor:pointer}
+.field-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent)}
+
+.btn-primary{padding:8px 20px;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;transition:background .15s}
+.btn-primary:hover{background:var(--accent-d)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-ghost{padding:8px 16px;border-radius:7px;border:1px solid var(--border);background:transparent;font-size:13px;color:var(--lbl);transition:background .15s}
+.btn-ghost:hover{background:var(--bg)}
+
+.status-select{
+  padding:9px 11px;border-radius:7px;border:1px solid var(--border);
+  background:var(--bg);font-family:var(--font);font-size:13px;color:var(--val);outline:none;width:100%;
+}
+.status-select:focus{border-color:var(--accent)}
+
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:#1E160E;color:#fff;padding:10px 20px;border-radius:8px;
+  font-size:13px;font-weight:600;z-index:999;opacity:0;
+  transition:opacity .2s;pointer-events:none;white-space:nowrap;
+}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginScreen">
+  <div class="login-logo">
+    <svg width="32" height="32" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+      <rect x="9" y="3" width="6" height="4" rx="1"/>
+      <path d="M9 12h6M9 16h4"/>
+    </svg>
+  </div>
+  <div class="login-title">公佈欄管理</div>
+  <div class="login-sub">請以里辦 Google 帳號登入</div>
+  <div id="loginBtnWrap"></div>
+  <div class="login-error" id="loginError"></div>
+</div>
+
+<!-- App -->
+<div id="appShell">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-icon">
+        <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="1"/>
+        </svg>
+      </div>
+      公佈欄管理
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-user" id="topbarUser"></div>
+    <button class="logout-btn" onclick="logout()">登出</button>
+  </div>
+
+  <div class="content">
+    <button class="add-btn" onclick="openForm(null)">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      新增公告
+    </button>
+    <div id="listEl">
+      <div class="skel-item"><div class="skel-line short"></div><div class="skel-line med"></div><div class="skel-line"></div></div>
+      <div class="skel-item"><div class="skel-line short"></div><div class="skel-line med"></div><div class="skel-line"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Form Modal -->
+<div class="overlay" id="formOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="formTitle">新增公告</h2>
+      <button class="modal-close" onclick="closeForm()" aria-label="關閉">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>標題 *</label>
+        <input type="text" id="fTitle" placeholder="公告標題">
+      </div>
+      <div class="field">
+        <label>內容</label>
+        <textarea id="fContent" placeholder="公告內容（支援換行）"></textarea>
+      </div>
+      <div class="field">
+        <label>圖片網址（選填）</label>
+        <input type="url" id="fImageUrl" placeholder="https://...">
+      </div>
+      <div class="field">
+        <label>狀態</label>
+        <select class="status-select" id="fStatus">
+          <option value="已發布">已發布（立即公開）</option>
+          <option value="草稿">草稿（暫不公開）</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label>
+          <input type="checkbox" id="fPinned">
+          📌 置頂顯示
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeForm()">取消</button>
+      <button class="btn-primary" id="saveBtn" onclick="save()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script>
+let sessionToken = null;
+let editingId = null;
+let bulletins = [];
+
+// ── Auth ──
+window.onload = function() {
+  google.accounts.id.initialize({
+    client_id: CONFIG.GOOGLE_CLIENT_ID,
+    callback: handleCredential,
+  });
+  google.accounts.id.renderButton(document.getElementById('loginBtnWrap'), {
+    theme: 'outline', size: 'large', text: 'signin_with', locale: 'zh-TW',
+  });
+};
+
+async function handleCredential(resp) {
+  const r = await api({ action: 'login', id_token: resp.credential });
+  if (!r.success) { showLoginError(r.error || '無法登入'); return; }
+  sessionToken = r.sessionToken;
+  document.getElementById('topbarUser').textContent = r.name || r.email;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  loadBulletins();
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function logout() {
+  sessionToken = null;
+  location.reload();
+}
+
+// ── API ──
+async function api(body) {
+  if (sessionToken) body.sessionToken = sessionToken;
+  body.apiKey = CONFIG.API_KEY;
+  const r = await fetch(CONFIG.SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.json();
+}
+
+// ── Load ──
+async function loadBulletins() {
+  try {
+    const r = await api({ action: 'getBulletins' });
+    bulletins = r.bulletins || [];
+    render();
+  } catch (e) {
+    document.getElementById('listEl').innerHTML =
+      '<div class="empty">載入失敗，請重新整理頁面</div>';
+  }
+}
+
+function render() {
+  const el = document.getElementById('listEl');
+  if (bulletins.length === 0) {
+    el.innerHTML = '<div class="empty">尚無公告，點選「新增公告」開始建立</div>';
+    return;
+  }
+  el.innerHTML = bulletins.map(b => `
+    <div class="bull-item ${b.status === '草稿' ? 'draft' : ''} ${b.pinned ? 'pinned' : ''}">
+      <div class="bull-header">
+        <div class="bull-info">
+          <div class="bull-meta">
+            <span class="badge ${b.status === '已發布' ? 'badge-pub' : 'badge-draft'}">${b.status}</span>
+            ${b.pinned ? '<span class="badge badge-pin">📌 置頂</span>' : ''}
+            <span class="bull-date">${b.createdAt}</span>
+          </div>
+          <div class="bull-title">${esc(b.title)}</div>
+          <div class="bull-preview">${esc(b.content)}</div>
+        </div>
+        <div class="bull-actions">
+          <button class="btn-edit" onclick="openForm('${b.bulletinId}')">編輯</button>
+          <button class="btn-del" onclick="del('${b.bulletinId}','${esc(b.title)}')">刪除</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Form ──
+function openForm(id) {
+  editingId = id;
+  document.getElementById('formTitle').textContent = id ? '編輯公告' : '新增公告';
+  if (id) {
+    const b = bulletins.find(x => x.bulletinId === id);
+    document.getElementById('fTitle').value    = b.title;
+    document.getElementById('fContent').value  = b.content;
+    document.getElementById('fImageUrl').value = b.imageUrl;
+    document.getElementById('fStatus').value   = b.status;
+    document.getElementById('fPinned').checked = b.pinned;
+  } else {
+    document.getElementById('fTitle').value    = '';
+    document.getElementById('fContent').value  = '';
+    document.getElementById('fImageUrl').value = '';
+    document.getElementById('fStatus').value   = '已發布';
+    document.getElementById('fPinned').checked = false;
+  }
+  document.getElementById('formOverlay').classList.add('open');
+}
+
+function closeForm() {
+  document.getElementById('formOverlay').classList.remove('open');
+}
+
+async function save() {
+  const title = document.getElementById('fTitle').value.trim();
+  if (!title) { showToast('請填寫標題'); document.getElementById('fTitle').focus(); return; }
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = '儲存中…';
+  const body = {
+    title,
+    content:  document.getElementById('fContent').value,
+    imageUrl: document.getElementById('fImageUrl').value.trim(),
+    status:   document.getElementById('fStatus').value,
+    pinned:   document.getElementById('fPinned').checked,
+  };
+  if (editingId) {
+    body.action = 'updateBulletin';
+    body.bulletinId = editingId;
+  } else {
+    body.action = 'addBulletin';
+  }
+  try {
+    const r = await api(body);
+    btn.disabled = false; btn.textContent = '儲存';
+    if (!r.success) { showToast('錯誤：' + (r.error || '請重試')); return; }
+    closeForm();
+    showToast(editingId ? '公告已更新' : '公告已新增');
+    loadBulletins();
+  } catch (e) {
+    btn.disabled = false; btn.textContent = '儲存';
+    showToast('網路錯誤，請稍後再試');
+  }
+}
+
+async function del(id, title) {
+  if (!confirm('確定要刪除「' + title + '」？\n\n此動作無法復原。')) return;
+  try {
+    const r = await api({ action: 'deleteBulletin', bulletinId: id });
+    if (!r.success) { showToast('刪除失敗：' + (r.error || '請重試')); return; }
+    showToast('已刪除');
+    loadBulletins();
+  } catch (e) {
+    showToast('網路錯誤，請稍後再試');
+  }
+}
+
+// ── Toast ──
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

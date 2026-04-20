@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>公佈欄 - 和平里</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+img{display:block;max-width:100%}
+button{cursor:pointer;font-family:inherit}
+
+:root{
+  --bg:#EFF8F2; --card:#FFF; --border:#BDD9CA; --divider:#D0E8DA;
+  --lbl:#4E7260; --val:#1A3028; --muted:#86B09E; --heading:#112620;
+  --primary:#5B9B7B; --primary-light:#E6F1EA; --primary-dark:#4A8366;
+  --pin:#F5A623; --pin-bg:#FFF8ED;
+  --shadow-sm:0 1px 3px rgba(30,80,55,.07);
+  --shadow-md:0 2px 8px rgba(30,80,55,.09),0 1px 2px rgba(30,80,55,.05);
+  --radius:10px;
+  --font:'Noto Sans TC',-apple-system,BlinkMacSystemFont,sans-serif;
+}
+
+body{font-family:var(--font);background:var(--bg);color:var(--val);font-size:15px;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+.page-header{
+  background:var(--card);border-bottom:1px solid var(--border);
+  padding:0 16px;height:54px;
+  display:flex;align-items:center;gap:10px;
+  position:sticky;top:0;z-index:100;
+}
+.header-icon{width:32px;height:32px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.header-title{flex:1;font-size:16px;font-weight:700;color:var(--heading)}
+.header-sub{font-size:12px;font-weight:400;color:var(--lbl)}
+
+.list{padding:12px 12px 80px;display:flex;flex-direction:column;gap:10px}
+
+.bull-card{
+  background:var(--card);border-radius:var(--radius);
+  border:1px solid var(--border);box-shadow:var(--shadow-sm);
+  overflow:hidden;cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+  border-left:4px solid var(--primary);
+}
+.bull-card.pinned{border-left-color:var(--pin);background:var(--pin-bg)}
+.bull-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+
+.card-img{width:100%;aspect-ratio:16/7;overflow:hidden;background:var(--divider)}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.bull-card:hover .card-img img{transform:scale(1.03)}
+
+.card-body{padding:13px 14px 14px}
+.card-meta{display:flex;align-items:center;gap:7px;margin-bottom:7px;flex-wrap:wrap}
+.pin-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;border-radius:999px;
+  font-size:11px;font-weight:700;
+  background:var(--pin);color:#fff;
+}
+.date-lbl{font-size:12px;color:var(--muted)}
+.card-title{font-size:15px;font-weight:700;color:var(--heading);line-height:1.4;margin-bottom:6px}
+.card-preview{font-size:13px;color:var(--lbl);line-height:1.55;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* Modal */
+.modal-backdrop{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.45);z-index:200;
+  align-items:flex-end;
+}
+.modal-backdrop.open{display:flex}
+.modal{
+  width:100%;max-height:90vh;
+  background:var(--card);border-radius:18px 18px 0 0;
+  display:flex;flex-direction:column;
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-handle{width:36px;height:4px;background:var(--divider);border-radius:2px;margin:10px auto 0}
+.modal-header{padding:14px 16px 12px;border-bottom:1px solid var(--divider);display:flex;align-items:center;gap:10px}
+.modal-close{width:32px;height:32px;border-radius:50%;border:none;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modal-title{flex:1;font-size:16px;font-weight:700;color:var(--heading);line-height:1.4}
+.modal-scroll{overflow-y:auto;flex:1}
+.modal-img{width:100%;max-height:250px;object-fit:cover}
+.modal-body{padding:16px}
+.modal-date{font-size:12px;color:var(--muted);margin-bottom:12px}
+.modal-content{font-size:14px;color:var(--val);line-height:1.75;white-space:pre-wrap;word-break:break-word}
+
+/* Empty */
+.empty{text-align:center;padding:64px 24px;color:var(--muted)}
+.empty svg{margin:0 auto 16px;opacity:.35}
+.empty p{font-size:14px}
+
+/* Skeleton */
+.skel-list{padding:12px 12px;display:flex;flex-direction:column;gap:10px}
+.skel-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);border-left:4px solid var(--divider);padding:14px;overflow:hidden}
+.skel-line{height:12px;border-radius:4px;background:linear-gradient(90deg,var(--divider) 25%,#c5e5d5 50%,var(--divider) 75%);background-size:300% 100%;animation:shimmer 1.5s infinite;margin-bottom:10px}
+.skel-line.short{width:40%}
+.skel-line.title{height:15px;width:75%;margin-bottom:8px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+.pin-icon{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="header-icon">
+    <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+      <rect x="9" y="3" width="6" height="4" rx="1"/>
+      <path d="M9 12h6M9 16h4"/>
+    </svg>
+  </div>
+  <div>
+    <div class="header-title">公佈欄</div>
+    <div class="header-sub" id="villageLabel"></div>
+  </div>
+</header>
+
+<div id="loadingEl" class="skel-list">
+  <div class="skel-card"><div class="skel-line short"></div><div class="skel-line title"></div><div class="skel-line"></div></div>
+  <div class="skel-card"><div class="skel-line short"></div><div class="skel-line title"></div><div class="skel-line"></div></div>
+  <div class="skel-card"><div class="skel-line short"></div><div class="skel-line title"></div><div class="skel-line"></div></div>
+</div>
+<div id="listEl" class="list" style="display:none"></div>
+<div id="emptyEl" class="empty" style="display:none">
+  <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+    <rect x="9" y="3" width="6" height="4" rx="1"/>
+  </svg>
+  <p>目前尚無公告</p>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeModalDirect()" aria-label="關閉">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="modal-title" id="modalTitle"></div>
+    </div>
+    <div class="modal-scroll">
+      <img class="modal-img" id="modalImg" src="" alt="" style="display:none">
+      <div class="modal-body">
+        <div class="modal-date" id="modalDate"></div>
+        <div class="modal-content" id="modalContent"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+document.getElementById('villageLabel').textContent = CONFIG.VILLAGE_NAME;
+
+const PIN_SVG = '<svg class="pin-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a5 5 0 0 1 5 5c0 4-5 11-5 11S7 11 7 7a5 5 0 0 1 5-5z"/><circle cx="12" cy="7" r="2"/></svg>';
+
+let _bulletins = [];
+
+function fmtDate(s) {
+  if (!s) return '';
+  return s.replace('T', ' ').slice(0, 16);
+}
+
+async function load() {
+  try {
+    const r = await fetch(CONFIG.SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'getPublicBulletins', apiKey: CONFIG.API_KEY }),
+    });
+    const d = await r.json();
+    document.getElementById('loadingEl').style.display = 'none';
+    if (!d.success || !d.bulletins || d.bulletins.length === 0) {
+      document.getElementById('emptyEl').style.display = 'block';
+      return;
+    }
+    _bulletins = d.bulletins;
+    render(_bulletins);
+  } catch (e) {
+    document.getElementById('loadingEl').innerHTML =
+      '<div class="empty"><p>載入失敗，請重新整理頁面</p></div>';
+  }
+}
+
+function render(list) {
+  const el = document.getElementById('listEl');
+  el.style.display = 'flex';
+  el.innerHTML = '';
+  list.forEach(function(b, idx) {
+    const card = document.createElement('div');
+    card.className = 'bull-card' + (b.pinned ? ' pinned' : '');
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', b.title);
+    card.addEventListener('click', function() { openModal(idx); });
+    card.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') openModal(idx); });
+
+    let html = '';
+    if (b.imageUrl) {
+      html += '<div class="card-img"><img src="' + esc(b.imageUrl) + '" alt="" loading="lazy"></div>';
+    }
+    html += '<div class="card-body"><div class="card-meta">';
+    if (b.pinned) html += '<span class="pin-badge">' + PIN_SVG + ' 置頂</span>';
+    html += '<span class="date-lbl">' + esc(fmtDate(b.createdAt)) + '</span>';
+    html += '</div><div class="card-title">' + esc(b.title) + '</div>';
+    html += '<div class="card-preview">' + esc(b.content) + '</div></div>';
+    card.innerHTML = html;
+    el.appendChild(card);
+  });
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function openModal(idx) {
+  const b = _bulletins[idx];
+  if (!b) return;
+  document.getElementById('modalTitle').textContent   = b.title;
+  document.getElementById('modalDate').textContent    = fmtDate(b.createdAt);
+  document.getElementById('modalContent').textContent = b.content;
+  const img = document.getElementById('modalImg');
+  if (b.imageUrl) { img.src = b.imageUrl; img.alt = b.title; img.style.display = 'block'; }
+  else { img.style.display = 'none'; img.src = ''; }
+  document.getElementById('modalBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.querySelector('.modal-close').focus();
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalBackdrop')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modalBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModalDirect();
+});
+
+load();
+</script>
+</body>
+</html>

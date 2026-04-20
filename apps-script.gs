@@ -4,10 +4,11 @@
 //           部署類型：Web App，執行身分：我，存取：所有人
 // ============================================================
 
-var SHEET_ID     = '1SDwkiqi2EJoW0ICZLeBVRC7IM5ridvHgxS-tFoh_BWE';
-var SHEET_CASES  = '案件清單';
-var SHEET_STORES = '商店清單';
-var SHEET_ADMINS = '管理員名單';
+var SHEET_ID       = '1SDwkiqi2EJoW0ICZLeBVRC7IM5ridvHgxS-tFoh_BWE';
+var SHEET_CASES    = '案件清單';
+var SHEET_STORES   = '商店清單';
+var SHEET_ADMINS   = '管理員名單';
+var SHEET_BULLETIN = '公佈欄';
 
 var GOOGLE_CLIENT_ID = '998009736888-v0hng93jchshicessbc6pjf4e6eiolju.apps.googleusercontent.com';
 var API_KEY          = 'hpnbhs_sk_Qm7Kp2Xa9Wv8Ld5Rn6Yf4Jb';
@@ -22,13 +23,14 @@ function doPost(e) {
     switch (data.action) {
       // ── 通用 ──
       case 'login':             return handleLogin(data);
+      case 'refreshSession':    return handleRefreshSession(data);
       // ── 里民通報系統 ──
       case 'getCases':          return requireAdmin(data, handleGetCases);
       case 'getCase':           return requireAdmin(data, handleGetCase);
       case 'updateReply':       return requireAdmin(data, handleUpdateReply);
       case 'uploadAdminPhoto':  return requireAdmin(data, handleUploadPhoto);
-      case 'uploadPublicPhoto': return handlePublicUpload(data);
-      case 'uploadStorePhoto':  return handleStorePublicUpload(data);
+      case 'uploadPublicPhoto': return handlePublicUpload(data, e);
+      case 'uploadStorePhoto':  return handleStorePublicUpload(data, e);
       case 'getPublicCases':    return handleGetPublicCases(data);
       case 'getPublicCase':     return handleGetPublicCase(data);
       // ── 特約商店系統 ──
@@ -36,8 +38,14 @@ function doPost(e) {
       case 'getStore':          return requireAdmin(data, handleGetStore);
       case 'updateStore':       return requireAdmin(data, handleUpdateStore);
       case 'setPinStore':       return requireAdmin(data, handleSetPinStore);
-      case 'getPublicStores':   return handleGetPublicStores(data);
-      case 'getPublicStore':    return handleGetPublicStore(data);
+      case 'getPublicStores':    return handleGetPublicStores(data);
+      case 'getPublicStore':     return handleGetPublicStore(data);
+      // ── 公佈欄 ──
+      case 'getPublicBulletins': return handleGetPublicBulletins(data);
+      case 'getBulletins':       return requireAdmin(data, handleGetBulletins);
+      case 'addBulletin':        return requireAdmin(data, handleAddBulletin);
+      case 'updateBulletin':     return requireAdmin(data, handleUpdateBulletin);
+      case 'deleteBulletin':     return requireAdmin(data, handleDeleteBulletin);
       // ── 置頂功能 ──
       case 'pinCase':           return requireAdmin(data, handlePinCase);
       case 'getAdmins':         return requireAdmin(data, handleGetAdmins);
@@ -48,7 +56,8 @@ function doPost(e) {
         return jsonOut({ success: false, error: 'Unknown action' });
     }
   } catch (err) {
-    return jsonOut({ success: false, error: err.toString() });
+    console.error('[doPost error]', err.toString());
+    return jsonOut({ success: false, error: '伺服器錯誤，請稍後再試' });
   }
 }
 
@@ -116,6 +125,18 @@ function getSession(token) {
   try { return JSON.parse(raw); } catch (e) { return null; }
 }
 
+function handleRefreshSession(data) {
+  var sess = getSession(data.sessionToken);
+  if (!sess) return jsonOut({ success: false, error: 'Unauthorized', code: 401 });
+  // 延長 TTL：重新寫入同一個 sessionToken
+  CacheService.getScriptCache().put(
+    'sess_' + data.sessionToken,
+    JSON.stringify(sess),
+    SESSION_TTL
+  );
+  return jsonOut({ success: true });
+}
+
 function requireAdmin(data, handler) {
   var sess = getSession(data.sessionToken);
   if (!sess) return jsonOut({ success: false, error: 'Unauthorized', code: 401 });
@@ -136,7 +157,15 @@ function handleGetCases(data) {
     if (!all[i][0]) continue;
     cases.push(rowToCase(all[i]));
   }
-  return jsonOut({ success: true, cases: cases });
+  // 分頁支援：傳入 limit/offset 時只回傳該段，未傳則回傳全部（向下相容）
+  var limit  = parseInt(data.limit  || '0', 10);
+  var offset = parseInt(data.offset || '0', 10);
+  var total  = cases.length;
+  if (limit > 0) {
+    cases = cases.slice(offset, offset + limit);
+    return jsonOut({ success: true, cases: cases, total: total, offset: offset, limit: limit });
+  }
+  return jsonOut({ success: true, cases: cases, total: total });
 }
 
 function handleGetCase(data) {
@@ -230,26 +259,55 @@ function handleUpdateReply(data) {
 
 function handleUploadPhoto(data) { return doUpload(data, NBH_FOLDER_ID); }
 
-function handlePublicUpload(data) {
-  if (data.apiKey !== API_KEY) return jsonOut({ success: false, error: 'Invalid API key' });
+var ALLOWED_MIME = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp' };
+var ALLOWED_REFERERS = ['https://itokorabbit.github.io', 'https://ommichi.github.io'];
+var UPLOAD_RATE_LIMIT = 10; // 每個 IP 每分鐘最多上傳次數（以 API Key 為單位）
+var UPLOAD_RATE_WINDOW = 60; // 秒
+
+function checkPublicUploadAccess(data, e) {
+  if (data.apiKey !== API_KEY) return '無效的 API Key';
+  // Referer 來源驗證（GAS 沒有原生取 header 的方式，透過前端帶入 origin 參數）
+  var origin = String(data.origin || '');
+  if (origin) {
+    var allowed = false;
+    for (var i = 0; i < ALLOWED_REFERERS.length; i++) {
+      if (origin.indexOf(ALLOWED_REFERERS[i]) === 0) { allowed = true; break; }
+    }
+    if (!allowed) return '不允許的來源網域';
+  }
+  // Rate Limiting：每分鐘最多 UPLOAD_RATE_LIMIT 次
+  var rateKey = 'rate_upload_' + data.apiKey;
+  var cache = CacheService.getScriptCache();
+  var count = parseInt(cache.get(rateKey) || '0', 10);
+  if (count >= UPLOAD_RATE_LIMIT) return '上傳次數過多，請稍後再試';
+  cache.put(rateKey, String(count + 1), UPLOAD_RATE_WINDOW);
+  return null;
+}
+
+function handlePublicUpload(data, e) {
+  var err = checkPublicUploadAccess(data, e);
+  if (err) return jsonOut({ success: false, error: err });
   return doUpload(data, NBH_FOLDER_ID);
 }
 
-function handleStorePublicUpload(data) {
-  if (data.apiKey !== API_KEY) return jsonOut({ success: false, error: 'Invalid API key' });
+function handleStorePublicUpload(data, e) {
+  var err = checkPublicUploadAccess(data, e);
+  if (err) return jsonOut({ success: false, error: err });
   return doUpload(data, STOR_FOLDER_ID);
 }
 
 function doUpload(data, folderId) {
   if (!folderId) return jsonOut({ success: false, error: 'Folder ID not configured' });
   var base64   = data.base64 || '';
-  var mimeType = data.mimeType || 'image/jpeg';
-  var fileName = (data.fileName || 'photo_' + new Date().getTime() + '.jpg')
-                   .replace(/[^a-zA-Z0-9._-]/g, '_');
+  // MIME 類型白名單驗證（伺服器端，不信任客戶端傳入）
+  var mimeType = String(data.mimeType || 'image/jpeg').toLowerCase().split(';')[0].trim();
+  if (!ALLOWED_MIME[mimeType]) return jsonOut({ success: false, error: '不支援的檔案類型' });
+  var ext      = ALLOWED_MIME[mimeType];
+  var fileName = ('photo_' + new Date().getTime() + '.' + ext);
   var b64  = base64.replace(/^data:image\/\w+;base64,/, '');
   var blob = Utilities.newBlob(Utilities.base64Decode(b64), mimeType, fileName);
   if (blob.getBytes().length > 5 * 1024 * 1024) {
-    return jsonOut({ success: false, error: 'File too large (max 5MB)' });
+    return jsonOut({ success: false, error: '檔案太大（上限 5MB）' });
   }
   var folder = DriveApp.getFolderById(folderId);
   var file = folder.createFile(blob);
@@ -552,6 +610,254 @@ function handleSetPinStore(data) {
     return jsonOut({ success: true });
   }
   return jsonOut({ success: false, error: '找不到商店: ' + storeId });
+}
+
+// ══════════════════════════════════════════════
+// 【一次性執行】在 Google Apps Script 編輯器手動執行此函式，建立公佈欄 Sheet
+// 執行後即可刪除或保留（重複執行不會覆蓋既有資料）
+// ══════════════════════════════════════════════
+
+function setupPinColumns() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+
+  // ── 案件清單：確保 AD 欄（第30欄）= 置頂順序 ──
+  var caseSheet = ss.getSheetByName(SHEET_CASES);
+  if (caseSheet) {
+    var caseLastCol = caseSheet.getLastColumn();
+    if (caseLastCol < 30) {
+      // 補齊到第 30 欄
+      for (var c = caseLastCol + 1; c <= 30; c++) {
+        caseSheet.getRange(1, c).setValue(c === 30 ? '置頂順序' : '');
+      }
+    } else {
+      caseSheet.getRange(1, 30).setValue('置頂順序');
+    }
+    // 設定欄寬與預設值 0
+    caseSheet.setColumnWidth(30, 80);
+    var caseRows = caseSheet.getLastRow();
+    if (caseRows > 1) {
+      var caseRange = caseSheet.getRange(2, 30, caseRows - 1, 1);
+      var caseVals = caseRange.getValues().map(function(r) {
+        return [r[0] === '' ? 0 : r[0]];
+      });
+      caseRange.setValues(caseVals);
+    }
+    // 標題列樣式
+    caseSheet.getRange(1, 30).setBackground('#4A5568').setFontColor('#FFFFFF').setFontWeight('bold');
+    Logger.log('案件清單 AD欄（置頂順序）設定完成');
+  }
+
+  // ── 商店清單：AE 欄（第31欄）= 方案類型，AF 欄（第32欄）= 置頂順序 ──
+  var storeSheet = ss.getSheetByName(SHEET_STORES);
+  if (storeSheet) {
+    var storeLastCol = storeSheet.getLastColumn();
+    // 補到第 32 欄
+    for (var sc = storeLastCol + 1; sc <= 32; sc++) {
+      if (sc === 31) storeSheet.getRange(1, sc).setValue('方案類型');
+      else if (sc === 32) storeSheet.getRange(1, sc).setValue('置頂順序');
+      else storeSheet.getRange(1, sc).setValue('');
+    }
+    if (storeLastCol >= 31) storeSheet.getRange(1, 31).setValue('方案類型');
+    if (storeLastCol >= 32) storeSheet.getRange(1, 32).setValue('置頂順序');
+
+    storeSheet.setColumnWidth(31, 90);
+    storeSheet.setColumnWidth(32, 80);
+
+    // 方案類型預設值「免費」
+    var storeRows = storeSheet.getLastRow();
+    if (storeRows > 1) {
+      var planRange = storeSheet.getRange(2, 31, storeRows - 1, 1);
+      var planVals = planRange.getValues().map(function(r) {
+        return [r[0] === '' ? '免費' : r[0]];
+      });
+      planRange.setValues(planVals);
+
+      var pinRange = storeSheet.getRange(2, 32, storeRows - 1, 1);
+      var pinVals = pinRange.getValues().map(function(r) {
+        return [r[0] === '' ? 0 : r[0]];
+      });
+      pinRange.setValues(pinVals);
+    }
+
+    // 資料驗證：方案類型下拉
+    var planRule = SpreadsheetApp.newDataValidation()
+      .requireValueInList(['免費', '精選', '優選'], true)
+      .build();
+    storeSheet.getRange(2, 31, 200, 1).setDataValidation(planRule);
+
+    // 標題列樣式
+    storeSheet.getRange(1, 31, 1, 2).setBackground('#4A5568').setFontColor('#FFFFFF').setFontWeight('bold');
+    Logger.log('商店清單 AE欄（方案類型）、AF欄（置頂順序）設定完成');
+  }
+
+  SpreadsheetApp.getUi().alert('✅ 置頂欄位設定完成！\n\n案件清單：AD 欄（置頂順序）\n商店清單：AE 欄（方案類型）、AF 欄（置頂順序）');
+}
+
+function setupBulletinSheet() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var existing = ss.getSheetByName(SHEET_BULLETIN);
+  if (existing) {
+    SpreadsheetApp.getUi().alert('「公佈欄」分頁已存在，略過建立。');
+    return;
+  }
+
+  var sheet = ss.insertSheet(SHEET_BULLETIN);
+
+  // 欄位標題
+  var headers = ['公告ID', '建立時間', '標題', '內容', '圖片網址', '置頂', '狀態', '建立者'];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+
+  // 標題列樣式
+  var headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setBackground('#4B7A52');
+  headerRange.setFontColor('#FFFFFF');
+  headerRange.setFontWeight('bold');
+  headerRange.setFontSize(11);
+
+  // 凍結標題列
+  sheet.setFrozenRows(1);
+
+  // 欄寬設定
+  sheet.setColumnWidth(1, 100);  // 公告ID
+  sheet.setColumnWidth(2, 140);  // 建立時間
+  sheet.setColumnWidth(3, 220);  // 標題
+  sheet.setColumnWidth(4, 300);  // 內容
+  sheet.setColumnWidth(5, 200);  // 圖片網址
+  sheet.setColumnWidth(6, 60);   // 置頂
+  sheet.setColumnWidth(7, 80);   // 狀態
+  sheet.setColumnWidth(8, 100);  // 建立者
+
+  // 資料驗證：置頂欄 (F) → 核取方塊
+  var pinRule = SpreadsheetApp.newDataValidation()
+    .requireCheckbox()
+    .build();
+  sheet.getRange(2, 6, 100, 1).setDataValidation(pinRule);
+
+  // 資料驗證：狀態欄 (G) → 下拉選單
+  var statusRule = SpreadsheetApp.newDataValidation()
+    .requireValueInList(['已發布', '草稿'], true)
+    .build();
+  sheet.getRange(2, 7, 100, 1).setDataValidation(statusRule);
+
+  // 全部文字垂直置中
+  sheet.getRange(1, 1, 1, headers.length).setVerticalAlignment('middle');
+
+  SpreadsheetApp.getUi().alert('✅ 「公佈欄」分頁建立完成！');
+}
+
+// ══════════════════════════════════════════════
+// 公佈欄
+// Sheet 欄位：A=公告ID B=建立時間 C=標題 D=內容 E=圖片網址 F=置頂 G=狀態 H=建立者
+// ══════════════════════════════════════════════
+
+function nextBulletinId(sheet) {
+  var all = sheet.getDataRange().getValues();
+  var max = 0;
+  for (var i = 1; i < all.length; i++) {
+    var m = String(all[i][0]).match(/BULL-(\d+)/);
+    if (m) max = Math.max(max, parseInt(m[1], 10));
+  }
+  return 'BULL-' + String(max + 1).padStart(3, '0');
+}
+
+function rowToBulletin(r) {
+  return {
+    bulletinId: String(r[0] || ''),
+    createdAt:  fmtDate(r[1]),
+    title:      String(r[2] || ''),
+    content:    String(r[3] || ''),
+    imageUrl:   String(r[4] || ''),
+    pinned:     String(r[5] || '').toUpperCase() === 'TRUE',
+    status:     String(r[6] || '草稿'),
+    author:     String(r[7] || ''),
+  };
+}
+
+function handleGetPublicBulletins(data) {
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_BULLETIN);
+  if (!sheet) return jsonOut({ success: true, bulletins: [] });
+  var all = sheet.getDataRange().getValues();
+  var list = [];
+  for (var i = 1; i < all.length; i++) {
+    if (!all[i][0]) continue;
+    if (String(all[i][6]) !== '已發布') continue;
+    list.push(rowToBulletin(all[i]));
+  }
+  list.sort(function(a, b) {
+    if (b.pinned !== a.pinned) return b.pinned ? 1 : -1;
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+  return jsonOut({ success: true, bulletins: list });
+}
+
+function handleGetBulletins(data) {
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_BULLETIN);
+  if (!sheet) return jsonOut({ success: true, bulletins: [] });
+  var all = sheet.getDataRange().getValues();
+  var list = [];
+  for (var i = 1; i < all.length; i++) {
+    if (!all[i][0]) continue;
+    list.push(rowToBulletin(all[i]));
+  }
+  list.sort(function(a, b) {
+    if (b.pinned !== a.pinned) return b.pinned ? 1 : -1;
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+  return jsonOut({ success: true, bulletins: list });
+}
+
+function handleAddBulletin(data) {
+  var title = String(data.title || '').trim();
+  if (!title) return jsonOut({ success: false, error: '標題不能空白' });
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName(SHEET_BULLETIN);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_BULLETIN);
+    sheet.appendRow(['公告ID','建立時間','標題','內容','圖片網址','置頂','狀態','建立者']);
+  }
+  var id  = nextBulletinId(sheet);
+  var now = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm');
+  sheet.appendRow([
+    id, now,
+    title,
+    String(data.content  || ''),
+    String(data.imageUrl || ''),
+    data.pinned ? 'TRUE' : 'FALSE',
+    data.status || '草稿',
+    data._session ? data._session.name : '',
+  ]);
+  return jsonOut({ success: true, bulletinId: id });
+}
+
+function handleUpdateBulletin(data) {
+  var id = String(data.bulletinId || '');
+  if (!id) return jsonOut({ success: false, error: '缺少 bulletinId' });
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_BULLETIN);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var all = sheet.getDataRange().getValues();
+  for (var i = 1; i < all.length; i++) {
+    if (String(all[i][0]) !== id) continue;
+    var row = i + 1;
+    if (data.title    !== undefined) sheet.getRange(row, 3).setValue(data.title);
+    if (data.content  !== undefined) sheet.getRange(row, 4).setValue(data.content);
+    if (data.imageUrl !== undefined) sheet.getRange(row, 5).setValue(data.imageUrl);
+    if (data.pinned   !== undefined) sheet.getRange(row, 6).setValue(data.pinned ? 'TRUE' : 'FALSE');
+    if (data.status   !== undefined) sheet.getRange(row, 7).setValue(data.status);
+    return jsonOut({ success: true });
+  }
+  return jsonOut({ success: false, error: '找不到公告: ' + id });
+}
+
+function handleDeleteBulletin(data) {
+  var id = String(data.bulletinId || '');
+  if (!id) return jsonOut({ success: false, error: '缺少 bulletinId' });
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_BULLETIN);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var all = sheet.getDataRange().getValues();
+  for (var i = all.length - 1; i >= 1; i--) {
+    if (String(all[i][0]) === id) { sheet.deleteRow(i + 1); return jsonOut({ success: true }); }
+  }
+  return jsonOut({ success: false, error: '找不到公告: ' + id });
 }
 
 // ── 共用輸出 ──

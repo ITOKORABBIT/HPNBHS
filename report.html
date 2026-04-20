@@ -339,6 +339,7 @@ select {
   transform: translateY(-1px);
 }
 .submit-btn:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(224,92,92,0.28); }
+.submit-btn { touch-action: manipulation; }
 .submit-btn:disabled {
   background: var(--ink-300);
   cursor: not-allowed;
@@ -433,6 +434,31 @@ input.invalid, textarea.invalid, select.invalid {
   background: var(--warn-bg);
 }
 
+/* Toast 錯誤提示 */
+.toast-error {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #2C3E36;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px; font-weight: 500;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity .25s, transform .25s;
+  pointer-events: none;
+  white-space: nowrap;
+  max-width: calc(100vw - 32px);
+  white-space: normal;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,.22);
+}
+.toast-error.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
 /* Footer */
 .footer {
   text-align: center;
@@ -500,7 +526,7 @@ input.invalid, textarea.invalid, select.invalid {
         <label class="field-label">
           <svg class="icon"><use href="#i-phone"/></svg> 電話 <span class="required">*</span>
         </label>
-        <input type="text" inputmode="tel" id="f_phone" placeholder="務必留下手機或住家電話以利聯絡" required>
+        <input type="tel" id="f_phone" placeholder="務必留下手機或住家電話以利聯絡" required autocomplete="tel">
         <div class="error-text">請輸入電話</div>
       </div>
 
@@ -603,8 +629,8 @@ input.invalid, textarea.invalid, select.invalid {
         <input type="text" id="f_1999" placeholder="如有 1999 案號可加快處理進度">
       </div>
 
-      <button type="submit" class="submit-btn" id="submitBtn">
-        <svg class="icon"><use href="#i-send"/></svg> 送出通報
+      <button type="submit" class="submit-btn" id="submitBtn" aria-label="送出通報">
+        <svg class="icon" aria-hidden="true"><use href="#i-send"/></svg> 送出通報
       </button>
     </div>
 
@@ -624,11 +650,20 @@ input.invalid, textarea.invalid, select.invalid {
 </div>
 
 <div class="footer">和平里辦公處 — 里民陳情通報系統</div>
+<div class="toast-error" id="toastError"></div>
 
 <script src="config.js"></script>
 <script>
-// ====== 設定（從 config.js 讀取）======
 var WEBHOOK_URL = CONFIG.REPORT_WEBHOOK_URL;
+
+var _toastTimer;
+function showToast(msg) {
+  var el = document.getElementById('toastError');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(function() { el.classList.remove('show'); }, 4000);
+}
 
 // 照片預覽
 function previewPhoto(input, previewId) {
@@ -684,9 +719,9 @@ async function uploadPhoto(fileInput) {
       body: JSON.stringify({
         action: 'uploadPublicPhoto',
         apiKey: CONFIG.API_KEY,
+        origin: location.origin,
         base64: base64,
-        mimeType: 'image/jpeg',
-        fileName: 'report_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_')
+        mimeType: file.type || 'image/jpeg'
       })
     });
     var text = await res.text();
@@ -810,7 +845,7 @@ document.getElementById('reportForm').addEventListener('submit', async function(
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
   } catch (err) {
-    alert('送出失敗，請稍後再試。\n錯誤：' + err.message);
+    showToast('送出失敗，請確認網路後再試');
     btn.disabled = false;
     btn.innerHTML = '<svg class="icon"><use href="#i-send"/></svg> 送出通報';
   }
