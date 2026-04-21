@@ -16,7 +16,7 @@ var REPORT_WEBHOOK_URL = 'https://hook.us2.make.com/wa9jtsqq171jf7yoycpb7upnpii3
 var DETAIL_BASE_URL   = 'https://itokorabbit.github.io/HPNBHS/detail.html?id=';
 var DEFAULT_REPORT_IMAGE_URL = 'https://itokorabbit.github.io/HPNBHS/assets/no-photo.svg';
 var NBH_FOLDER_ID    = '10M_y9gRB3FIGILLi4Dq-wxTqjHqNSC_o'; // Photos/NBH — 里民通報照片
-var STOR_FOLDER_ID   = '';                                     // Photos/STOR — 特約商店照片（待填入）
+var STOR_FOLDER_ID   = '1QQh4QOfxCIag46YhiW8riUgjwp7tj_6Z';  // Photos/STOR — 特約商店照片
 var SESSION_TTL      = 2592000;
 var PUBLIC_FORM_MIN_MS      = 3000;
 var PUBLIC_FORM_MAX_MS      = 2 * 60 * 60 * 1000;
