@@ -166,7 +166,7 @@ a{color:inherit;text-decoration:none}
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
   gap:14px;
-  padding:18px 20px 0;
+  margin-bottom:18px;
 }
 .summary-card{
   padding:16px;
@@ -459,35 +459,35 @@ tbody tr:last-child td{border-bottom:none}
   </div>
 
   <div class="page">
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-label">案件總數</div>
+        <div class="summary-value" id="sumCases">-</div>
+        <div class="summary-note" id="sumCasesNote">載入中</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">商店總數</div>
+        <div class="summary-value" id="sumStores">-</div>
+        <div class="summary-note" id="sumStoresNote">載入中</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">公告總數</div>
+        <div class="summary-value" id="sumBulletins">-</div>
+        <div class="summary-note" id="sumBulletinsNote">載入中</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">管理者數量</div>
+        <div class="summary-value" id="sumAdmins">-</div>
+        <div class="summary-note" id="sumAdminsNote">僅超級管理員可管理帳號</div>
+      </div>
+    </div>
+
     <section class="tab-shell">
       <div class="tabbar">
         <button class="tab-btn active" data-tab="cases" onclick="switchTab('cases')">里民案件清單</button>
         <button class="tab-btn" data-tab="stores" onclick="switchTab('stores')">特約商店清單</button>
         <button class="tab-btn" data-tab="bulletins" onclick="switchTab('bulletins')">活動公告欄</button>
         <button class="tab-btn" data-tab="admins" onclick="switchTab('admins')">管理者</button>
-      </div>
-
-      <div class="summary-grid">
-        <div class="summary-card">
-          <div class="summary-label">案件總數</div>
-          <div class="summary-value" id="sumCases">-</div>
-          <div class="summary-note" id="sumCasesNote">載入中</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">商店總數</div>
-          <div class="summary-value" id="sumStores">-</div>
-          <div class="summary-note" id="sumStoresNote">載入中</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">公告總數</div>
-          <div class="summary-value" id="sumBulletins">-</div>
-          <div class="summary-note" id="sumBulletinsNote">載入中</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">管理者數量</div>
-          <div class="summary-value" id="sumAdmins">-</div>
-          <div class="summary-note" id="sumAdminsNote">僅超級管理員可管理帳號</div>
-        </div>
       </div>
 
       <div class="tab-panel active" id="panel-cases">
