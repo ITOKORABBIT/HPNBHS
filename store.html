@@ -245,10 +245,21 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
 .plan-option input:checked + .plan-card { border-color: var(--blue-500); background: #fff; box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
 .plan-option--premium input:checked + .plan-card { border-color: #D97706; box-shadow: 0 0 0 3px rgba(217,119,6,.12); }
 .plan-option--free input:checked + .plan-card { border-color: var(--ink-300); box-shadow: 0 0 0 3px rgba(100,130,160,.10); }
-.plan-card-top { display: flex; align-items: center; gap: 10px; }
+.plan-card-top { display: flex; align-items: flex-start; gap: 10px; }
 .plan-icon { font-size: 20px; line-height: 1; }
 .plan-name { font-size: 15px; font-weight: 700; color: var(--ink-900); }
-.plan-price { margin-left: auto; font-size: 15px; font-weight: 700; }
+.plan-price {
+  margin-left: auto; font-size: 15px; font-weight: 700;
+  display: inline-flex; flex-direction: column; align-items: flex-end; gap: 2px;
+  min-width: 102px; text-align: right;
+}
+.plan-price-current {
+  font-weight: 800; line-height: 1.2;
+}
+.plan-price-old {
+  font-size: 12px; font-weight: 600; opacity: .72; line-height: 1;
+  text-decoration: line-through; text-decoration-thickness: 1.5px;
+}
 .plan-price-free { color: var(--ink-500); }
 .plan-price-std { color: var(--blue-600); }
 .plan-price-premium { color: #B45309; }
@@ -259,10 +270,18 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
 .pbc-std { background: var(--blue-500); }
 .pbc-premium { background: #D97706; }
 .plan-recommended {
-  position: absolute; top: -1px; right: 16px;
+  position: static;
   background: linear-gradient(135deg, #F59E0B, #D97706);
   color: #fff; font-size: 10px; font-weight: 700;
-  padding: 3px 10px; border-radius: 0 0 8px 8px; letter-spacing: .5px;
+  padding: 4px 9px; border-radius: 999px; letter-spacing: .4px; line-height: 1;
+  box-shadow: 0 6px 14px rgba(217,119,6,.18);
+  flex-shrink: 0;
+}
+
+@media (max-width: 560px) {
+  .plan-card-top { gap: 8px; }
+  .plan-price { min-width: 84px; }
+  .plan-recommended { padding: 4px 8px; font-size: 9px; }
 }
 .plan-trial-note {
   margin-top: 12px; padding: 10px 14px;
@@ -443,7 +462,10 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
             <div class="plan-card-top">
               <span class="plan-icon">⭐</span>
               <span class="plan-name">精選方案</span>
-              <span class="plan-price plan-price-std">$300 / 月</span>
+              <span class="plan-price plan-price-std">
+                <span class="plan-price-current">限時免費</span>
+                <span class="plan-price-old">$300 / 月</span>
+              </span>
             </div>
             <div class="plan-benefits">
               <div class="plan-benefit"><span class="pbc pbc-std">✓</span>包含所有免費方案權益</div>
@@ -457,11 +479,14 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
         <label class="plan-option plan-option--premium">
           <input type="radio" name="plan" value="優選" onchange="onPlanChange()">
           <div class="plan-card">
-            <div class="plan-recommended">推薦</div>
             <div class="plan-card-top">
               <span class="plan-icon">👑</span>
               <span class="plan-name">優選方案</span>
-              <span class="plan-price plan-price-premium">$500 / 月</span>
+              <span class="plan-recommended">推薦</span>
+              <span class="plan-price plan-price-premium">
+                <span class="plan-price-current">限時免費</span>
+                <span class="plan-price-old">$500 / 月</span>
+              </span>
             </div>
             <div class="plan-benefits">
               <div class="plan-benefit"><span class="pbc pbc-premium">✓</span>包含所有精選方案權益</div>

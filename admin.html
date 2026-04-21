@@ -659,7 +659,7 @@ tbody tr:last-child td{border-bottom:none}
 <script src="config.js"></script>
 <script>
 const SESSION_KEY = 'hpnbhs_admin';
-const SESSION_TTL = 6 * 3600 * 1000;
+const SESSION_TTL = 2 * 3600 * 1000;
 const TAB_STYLES = {
   cases: { accent: '#4d7a56', soft: '#ebf3ec' },
   stores: { accent: '#be9445', soft: '#fbf4e4' },
@@ -682,7 +682,7 @@ let editingAdminEmail = null;
 let adminsAccessible = false;
 
 function setSession(token, email, name, role) {
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+  localStorage.setItem(SESSION_KEY, JSON.stringify({
     sessionToken: token,
     email: email,
     name: name,
@@ -693,7 +693,7 @@ function setSession(token, email, name, role) {
 
 function getSession() {
   try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
+    const raw = localStorage.getItem(SESSION_KEY);
     if (!raw) return null;
     const data = JSON.parse(raw);
     if (!data.sessionToken || Date.now() - data.ts > SESSION_TTL) {
@@ -708,7 +708,14 @@ function getSession() {
 }
 
 function clearSession() {
-  sessionStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(SESSION_KEY);
+}
+
+function touchSession() {
+  const sess = getSession();
+  if (!sess) return;
+  sess.ts = Date.now();
+  localStorage.setItem(SESSION_KEY, JSON.stringify(sess));
 }
 
 function apiCall(action, extra) {
@@ -1188,6 +1195,12 @@ function deleteAdmin(email) {
 
 window.addEventListener('click', event => {
   if (event.target === document.getElementById('adminModal')) closeAdminModal();
+});
+
+['click', 'keydown', 'mousedown', 'touchstart', 'scroll'].forEach(function(eventName) {
+  window.addEventListener(eventName, function() {
+    touchSession();
+  }, { passive: true });
 });
 
 window.addEventListener('load', function() {

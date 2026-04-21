@@ -229,7 +229,7 @@ body{ font-family: var(--font); background: var(--bg); color: var(--val); font-s
 <script>
 // ── SESSION AUTH ──
 var SESSION_KEY = 'tokuten_admin';
-var SESSION_TTL = 6 * 3600 * 1000;
+var SESSION_TTL = 2 * 3600 * 1000;
 function getSession() {
   try {
     var d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
@@ -238,6 +238,12 @@ function getSession() {
   } catch(e) { return null; }
 }
 function clearSession() { localStorage.removeItem(SESSION_KEY); }
+function touchSession() {
+  var d = getSession();
+  if (!d) return;
+  d.ts = Date.now();
+  localStorage.setItem(SESSION_KEY, JSON.stringify(d));
+}
 (function(){ if (!getSession()) { location.href = 'storeadmin.html'; } })();
 
 // ── API ──
@@ -457,6 +463,9 @@ function silentRefresh() {
 
 loadAll();
 setInterval(silentRefresh, 60000);
+['click','keydown','mousedown','touchstart','scroll'].forEach(function(eventName){
+  window.addEventListener(eventName, function(){ touchSession(); }, { passive: true });
+});
 </script>
 </body>
 </html>

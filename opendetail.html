@@ -305,7 +305,7 @@ function loadCase() {
   if (!caseId) { showError('缺少案件編號'); return; }
   apiCall('getPublicCase', { caseId: caseId })
     .then(function(json){
-      if (!json.success) { showError(json.error || '找不到此公告'); return; }
+      if (!json.success) { showError(json.error || '找不到此案件'); return; }
       renderCase(json.caseData);
     })
     .catch(function(){
