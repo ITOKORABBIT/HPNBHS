@@ -171,6 +171,7 @@ a{text-decoration:none;color:inherit}
   color:var(--muted);
   font-size:13px;
   font-weight:700;
+  white-space:nowrap;
 }
 .pill.active{
   background:var(--accent-soft);
@@ -204,6 +205,7 @@ tbody tr:last-child td{border-bottom:none}
   border-radius:999px;
   font-size:12px;
   font-weight:800;
+  white-space:nowrap;
 }
 .badge-published{background:var(--green-soft);color:var(--green)}
 .badge-draft{background:var(--gold-soft);color:var(--gold)}
@@ -216,6 +218,7 @@ tbody tr:last-child td{border-bottom:none}
   background:#f6f0ea;
   font-size:13px;
   font-weight:700;
+  white-space:nowrap;
 }
 .editor-modal{
   position:fixed;
@@ -538,7 +541,7 @@ tbody tr:last-child td{border-bottom:none}
         <div class="form-section">
           <label class="label" for="statusInput">狀態</label>
           <select class="select" id="statusInput">
-            <option value="草稿">草稿</option>
+            <option value="草稿">未發布</option>
             <option value="已發布">已發布</option>
           </select>
         </div>
@@ -581,7 +584,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="preview-box" id="previewBox">
         <strong>預覽摘要</strong>
         <div id="previewTitle" style="margin-top:10px;font-weight:800;color:var(--heading)">尚未輸入標題</div>
-        <div id="previewMeta" style="margin-top:8px;color:var(--muted)">狀態：草稿</div>
+        <div id="previewMeta" style="margin-top:8px;color:var(--muted)">狀態：未發布</div>
         <div id="previewContent" style="margin-top:10px;color:var(--muted);line-height:1.8">尚未輸入內容</div>
         <div class="preview-gallery" id="previewGallery" style="display:none"></div>
       </div>
@@ -659,6 +662,10 @@ function stripHtml(html) {
   const div = document.createElement('div');
   div.innerHTML = html || '';
   return (div.textContent || div.innerText || '').trim();
+}
+
+function statusLabel(status) {
+  return status === '已發布' ? '已發布' : '未發布';
 }
 
 function getDraftScope() {
@@ -1010,12 +1017,12 @@ function readFileAsDataUrl(file) {
 function buildPills() {
   const counts = { all: allBulletins.length };
   allBulletins.forEach(item => {
-    const key = item.status || '草稿';
+    const key = statusLabel(item.status || '草稿');
     counts[key] = (counts[key] || 0) + 1;
   });
   const pills = [{ value: 'all', label: '全部 ' + counts.all }];
-  Object.keys(counts).filter(k => k !== 'all').sort().forEach(k => {
-    pills.push({ value: k, label: k + ' ' + counts[k] });
+  ['已發布', '未發布'].forEach(k => {
+    pills.push({ value: k, label: k + ' ' + (counts[k] || 0) });
   });
   document.getElementById('statusPills').innerHTML = pills.map(item => (
     '<button class="pill' + (item.value === filterStatus ? ' active' : '') + '" onclick="setFilterStatus(\'' + escapeHtml(item.value) + '\')">' + escapeHtml(item.label) + '</button>'
@@ -1031,7 +1038,7 @@ function renderBulletins() {
   buildPills();
   const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
   const list = allBulletins.filter(item => {
-    if (filterStatus !== 'all' && (item.status || '草稿') !== filterStatus) return false;
+    if (filterStatus !== 'all' && statusLabel(item.status || '草稿') !== filterStatus) return false;
     if (!q) return true;
     const hay = [item.bulletinId, item.title, item.content, item.author].join(' ').toLowerCase();
     return hay.includes(q);
@@ -1046,9 +1053,9 @@ function renderBulletins() {
     '<tr>' +
     '<td>' + escapeHtml(item.bulletinId) + '</td>' +
     '<td><div class="title-cell">' + escapeHtml(item.title || '（無標題）') + '</div><span class="preview">' + escapeHtml(stripHtml(item.content || '').slice(0, 60)) + '</span></td>' +
-    '<td><span class="badge ' + (item.status === '已發布' ? 'badge-published' : 'badge-draft') + '">' + escapeHtml(item.status || '草稿') + '</span>' + (item.pinned ? ' <span class="badge badge-pinned">置頂</span>' : '') + '</td>' +
+    '<td><span class="badge ' + (item.status === '已發布' ? 'badge-published' : 'badge-draft') + '">' + escapeHtml(statusLabel(item.status || '草稿')) + '</span>' + (item.pinned ? ' <span class="badge badge-pinned">置頂</span>' : '') + '</td>' +
     '<td>' + escapeHtml(fmtDate(item.createdAt)) + '</td>' +
-    '<td><div class="inline-actions"><button class="inline-btn" onclick="editBulletin(\'' + escapeHtml(item.bulletinId) + '\')">編輯</button><button class="inline-btn" onclick="quickToggleStatus(\'' + escapeHtml(item.bulletinId) + '\')">' + (item.status === '已發布' ? '改草稿' : '發布') + '</button></div></td>' +
+    '<td><div class="inline-actions"><button class="inline-btn" onclick="editBulletin(\'' + escapeHtml(item.bulletinId) + '\')">編輯</button><button class="inline-btn" onclick="quickToggleStatus(\'' + escapeHtml(item.bulletinId) + '\')">' + (item.status === '已發布' ? '取消發布' : '發布') + '</button></div></td>' +
     '</tr>'
   )).join('');
 
@@ -1178,7 +1185,7 @@ function refreshPreview() {
   const status = document.getElementById('statusInput').value;
   const pinned = document.getElementById('pinnedInput').checked;
   document.getElementById('previewTitle').textContent = title || '尚未輸入標題';
-  document.getElementById('previewMeta').textContent = '狀態：' + status + (pinned ? ' ・ 置頂' : '');
+  document.getElementById('previewMeta').textContent = '狀態：' + statusLabel(status) + (pinned ? ' ・ 置頂' : '');
   const previewContent = document.getElementById('previewContent');
   previewContent.innerHTML = content || '尚未輸入內容';
   const gallery = document.getElementById('previewGallery');
