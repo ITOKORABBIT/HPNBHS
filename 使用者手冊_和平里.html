@@ -18,8 +18,6 @@
     --gold-soft:#fbf4e4;
     --blue:#2f63ce;
     --blue-soft:#eef4ff;
-    --rose:#b95353;
-    --rose-soft:#fff1ef;
     --shadow:0 18px 42px rgba(43,35,27,.08);
     --radius:24px;
   }
@@ -36,7 +34,7 @@
   }
   a{color:inherit;text-decoration:none}
   .page{
-    width:min(1320px,calc(100% - 24px));
+    width:min(1360px,calc(100% - 24px));
     margin:18px auto 40px;
   }
   .topbar,.hero,.panel,.step-card,.tip-card,.visual{
@@ -53,7 +51,7 @@
     padding:14px 18px;
     margin-bottom:18px;
   }
-  .back-link,.doc-link{
+  .back-link,.title-chip,.page-link,.preview-action{
     display:inline-flex;
     align-items:center;
     gap:8px;
@@ -61,11 +59,11 @@
     border-radius:16px;
     border:1px solid var(--line);
     background:#fff;
-    font-size:18px;
+    font-size:17px;
     font-weight:800;
   }
   .back-link{background:var(--green-soft);color:var(--green)}
-  .doc-link{background:#fcfbf9}
+  .title-chip{background:#fcfbf9}
   .topbar-spacer{flex:1}
   .hero{
     padding:34px 34px 28px;
@@ -95,7 +93,7 @@
   }
   .hero p{
     margin:0;
-    max-width:960px;
+    max-width:980px;
     font-size:22px;
     color:var(--muted);
   }
@@ -120,9 +118,9 @@
     font-size:16px;
     color:var(--muted);
   }
-  .controls{
+  .layout{
     display:grid;
-    grid-template-columns:290px 1fr;
+    grid-template-columns:310px 1fr;
     gap:18px;
     align-items:start;
   }
@@ -221,26 +219,12 @@
     margin-top:14px;
   }
   .page-link{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:10px 14px;
-    border-radius:14px;
-    border:1px solid var(--line);
     background:#fcfbf9;
     font-size:16px;
-    font-weight:800;
-    color:var(--text);
   }
   .visual{
     padding:18px;
     overflow:hidden;
-  }
-  .visual-caption{
-    margin-top:14px;
-    font-size:18px;
-    color:var(--muted);
-    font-weight:700;
   }
   .preview-meta{
     display:flex;
@@ -255,25 +239,10 @@
     font-weight:900;
     color:var(--heading);
   }
-  .preview-actions{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-  }
-  .preview-action{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:10px 14px;
-    border-radius:14px;
-    border:1px solid var(--line);
-    background:#fcfbf9;
-    font-size:15px;
-    font-weight:800;
-  }
   .preview-shell{
+    position:relative;
     width:100%;
-    min-height:520px;
+    min-height:560px;
     border-radius:22px;
     overflow:hidden;
     border:1px solid #d8cdc0;
@@ -281,32 +250,72 @@
   }
   .preview-frame{
     width:100%;
-    height:520px;
+    height:560px;
     border:0;
     background:#fff;
   }
-  .preview-note{
+  .preview-pin{
+    position:absolute;
+    width:42px;
+    height:42px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:var(--blue);
+    color:#fff;
+    font-size:22px;
+    font-weight:900;
+    box-shadow:0 10px 18px rgba(47,99,206,.28);
+    border:3px solid rgba(255,255,255,.94);
+    z-index:2;
+    transform:translate(-50%,-50%);
+  }
+  .pin-legend{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
     margin-top:14px;
-    padding:14px 16px;
-    border-radius:16px;
-    background:#f9f7f3;
-    border:1px dashed var(--line);
-    font-size:16px;
+  }
+  .pin-item{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:14px;
+    border-radius:18px;
+    border:1px solid var(--line);
+    background:#fcfbf9;
+  }
+  .pin-no{
+    width:36px;
+    height:36px;
+    flex:0 0 36px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:var(--blue-soft);
+    color:var(--blue);
+    font-size:18px;
+    font-weight:900;
+  }
+  .pin-text strong{
+    display:block;
+    font-size:17px;
+    line-height:1.4;
+    color:var(--heading);
+  }
+  .pin-text span{
+    display:block;
+    margin-top:4px;
+    font-size:15px;
+    line-height:1.6;
+    color:var(--muted);
+  }
+  .visual-caption{
+    margin-top:14px;
+    font-size:18px;
     color:var(--muted);
     font-weight:700;
   }
-  .badge{
-    display:inline-flex;
-    align-items:center;
-    padding:6px 10px;
-    border-radius:999px;
-    font-size:13px;
-    font-weight:900;
-  }
-  .badge-green{background:var(--green-soft);color:var(--green)}
-  .badge-gold{background:var(--gold-soft);color:#9b6e19}
-  .badge-blue{background:var(--blue-soft);color:var(--blue)}
-  .badge-rose{background:var(--rose-soft);color:var(--rose)}
   .steps{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
@@ -368,12 +377,12 @@
     font-weight:700;
   }
   @media (max-width:1100px){
-    .controls{grid-template-columns:1fr}
+    .layout{grid-template-columns:1fr}
   }
   @media (max-width:900px){
     h1{font-size:34px}
     .hero p,.title-wrap p,.step-card p,.notice,.tip-card li{font-size:18px}
-    .hero-grid,.steps,.tips{grid-template-columns:1fr}
+    .hero-grid,.steps,.tips,.pin-legend{grid-template-columns:1fr}
   }
   @media (max-width:680px){
     .page{width:min(100%,calc(100% - 16px))}
@@ -382,7 +391,9 @@
     .role-btn,.tab-btn{font-size:18px}
     h1{font-size:30px}
     .title-wrap h2{font-size:28px}
-    .preview-shell,.preview-frame{min-height:420px;height:420px}
+    .preview-shell{min-height:420px}
+    .preview-frame{height:420px}
+    .preview-pin{width:38px;height:38px;font-size:20px}
   }
 </style>
 </head>
@@ -391,42 +402,42 @@
     <div class="topbar">
       <a class="back-link" href="admin.html">回管理後台</a>
       <div class="topbar-spacer"></div>
-      <div class="doc-link">和平里小幫手使用者手冊</div>
+      <div class="title-chip">和平里小幫手使用者手冊</div>
     </div>
 
     <section class="hero">
-      <div class="hero-badge">大字版圖文操作說明</div>
+      <div class="hero-badge">大字版圖文教學</div>
       <h1>和平里小幫手使用者手冊</h1>
-      <p>這份手冊特別用放大的字、放大的畫面示意與一步一步說明整理。請先選擇「里長端」或「里民端」，再點選要看的功能頁籤，就能看到最適合自己的操作教學。</p>
+      <p>這份手冊改成「實際頁面預覽 + 藍色編號定位 + 下面步驟對照」的方式整理。請先選擇里長端或里民端，再切換想看的功能頁面，畫面上的 1、2、3、4 會直接對照下面的解說。</p>
       <div class="hero-grid">
         <div class="hero-note">
           <strong>先選角色</strong>
           <span>里長端看管理操作，里民端看查詢與送出表單。</span>
         </div>
         <div class="hero-note">
-          <strong>再選頁籤</strong>
-          <span>案件、商店、公告、管理者四個頁面分開教學。</span>
+          <strong>再選頁面</strong>
+          <span>案件、商店、公告、管理後台分別教學。</span>
         </div>
         <div class="hero-note">
-          <strong>照著數字做</strong>
-          <span>每張圖上的藍色數字，對應下面的步驟說明。</span>
+          <strong>上下對照看</strong>
+          <span>藍色 1、2、3、4 對照下面的 1、2、3、4 步驟卡。</span>
         </div>
       </div>
     </section>
 
-    <section class="controls">
+    <section class="layout">
       <aside class="panel">
-        <h2>1. 先選擇身分</h2>
+        <h2>1. 先選角色</h2>
         <div class="role-switch">
           <button class="role-btn active" data-role="mayor">里長端</button>
           <button class="role-btn" data-role="resident">里民端</button>
         </div>
-        <h2>2. 再選功能頁面</h2>
+        <h2>2. 再選頁面</h2>
         <div class="tab-list">
-          <button class="tab-btn active" data-tab="cases">里民案件清單<small>案件通報、查詢、回覆與公開</small></button>
-          <button class="tab-btn" data-tab="stores">特約商店清單<small>店家申請、審核、公開資訊</small></button>
-          <button class="tab-btn" data-tab="bulletins">活動公告欄<small>公告發佈、閱讀與置頂</small></button>
-          <button class="tab-btn" data-tab="admins">管理者頁面<small>後台登入與帳號權限說明</small></button>
+          <button class="tab-btn active" data-tab="cases">里民案件清單<small>案件管理頁與公開案件頁</small></button>
+          <button class="tab-btn" data-tab="stores">特約商店清單<small>商店審核頁與公開商店頁</small></button>
+          <button class="tab-btn" data-tab="bulletins">活動公告欄<small>公告管理頁與公告前台頁</small></button>
+          <button class="tab-btn" data-tab="admins">管理後台補充<small>admin.html 補充說明</small></button>
         </div>
       </aside>
 
@@ -443,11 +454,8 @@
         </div>
 
         <div class="visual" id="visualWrap"></div>
-
         <div class="steps" id="stepsWrap"></div>
-
         <div class="tips" id="tipsWrap"></div>
-
         <div class="notice" id="noticeWrap"></div>
       </section>
     </section>
@@ -458,8 +466,8 @@ const GUIDE_DATA = {
   cases: {
     title: '里民案件清單',
     desc: {
-      mayor: '里長端主教學改為直接對應案件管理頁 `list.html`，重點是篩選、查看、回覆與公開設定。',
-      resident: '里民端主教學對應公開案件頁 `openlist.html`，重點是送出通報與查看公開處理結果。'
+      mayor: '里長端主教學對應 `list.html`，重點是搜尋、篩選、查看案件卡片與進一步處理。',
+      resident: '里民端主教學對應 `openlist.html`，重點是送出通報、搜尋公開案件與查看處理結果。'
     },
     pages: {
       mayor: [{ label: '主要頁面', href: 'list.html', text: 'list.html' }],
@@ -467,38 +475,38 @@ const GUIDE_DATA = {
     },
     steps: {
       mayor: [
-        ['先打開案件管理頁', '里長端主要使用 `list.html`，進入後就會看到全部案件卡片與上方篩選工具。'],
-        ['用搜尋與狀態快速找案件', '可輸入案件編號、主旨、地點，也可按狀態篩選，例如新案件或已處理。'],
-        ['按編輯進入單一案件', '打開案件後可查看里民原始通報、電話、地點、照片與 1999 案號。'],
-        ['填寫回覆並決定是否公開', '輸入回覆內容、更新狀態，若希望里民都看得到，再打開公開開關並填寫公開標題與摘要。']
+        ['先看頁首功能區', '頁面最上方是案件管理頁的頁首，會看到標題與功能按鈕，先確認進入的是正確頁面。'],
+        ['再用搜尋與篩選列找案件', '輸入關鍵字、切換下拉條件，可更快找到想處理的案件。'],
+        ['從案件卡片先讀摘要', '每張卡片會先顯示狀態、主旨、地點與照片縮圖，方便快速判斷優先順序。'],
+        ['點開卡片進一步處理', '點進去後會到案件詳情頁，可寫回覆、更新狀態，並決定是否公開。']
       ],
       resident: [
-        ['按我要通報', '從案件公開清單右上角按「我要通報」，會進入案件通報表單。'],
-        ['把資料填完整', '姓名、電話、類別、主旨、描述、發生地點越完整，里長越容易快速協助。'],
-        ['上傳照片再送出', '若有現場照片，建議一起附上；送出後系統會建立案件資料。'],
-        ['回公開清單查看結果', '等里長處理並公開後，就能在公開清單或公開詳情看到處理內容與照片。']
+        ['按我要通報新增案件', '若是新問題要反映，先從右上角的通報按鈕進入表單。'],
+        ['可先搜尋公開案件', '若懷疑已有人通報過，可先搜尋看看，避免重複送出。'],
+        ['公開案件卡片先看摘要', '卡片上會先看到案件主旨、位置與目前處理狀態。'],
+        ['點開卡片看詳細內容', '打開後可閱讀里長公開的處理說明與照片。']
       ]
     },
     tips: {
       mayor: {
         title: '里長端小提醒',
-        items: ['新案件先回覆，再決定是否公開。', '公開內容建議改成里民容易看懂的短句。', '若有照片，回覆照片會讓里民更安心。']
+        items: ['先篩選新案件，再逐筆處理會比較快。', '卡片只是摘要，真正更新回覆要進詳情頁。', '公開前先確認文字是否適合里民閱讀。']
       },
       resident: {
         title: '里民端小提醒',
-        items: ['地點務必寫清楚，例如巷口、門牌、哪一側。', '如果有 1999 案號，也可以一起填上。', '公開頁只會看到里長選擇公開的案件內容。']
+        items: ['若已有相同案件，可先看公開結果再決定要不要通報。', '送出通報時地點寫越清楚越好。', '只有里長選擇公開的案件，才會出現在公開頁。']
       }
     },
     notice: {
-      mayor: '如果找不到案件，先看是不是在其他狀態裡，或輸入的關鍵字太少。',
-      resident: '若剛送出就找不到，屬於正常情況，因為案件需等里長端處理後才會公開。'
+      mayor: '若覺得案件很多，先利用搜尋與篩選縮小範圍，會比直接一張一張找更快。',
+      resident: '若剛送出就看不到是正常的，因為案件要等里長處理並公開後才會出現在公開頁。'
     }
   },
   stores: {
     title: '特約商店清單',
     desc: {
-      mayor: '里長端主教學改為直接對應商店管理頁 `storelist.html`，重點是審核資料、整理公開內容與設定方案。',
-      resident: '里民端主教學對應公開商店頁 `storeopenlist.html`，重點是看優惠內容與進入申請表。'
+      mayor: '里長端主教學對應 `storelist.html`，重點是找申請、看商店卡片與進到審核頁。',
+      resident: '里民端主教學對應 `storeopenlist.html`，重點是搜尋優惠店家、查看資訊與進入申請。'
     },
     pages: {
       mayor: [{ label: '主要頁面', href: 'storelist.html', text: 'storelist.html' }],
@@ -506,38 +514,38 @@ const GUIDE_DATA = {
     },
     steps: {
       mayor: [
-        ['先打開商店管理頁', '里長端主要使用 `storelist.html`，進入後就能直接看到所有商店申請。'],
-        ['打開申請資料檢查內容', '確認店家名稱、電話、地址、優惠方案、營業時間與照片是否完整。'],
-        ['選擇狀態與方案', '可設定待審核、公開、退回，並依需求調整免費、標準或精選方案。'],
-        ['整理里民端會看到的文字', '公開店名、公開電話、公開地址、公開優惠與公開簡介可重新整理成更清楚版本。']
+        ['先看頁首功能區', '頁首可確認現在是在商店審核頁，也能找到頁面上的快捷功能。'],
+        ['用搜尋與篩選找申請', '可依店名、申請人或狀態快速找出要審核的商店。'],
+        ['先從卡片讀基本資訊', '卡片會顯示店名、方案、狀態與摘要，方便先做初步判斷。'],
+        ['點卡片進審核頁處理', '進去後再調整公開文字、方案、置頂排序與最終狀態。']
       ],
       resident: [
-        ['看公開商店清單', '打開特約商店清單後，可直接看到已公開的店家與分類。'],
-        ['點進單一商店看詳情', '可查看優惠內容、營業時間、地址、電話與地圖連結。'],
-        ['想加入特約商店時按申請', '從頁面上的「店家申請」或「我要申請」進入表單。'],
-        ['填完店家資料後送出', '商店送出後，需等里長端審核公開，才會出現在里民清單。']
+        ['右上角可進入申請', '若是店家要申請特約商店，先從右上角入口進到申請表。'],
+        ['搜尋或分類找店家', '若只是要查優惠，可以先輸入關鍵字或切換分類。'],
+        ['先看商店卡片摘要', '卡片上會先顯示店名、優惠與聯絡資訊。'],
+        ['點卡片看完整優惠', '進詳情頁後可看完整地址、電話、營業時間與優惠內容。']
       ]
     },
     tips: {
       mayor: {
         title: '里長端小提醒',
-        items: ['公開前，建議把優惠內容改成一句就看懂。', '精選或標準方案可搭配置頂排序。', '地址與 Google 地圖連結最好一起確認。']
+        items: ['卡片是快速瀏覽區，真正審核內容在詳細頁。', '方案與置頂排序建議一起確認。', '公開前可先把文案改成里民更容易懂的版本。']
       },
       resident: {
         title: '里民端小提醒',
-        items: ['若要直接前往店家，可先查看地圖再出門。', '公開電話與營業時間若有變動，請以店家最新資訊為準。', '不是所有送出申請都會立刻公開。']
+        items: ['若想找某一家店，可先用搜尋比較快。', '看到喜歡的優惠時，點進詳細頁再確認電話與地址。', '申請送出後，不會立刻出現在公開清單。']
       }
     },
     notice: {
-      mayor: '若商店尚未公開，里民端清單看不到，這是正常設計。',
-      resident: '若新申請的店家沒有出現在清單，通常是還在審核中。'
+      mayor: '如果公開頁看不到某家店，通常代表該筆還未公開或已被退回。',
+      resident: '公開商店頁只會顯示已審核公開的店家。'
     }
   },
   bulletins: {
     title: '活動公告欄',
     desc: {
-      mayor: '里長端主教學改為直接對應公告管理頁 `bulletinlist.html`，重點是新增、編輯、發佈與置頂公告。',
-      resident: '里民端則對應公告前台 `bulletin.html`，重點是查看最新公告與點開閱讀內容。'
+      mayor: '里長端主教學對應 `bulletinlist.html`，重點是新增公告、篩選公告與管理列表。',
+      resident: '里民端主教學對應 `bulletin.html`，重點是看公告卡片與閱讀完整內容。'
     },
     pages: {
       mayor: [{ label: '主要頁面', href: 'bulletinlist.html', text: 'bulletinlist.html' }],
@@ -545,38 +553,38 @@ const GUIDE_DATA = {
     },
     steps: {
       mayor: [
-        ['先打開公告管理頁', '里長端主要使用 `bulletinlist.html`，在這裡新增、編輯與整理所有公告。'],
-        ['新增或編輯公告', '可填寫標題、內容、圖片，必要時先存成草稿。'],
-        ['決定是否發佈與置頂', '重要公告可設成置頂，活動尚未確認前可先維持草稿。'],
-        ['再到里民前台確認', '按「查看里民前台」確認字有沒有太小、圖片有沒有跑掉。']
+        ['先看新增公告區與快捷按鈕', '頁首右上角是最常用的區塊，可新增公告或切換相關頁面。'],
+        ['用搜尋與狀態篩選找公告', '可快速找草稿、已發佈或置頂公告。'],
+        ['從列表先看標題與摘要', '公告列表會顯示標題、預覽文字與目前狀態。'],
+        ['從右側操作編輯或刪除', '需要修改內容時，可由列表右邊直接進入編輯。']
       ],
       resident: [
-        ['打開公告欄', '里民打開公告欄後，最上方會先看到置頂或最新公告。'],
-        ['看到有興趣的公告就點進去', '點一下公告卡片，畫面會跳出完整內容視窗。'],
-        ['閱讀完整資訊', '可看到標題、日期、內文與相關圖片。'],
-        ['看完再關閉視窗', '按右上角關閉鈕，或點畫面外圍即可回到公告清單。']
+        ['先確認進入公告頁', '頁首會顯示目前是在公告欄頁面。'],
+        ['看公告卡片清單', '最新或置頂公告通常會出現在較上方。'],
+        ['點卡片閱讀全文', '看到想看的公告時，直接點卡片即可。'],
+        ['往下捲動看更多公告', '若上面沒有需要的內容，可往下看更多舊公告。']
       ]
     },
     tips: {
       mayor: {
         title: '里長端小提醒',
-        items: ['標題建議先寫活動名稱，再寫時間。', '重要通知可用置頂，避免被新公告往下擠。', '前台確認一次，較能避免長輩看不清楚。']
+        items: ['草稿不會出現在前台。', '重要公告可設為置頂。', '發佈後建議再切到前台確認字體與排版。']
       },
       resident: {
         title: '里民端小提醒',
-        items: ['若看不到新公告，先重新整理頁面。', '公告圖片可幫助快速理解活動內容。', '只有已發佈的公告才會出現在前台。']
+        items: ['若沒看到新公告，可先重新整理頁面。', '點開公告後可讀完整內文與相關資訊。', '公告前台不需要登入。']
       }
     },
     notice: {
-      mayor: '公告若還在草稿狀態，里民端不會看到。',
-      resident: '若公告打不開，先確認網路是否穩定，再重新進入一次。'
+      mayor: '若里民端看不到公告，先確認該筆是不是還停留在草稿狀態。',
+      resident: '只有已發佈的公告會出現在前台頁。'
     }
   },
   admins: {
-    title: '管理後台教學',
+    title: '管理後台補充',
     desc: {
-      mayor: '這一頁保留做 `admin.html` 的獨立補充教學，內容以登入後台、看總覽與管理帳號為主。',
-      resident: '里民端原則上不需要使用管理者頁面；若看到登入畫面，直接回到公開頁即可。'
+      mayor: '這頁保留為 `admin.html` 補充教學，重點是登入後看總覽、切頁籤與進入各模組。',
+      resident: '里民通常不需要操作 `admin.html`；若看到登入頁，只要知道這是里長專用後台即可。'
     },
     pages: {
       mayor: [{ label: '補充頁面', href: 'admin.html', text: 'admin.html' }],
@@ -584,62 +592,145 @@ const GUIDE_DATA = {
     },
     steps: {
       mayor: [
-        ['用 Google 帳號登入', '打開 admin 頁後，請用已授權的 Google 帳號登入。'],
-        ['看四個總覽頁籤', '登入後會看到案件、商店、公告、管理者四個頁籤與統計摘要。'],
-        ['按按鈕進入各管理頁', '每個頁籤右側都有前往管理頁或公開頁的捷徑。'],
-        ['超級管理者可維護帳號', '若您有最高權限，可新增、停用或刪除管理者 Email。']
+        ['先從登入區進入', '請使用已授權的 Google 帳號登入管理後台。'],
+        ['登入後切換四大頁籤', '案件、商店、公告、管理者都從這裡切換。'],
+        ['先看摘要卡片總覽', '可快速掌握目前案件數、商店數、公告數與管理者數。'],
+        ['再從快捷入口進真正管理頁', '需要實際處理資料時，再點進 list、storelist、bulletinlist 等頁面。']
       ],
       resident: [
-        ['看到登入畫面就不用再往下', '管理者頁是里長專用，里民不需要登入。'],
-        ['請改走公開頁面', '若要查案件，請看案件公開清單；若要看商店，請看特約商店清單。'],
-        ['想看公告就到公告欄', '公告有獨立前台，不需要登入。'],
-        ['不清楚請請教里辦公處', '若誤點進後台，可直接關閉頁面，或請里辦公處協助。']
+        ['看到登入頁代表這是後台', '這不是里民平常使用的公開頁。'],
+        ['里民不需要登入', '若只是查資料，不必在這頁輸入帳號。'],
+        ['請改走公開頁面', '案件、商店、公告都有各自的公開頁。'],
+        ['可直接返回或關閉', '離開這頁不會影響任何資料。']
       ]
     },
     tips: {
       mayor: {
         title: '里長端小提醒',
-        items: ['只有在授權名單內的 Email 才能登入。', '管理員異動後，記得同步更新後台帳號。', '沒有超級權限時，看不到完整帳號管理功能。']
+        items: ['admin.html 主要是總覽與入口，不是主要作業頁。', '真正處理案件、商店、公告時，仍以各自列表頁為主。', '若沒有最高權限，管理者頁籤功能可能較少。']
       },
       resident: {
         title: '里民端小提醒',
-        items: ['後台不是里民操作區。', '請優先使用公開頁面，不必擔心看不到後台。', '若需要協助，可直接聯絡里辦公處。']
+        items: ['看到登入頁不用緊張，通常只是走到里長專用入口。', '請回到公開頁查看資料即可。', '里民不需要帳號也能使用公開功能。']
       }
     },
     notice: {
-      mayor: '若登入後顯示無權限，通常是授權 Email 尚未加入管理員名單。',
-      resident: '看到登入頁是正常的，代表您進到了里長專用的管理入口。'
+      mayor: '後台是入口頁，真正日常作業仍以 list、storelist、bulletinlist 為主。',
+      resident: '看到 admin.html 時，代表您進到了管理後台，不是一般里民操作頁。'
     }
+  }
+};
+
+const PREVIEW_MAP = {
+  'cases-mayor': {
+    title: 'list.html',
+    note: '這裡直接載入真正的案件管理頁，藍色數字會標出目前頁面最重要的四個操作區。',
+    pins: [
+      { n: 1, x: '84%', y: '8%', title: '頁首功能區', desc: '先看標題列與右上功能按鈕。' },
+      { n: 2, x: '18%', y: '16%', title: '搜尋與篩選列', desc: '用關鍵字、下拉選單與條件快速找案件。' },
+      { n: 3, x: '20%', y: '39%', title: '案件卡片區', desc: '每張卡片都代表一筆案件，會顯示狀態與摘要。' },
+      { n: 4, x: '72%', y: '39%', title: '點卡片進一步處理', desc: '點開後可進到詳情頁做回覆、更新與公開設定。' }
+    ]
+  },
+  'cases-resident': {
+    title: 'openlist.html',
+    note: '這裡直接載入真正的公開案件頁，藍色數字對應里民最常用的功能位置。',
+    pins: [
+      { n: 1, x: '85%', y: '8%', title: '我要通報按鈕', desc: '里民要新增案件時，先從這裡進入通報表單。' },
+      { n: 2, x: '18%', y: '16%', title: '搜尋與篩選', desc: '可先輸入關鍵字找已公開的案件。' },
+      { n: 3, x: '20%', y: '39%', title: '公開案件卡片', desc: '卡片上會顯示主旨、地點與處理狀態。' },
+      { n: 4, x: '72%', y: '39%', title: '點卡片看詳情', desc: '可查看里長公開的處理結果與照片。' }
+    ]
+  },
+  'stores-mayor': {
+    title: 'storelist.html',
+    note: '這裡直接載入真正的商店管理頁，藍色數字會標出審核最常看的區域。',
+    pins: [
+      { n: 1, x: '84%', y: '8%', title: '頁首功能區', desc: '先看頁首捷徑與功能按鈕。' },
+      { n: 2, x: '18%', y: '16%', title: '搜尋與篩選列', desc: '可依店名、申請人或狀態快速找申請。' },
+      { n: 3, x: '20%', y: '39%', title: '商店卡片區', desc: '每張卡片會顯示方案、狀態與基本資訊。' },
+      { n: 4, x: '72%', y: '39%', title: '點卡片進審核頁', desc: '進去後可調整公開文字、方案與置頂排序。' }
+    ]
+  },
+  'stores-resident': {
+    title: 'storeopenlist.html',
+    note: '這裡直接載入真正的公開商店頁，藍色數字說明里民最常看的位置。',
+    pins: [
+      { n: 1, x: '84%', y: '8%', title: '申請入口', desc: '店家若想加入特約商店，可先按這裡進入申請。' },
+      { n: 2, x: '18%', y: '16%', title: '搜尋與分類區', desc: '可依關鍵字或商店分類篩選。' },
+      { n: 3, x: '20%', y: '39%', title: '商店卡片區', desc: '卡片上會看到店名、優惠與聯絡資訊。' },
+      { n: 4, x: '72%', y: '39%', title: '點卡片看詳細優惠', desc: '可查看完整優惠、地址、時間與電話。' }
+    ]
+  },
+  'bulletins-mayor': {
+    title: 'bulletinlist.html',
+    note: '這裡直接載入真正的公告管理頁，藍色數字標出新增、篩選與管理位置。',
+    pins: [
+      { n: 1, x: '84%', y: '9%', title: '新增公告 / 快捷按鈕', desc: '從頁首右上角可新增公告或切換相關頁面。' },
+      { n: 2, x: '18%', y: '26%', title: '搜尋與狀態篩選', desc: '可快速找草稿、已發佈或置頂公告。' },
+      { n: 3, x: '22%', y: '46%', title: '公告列表', desc: '這裡會列出所有公告的標題、狀態與摘要。' },
+      { n: 4, x: '80%', y: '46%', title: '編輯 / 刪除操作', desc: '從列表右側可直接編輯、刪除或管理公告。' }
+    ]
+  },
+  'bulletins-resident': {
+    title: 'bulletin.html',
+    note: '這裡直接載入真正的公告前台頁，藍色數字說明里民閱讀公告時會看到的重點。',
+    pins: [
+      { n: 1, x: '18%', y: '10%', title: '公告頁標題區', desc: '先確認目前進入的是公告欄頁面。' },
+      { n: 2, x: '20%', y: '28%', title: '公告卡片清單', desc: '公告會依置頂與時間排序顯示。' },
+      { n: 3, x: '58%', y: '28%', title: '點卡片閱讀全文', desc: '點一下公告卡片，就能打開完整內容。' },
+      { n: 4, x: '20%', y: '56%', title: '往下看更多公告', desc: '若上面沒有要找的公告，可往下捲動繼續看。' }
+    ]
+  },
+  'admins-mayor': {
+    title: 'admin.html',
+    note: '這頁保留為管理後台補充教學，藍色數字標出登入後最重要的區域。',
+    pins: [
+      { n: 1, x: '50%', y: '16%', title: '登入區', desc: '先用已授權的 Google 帳號登入。' },
+      { n: 2, x: '50%', y: '30%', title: '四大頁籤', desc: '案件、商店、公告、管理者都從這裡切換。' },
+      { n: 3, x: '20%', y: '46%', title: '摘要卡片', desc: '可快速看目前各模組數量與狀態。' },
+      { n: 4, x: '80%', y: '46%', title: '快速入口', desc: '每個模組都能從這裡跳到真正的管理頁。' }
+    ]
+  },
+  'admins-resident': {
+    title: 'admin.html',
+    note: '里民通常不需要操作此頁；藍色數字用來解釋為何看到登入頁後可以直接離開。',
+    pins: [
+      { n: 1, x: '50%', y: '16%', title: '這是里長專用登入頁', desc: '看到 Google 登入畫面，代表這是管理入口。' },
+      { n: 2, x: '50%', y: '30%', title: '里民不用登入', desc: '若您只是想查資料，不必在這裡操作。' },
+      { n: 3, x: '20%', y: '46%', title: '改走公開頁面', desc: '請改到案件、商店或公告的公開頁。' },
+      { n: 4, x: '80%', y: '46%', title: '可直接返回', desc: '關閉這頁或回上一頁即可，不會影響資料。' }
+    ]
   }
 };
 
 let currentRole = 'mayor';
 let currentTab = 'cases';
 
-function renderMockup(tab, role){
-  const previewMap = {
-    'cases-mayor': { title: 'list.html', note: '以下直接載入實際的案件管理頁。若您目前已登入後台，這裡會看到真實管理畫面。' },
-    'cases-resident': { title: 'openlist.html', note: '以下直接載入實際的公開案件頁，畫面和里民平常看到的頁面一致。' },
-    'stores-mayor': { title: 'storelist.html', note: '以下直接載入實際的商店管理頁。若已登入，會看到真實審核畫面。' },
-    'stores-resident': { title: 'storeopenlist.html', note: '以下直接載入實際的公開商店頁，和里民端看到的內容一致。' },
-    'bulletins-mayor': { title: 'bulletinlist.html', note: '以下直接載入實際的公告管理頁。若已登入，會看到真實編輯列表。' },
-    'bulletins-resident': { title: 'bulletin.html', note: '以下直接載入實際的公告前台頁，里民看到的就是這個頁面。' },
-    'admins-mayor': { title: 'admin.html', note: '這裡保留為管理後台補充教學，畫面直接載入實際 admin 頁。' },
-    'admins-resident': { title: 'admin.html', note: '里民通常不需要操作這頁；此處僅用來說明看到登入頁面時該怎麼判斷。' }
-  };
-  const key = `${tab}-${role}`;
-  const preview = previewMap[key];
+function renderPreview(tab, role){
+  const preview = PREVIEW_MAP[`${tab}-${role}`];
   return `
     <div class="preview-meta">
       <div class="preview-label">實際頁面預覽：${preview.title}</div>
-      <div class="preview-actions">
-        <a class="preview-action" href="${preview.title}" target="_blank" rel="noopener">另開完整頁面</a>
-      </div>
+      <a class="preview-action" href="${preview.title}" target="_blank" rel="noopener">另開完整頁面</a>
     </div>
     <div class="preview-shell">
       <iframe class="preview-frame" src="${preview.title}" title="${preview.title} 預覽" loading="lazy"></iframe>
+      ${preview.pins.map(pin => `<div class="preview-pin" style="left:${pin.x};top:${pin.y};">${pin.n}</div>`).join('')}
     </div>
-    <div class="preview-note">${preview.note}</div>
+    <div class="pin-legend">
+      ${preview.pins.map(pin => `
+        <div class="pin-item">
+          <div class="pin-no">${pin.n}</div>
+          <div class="pin-text">
+            <strong>${pin.title}</strong>
+            <span>${pin.desc}</span>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="visual-caption">上方藍色 1、2、3、4 會直接對照下面步驟卡的 1、2、3、4，請上下對照一起看。</div>
+    <div class="notice" style="margin-top:14px">${preview.note}</div>
   `;
 }
 
@@ -651,8 +742,7 @@ function renderGuide(){
   document.getElementById('pageLinks').innerHTML = data.pages[currentRole].map(item => `
     <a class="page-link" href="${item.href}" target="_blank" rel="noopener">${item.label}：${item.text}</a>
   `).join('');
-  document.getElementById('visualWrap').innerHTML = renderMockup(currentTab, currentRole) + '<div class="visual-caption">上方改為直接顯示實際頁面預覽，下面步驟則解釋該頁面怎麼使用。</div>';
-
+  document.getElementById('visualWrap').innerHTML = renderPreview(currentTab, currentRole);
   document.getElementById('stepsWrap').innerHTML = data.steps[currentRole].map((item, index) => `
     <article class="step-card">
       <div class="step-no">${index + 1}</div>
@@ -669,11 +759,11 @@ function renderGuide(){
       <ul>${tipData.items.map(item => `<li>${item}</li>`).join('')}</ul>
     </article>
     <article class="tip-card">
-      <h3>切換看另一邊會更完整</h3>
+      <h3>切換另一邊也很重要</h3>
       <ul>
         <li>同一個頁面也有 ${otherRole === 'mayor' ? '里長端' : '里民端'} 的說明。</li>
-        <li>若您需要協助別人操作，建議兩邊都看一次。</li>
-        <li>系統畫面以目前和平里小幫手的顏色與版型整理示意。</li>
+        <li>如果您要教別人操作，建議兩邊都看一次。</li>
+        <li>這次的畫面不是假示意，而是直接讀取實際頁面。</li>
       </ul>
     </article>
   `;
