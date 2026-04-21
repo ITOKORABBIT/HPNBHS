@@ -869,7 +869,7 @@ function renderCases() {
     '<td>' + escapeHtml(fmtDate(item.reportTime)) + '</td>' +
     '<td><div class="inline-actions">' +
     '<a class="inline-link" href="detail.html?id=' + encodeURIComponent(item.caseId) + '">編輯</a>' +
-    '<a class="inline-link" href="opendetail.html?id=' + encodeURIComponent(item.caseId) + '" target="_blank" rel="noopener">公開頁</a>' +
+    '<a class="inline-link" href="opendetail.html?id=' + encodeURIComponent(item.caseId) + '&back=' + encodeURIComponent('openlist.html') + '" target="_blank" rel="noopener">公開頁</a>' +
     '</div></td>' +
     '</tr>'
   )).join('');
