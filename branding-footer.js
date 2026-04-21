@@ -1,7 +1,7 @@
 (function () {
   var companyName = 'ITOKO RABBIT';
   var year = new Date().getFullYear();
-  var footerText = '網站製作：' + companyName + ' ｜ © ' + year + ' ' + companyName + '. All rights reserved.';
+  var footerText = '\u00A9 ' + year + ' ' + companyName + '. All rights reserved.';
 
   var existing = document.querySelector('.site-branding-footer, body > .footer, body > footer');
   if (!existing) {
