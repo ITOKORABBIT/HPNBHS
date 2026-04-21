@@ -471,6 +471,7 @@ body{
   color: var(--muted); font-size: 13px; transition: all .15s;
   cursor: pointer; flex-shrink: 0; padding: 0;
 }
+.pin-btn svg{ width: 13px; height: 13px; display: block; }
 .pin-btn:hover { background: #F5F2EE; border-color: #D6C8BA; color: #8C7B6A; }
 .pin-btn.pinned { background: #FFF1F1; border-color: #E57373; color: #C62828; }
 .case-card.is-pinned { border-left: 3px solid #F59E0B; }
@@ -977,7 +978,7 @@ function renderCard(d) {
   html += '<div class="card-top">';
   html += '<span class="card-id">#' + esc(d.caseId) + '</span>';
   html += '<span class="badge ' + badgeCls(d.status) + '">' + esc(d.status) + '</span>';
-  html += '<button class="pin-btn' + (isPinned ? ' pinned' : '') + '" title="' + (isPinned ? '取消置頂' : '設為置頂') + '" aria-label="' + (isPinned ? '取消置頂' : '設為置頂') + '" onclick="event.stopPropagation();togglePin(\'' + esc(d.caseId) + '\',' + (d.pinOrder || 0) + ')">📌</button>';
+  html += '<button class="pin-btn' + (isPinned ? ' pinned' : '') + '" title="' + (isPinned ? '取消置頂' : '設為置頂') + '" aria-label="' + (isPinned ? '取消置頂' : '設為置頂') + '" onclick="event.stopPropagation();togglePin(\'' + esc(d.caseId) + '\',' + (d.pinOrder || 0) + ')"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15 3a2 2 0 0 1 2 2v2.17c0 .53.21 1.04.59 1.41l1.83 1.83A1 1 0 0 1 18.71 12H13v8a1 1 0 1 1-2 0v-8H5.29a1 1 0 0 1-.71-1.71l1.83-1.83A2 2 0 0 0 7 7.17V5a2 2 0 0 1 2-2h6Z"/></svg></button>';
   html += '</div>';
   html += '<div class="card-title">' + esc(d.title || '（無標題）') + '</div>';
 
