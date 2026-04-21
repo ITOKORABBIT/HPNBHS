@@ -3,13 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>案件清單 - 和平里里民通報系統</title>
+<link rel="icon" type="image/png" href="./web_logo.png">
+<link rel="shortcut icon" href="./web_logo.png">
+<link rel="apple-touch-icon" href="./web_logo.png">
+<title>案件清單 - 北屯區和平里 里民小幫手</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
-/* ── Reset & Tokens ── */
+/* ?�?� Reset & Tokens ?�?� */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 img{display:block;max-width:100%}
 button{cursor:pointer;font-family:inherit}
@@ -51,7 +54,7 @@ body{
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Page header ── */
+/* ?�?� Page header ?�?� */
 .page-header{
   background: var(--card);
   border-bottom: 1px solid var(--border);
@@ -100,7 +103,7 @@ body{
 }
 .report-btn:hover{ background: var(--primary-dark); }
 
-/* ── Filter bar ── */
+/* ?�?� Filter bar ?�?� */
 .filter-wrap{
   background: var(--card);
   border-bottom: 1px solid var(--border);
@@ -134,7 +137,7 @@ body{
   transition: border-color .15s;
 }
 .search-input:focus{ border-color: var(--primary); }
-/* ── Dropdown ── */
+/* ?�?� Dropdown ?�?� */
 .dropdown{ position: relative; }
 .dropdown-btn{
   display: flex; align-items: center; gap: 6px;
@@ -188,7 +191,7 @@ body{
 .dropdown-item.selected{ color: var(--primary); font-weight: 700; background: var(--primary-light); }
 .item-dot{ width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-/* ── Result summary ── */
+/* ?�?� Result summary ?�?� */
 .result-bar{
   padding: 10px 16px 4px;
   font-size: 12px; color: var(--lbl);
@@ -196,7 +199,7 @@ body{
 }
 .result-bar strong{ color: var(--primary); }
 
-/* ── Card grid ── */
+/* ?�?� Card grid ?�?� */
 .card-grid{
   padding: 4px 12px 100px;
   display: grid;
@@ -204,7 +207,7 @@ body{
   gap: 12px;
 }
 
-/* ── Case card ── */
+/* ?�?� Case card ?�?� */
 .case-card{
   background: var(--card);
   border-radius: var(--radius);
@@ -306,7 +309,7 @@ body{
 }
 .card-footer svg{ opacity: .6; }
 
-/* ── Status group header ── */
+/* ?�?� Status group header ?�?� */
 .group-header{
   grid-column: 1 / -1;
   display: flex; align-items: center; gap: 10px;
@@ -326,7 +329,7 @@ body{
   flex: 1; height: 1px; background: var(--divider);
 }
 
-/* ── Empty / Error / Loading ── */
+/* ?�?� Empty / Error / Loading ?�?� */
 .state-wrap{
   grid-column: 1 / -1;
   text-align: center; padding: 60px 24px;
@@ -349,7 +352,7 @@ body{
   border: 1px solid var(--border); overflow: hidden;
 }
 
-/* ── Stats sidebar backdrop ── */
+/* ?�?� Stats sidebar backdrop ?�?� */
 .sidebar-backdrop{
   position: fixed; inset: 0; background: rgba(0,0,0,.3);
   z-index: 200; opacity: 0; pointer-events: none;
@@ -357,7 +360,7 @@ body{
 }
 .sidebar-backdrop.open{ opacity: 1; pointer-events: auto; }
 
-/* ── Stats sidebar ── */
+/* ?�?� Stats sidebar ?�?� */
 .stats-sidebar{
   position: fixed; top: 0; left: 0; bottom: 0;
   width: var(--sidebar-w);
@@ -463,7 +466,7 @@ body{
 .chart-wrap.bar-wrap{ height: 160px; }
 .chart-wrap.line-wrap{ height: 150px; }
 
-/* ── 置頂功能 ── */
+/* ?�?� 置�??�能 ?�?� */
 .pin-btn {
   display: inline-flex; align-items: center; justify-content: center;
   width: 26px; height: 26px; border-radius: 6px;
@@ -476,7 +479,7 @@ body{
 .pin-btn.pinned { background: #FFF1F1; border-color: #E57373; color: #C62828; }
 .case-card.is-pinned { border-left: 3px solid #F59E0B; }
 
-/* ── RWD ── */
+/* ?�?� RWD ?�?� */
 @media(max-width: 480px){
   .card-grid{
     grid-template-columns: 1fr;
@@ -489,48 +492,48 @@ body{
 </head>
 <body>
 
-<!-- ── Stats sidebar backdrop ── -->
+<!-- ?�?� Stats sidebar backdrop ?�?� -->
 <div class="sidebar-backdrop" id="backdrop" onclick="closeSidebar()"></div>
 
-<!-- ── Stats sidebar ── -->
+<!-- ?�?� Stats sidebar ?�?� -->
 <div class="stats-sidebar" id="statsSidebar">
   <div class="sidebar-header">
-    <h2>📊 統計總覽</h2>
-    <button class="sidebar-close" onclick="closeSidebar()" aria-label="關閉">&#215;</button>
+    <h2>?? 統�?總覽</h2>
+    <button class="sidebar-close" onclick="closeSidebar()" aria-label="?��?">&#215;</button>
   </div>
   <div class="sidebar-body" id="sidebarBody">
     <div style="text-align:center;padding:40px 0;color:var(--muted);font-size:13px">
-      載入中…
+      載入中�?
     </div>
   </div>
 </div>
 
-<!-- ── Page header ── -->
+<!-- ?�?� Page header ?�?� -->
 <div class="page-header">
   <button class="stats-toggle-btn" id="statsToggleBtn" onclick="toggleSidebar()">
     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
       <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
     </svg>
-    統計
+    統�?
   </button>
   <div class="header-title">
     <div>案件清單</div>
-    <div class="header-subtitle" id="headerSubtitle">和平里里民通報系統</div>
+    <div class="header-subtitle" id="headerSubtitle">?�平?��?民通報系統</div>
   </div>
   <button class="report-btn" onclick="window.location.href='report.html'">
     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    通報
+    ?�報
   </button>
 </div>
 
-<!-- ── Filter bar ── -->
+<!-- ?�?� Filter bar ?�?� -->
 <div class="filter-wrap">
 <div class="filter-bar">
 
   <!-- Status dropdown -->
   <div class="dropdown" id="statusDropdown">
     <button class="dropdown-btn" id="statusBtn" onclick="toggleDropdown('statusDropdown')">
-      <span id="statusLabel">案件狀態</span>
+      <span id="statusLabel">案件?�??/span>
       <svg class="chevron" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <div class="dropdown-panel" id="statusPanel">
@@ -539,12 +542,12 @@ body{
         <input type="text" class="dropdown-search" placeholder="Search" oninput="filterDropdown('statusList', this.value)">
       </div>
       <div class="dropdown-list" id="statusList">
-        <div class="dropdown-item selected" data-value="all"  onclick="selectStatus(this)"><span class="item-dot" style="background:#B8A898"></span>全部狀態</div>
-        <div class="dropdown-item" data-value="新案件"        onclick="selectStatus(this)"><span class="item-dot" style="background:#1A56A8"></span>1.新案件</div>
-        <div class="dropdown-item" data-value="處理中"        onclick="selectStatus(this)"><span class="item-dot" style="background:#B75D00"></span>2.處理中</div>
-        <div class="dropdown-item" data-value="已轉交"        onclick="selectStatus(this)"><span class="item-dot" style="background:#6B28A8"></span>3.已轉交相關單位</div>
-        <div class="dropdown-item" data-value="已結案"        onclick="selectStatus(this)"><span class="item-dot" style="background:#2F6836"></span>4.已結案</div>
-        <div class="dropdown-item" data-value="不受理"        onclick="selectStatus(this)"><span class="item-dot" style="background:#7A6E66"></span>5.不受理</div>
+        <div class="dropdown-item selected" data-value="all"  onclick="selectStatus(this)"><span class="item-dot" style="background:#B8A898"></span>?�部?�??/div>
+        <div class="dropdown-item" data-value="?��?�?        onclick="selectStatus(this)"><span class="item-dot" style="background:#1A56A8"></span>1.?��?�?/div>
+        <div class="dropdown-item" data-value="?��?�?        onclick="selectStatus(this)"><span class="item-dot" style="background:#B75D00"></span>2.?��?�?/div>
+        <div class="dropdown-item" data-value="已�?�?        onclick="selectStatus(this)"><span class="item-dot" style="background:#6B28A8"></span>3.已�?交相?�單�?/div>
+        <div class="dropdown-item" data-value="已�?�?        onclick="selectStatus(this)"><span class="item-dot" style="background:#2F6836"></span>4.已�?�?/div>
+        <div class="dropdown-item" data-value="不�???        onclick="selectStatus(this)"><span class="item-dot" style="background:#7A6E66"></span>5.不�???/div>
       </div>
     </div>
   </div>
@@ -552,7 +555,7 @@ body{
   <!-- Category dropdown -->
   <div class="dropdown" id="categoryDropdown">
     <button class="dropdown-btn" id="categoryBtn" onclick="toggleDropdown('categoryDropdown')">
-      <span id="categoryLabel">通報類別</span>
+      <span id="categoryLabel">?�報類別</span>
       <svg class="chevron" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <div class="dropdown-panel" id="categoryPanel">
@@ -561,7 +564,7 @@ body{
         <input type="text" class="dropdown-search" placeholder="Search" oninput="filterDropdown('categoryList', this.value)">
       </div>
       <div class="dropdown-list" id="categoryList">
-        <div class="dropdown-item selected" data-value="all" onclick="selectCategory(this)">全部類別</div>
+        <div class="dropdown-item selected" data-value="all" onclick="selectCategory(this)">?�部類別</div>
       </div>
     </div>
   </div>
@@ -572,19 +575,19 @@ body{
       <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
     <input type="text" class="search-input" id="searchInput"
-      placeholder="搜尋…" oninput="applyFilters()">
+      placeholder="?��??? oninput="applyFilters()">
   </div>
 
 </div>
 </div><!-- /.filter-wrap -->
 
-<!-- ── Result summary bar ── -->
+<!-- ?�?� Result summary bar ?�?� -->
 <div class="result-bar" id="resultBar">
   <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-  載入中…
+  載入中�?
 </div>
 
-<!-- ── Card grid ── -->
+<!-- ?�?� Card grid ?�?� -->
 <div class="card-grid" id="cardGrid">
   <!-- Skeleton placeholders -->
   <div class="skel-card" style="height:220px">
@@ -615,12 +618,12 @@ body{
 
 <script src="config.js"></script>
 <script>
-// ──────────────────────────────────────────
-// SESSION AUTH — 無管理員 session 跳回 admin.html
-// ──────────────────────────────────────────
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// SESSION AUTH ???�管?�員 session 跳�? admin.html
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 // SESSION AUTH
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 var SESSION_KEY = 'hpnbhs_admin';
 var SESSION_TTL = 2 * 3600 * 1000;
 function getSession() {
@@ -643,14 +646,14 @@ function touchSession() {
   if (!getSession()) { location.href = 'admin.html'; }
 })();
 
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 // CONFIG & CONSTANTS
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 var DETAIL_PAGE = 'detail.html';
 
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 // API HELPER
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 function apiCall(action, extra) {
   var sess = getSession();
   var payload = Object.assign({ action: action }, extra || {});
@@ -670,51 +673,51 @@ function apiCall(action, extra) {
 
 // Status sort weight (lower = shown first)
 var STATUS_WEIGHT = {
-  '1.新案件': 1,
-  '2.處理中': 2,
-  '3.已轉交相關單位': 3,
-  '4.已結案': 4,
-  '5.不受理': 5
+  '1.?��?�?: 1,
+  '2.?��?�?: 2,
+  '3.已�?交相?�單�?: 3,
+  '4.已�?�?: 4,
+  '5.不�???: 5
 };
 // Fallback: check substring
 function statusWeight(s) {
   if (!s) return 9;
   if (STATUS_WEIGHT[s] !== undefined) return STATUS_WEIGHT[s];
-  if (s.indexOf('新案件') !== -1) return 1;
-  if (s.indexOf('處理中') !== -1) return 2;
+  if (s.indexOf('?��?�?) !== -1) return 1;
+  if (s.indexOf('?��?�?) !== -1) return 2;
   if (s.indexOf('轉交') !== -1)   return 3;
-  if (s.indexOf('結案') !== -1)   return 4;
-  if (s.indexOf('不受理') !== -1) return 5;
+  if (s.indexOf('結�?') !== -1)   return 4;
+  if (s.indexOf('不�???) !== -1) return 5;
   return 9;
 }
 
 function statusGroupLabel(s) {
-  if (!s) return '其他';
-  if (s.indexOf('新案件') !== -1)  return '🔵 新案件';
-  if (s.indexOf('處理中') !== -1)  return '🟠 處理中';
-  if (s.indexOf('轉交') !== -1)    return '🟣 已轉交相關單位';
-  if (s.indexOf('結案') !== -1)    return '🟢 已結案';
-  if (s.indexOf('不受理') !== -1)  return '⚪ 不受理';
+  if (!s) return '?��?';
+  if (s.indexOf('?��?�?) !== -1)  return '?�� ?��?�?;
+  if (s.indexOf('?��?�?) !== -1)  return '?? ?��?�?;
+  if (s.indexOf('轉交') !== -1)    return '?�� 已�?交相?�單�?;
+  if (s.indexOf('結�?') !== -1)    return '?�� 已�?�?;
+  if (s.indexOf('不�???) !== -1)  return '??不�???;
   return s;
 }
 
 function badgeCls(s) {
   if (!s) return 'badge-proc';
-  if (s.indexOf('新案件') !== -1)  return 'badge-new';
-  if (s.indexOf('處理中') !== -1)  return 'badge-proc';
+  if (s.indexOf('?��?�?) !== -1)  return 'badge-new';
+  if (s.indexOf('?��?�?) !== -1)  return 'badge-proc';
   if (s.indexOf('轉交') !== -1)    return 'badge-fwd';
-  if (s.indexOf('結案') !== -1)    return 'badge-done';
-  if (s.indexOf('不受理') !== -1)  return 'badge-grey';
+  if (s.indexOf('結�?') !== -1)    return 'badge-done';
+  if (s.indexOf('不�???) !== -1)  return 'badge-grey';
   return 'badge-proc';
 }
 
 function cardStatusCls(s) {
   if (!s) return 'status-proc';
-  if (s.indexOf('新案件') !== -1)  return 'status-new';
-  if (s.indexOf('處理中') !== -1)  return 'status-proc';
+  if (s.indexOf('?��?�?) !== -1)  return 'status-new';
+  if (s.indexOf('?��?�?) !== -1)  return 'status-proc';
   if (s.indexOf('轉交') !== -1)    return 'status-fwd';
-  if (s.indexOf('結案') !== -1)    return 'status-done';
-  if (s.indexOf('不受理') !== -1)  return 'status-grey';
+  if (s.indexOf('結�?') !== -1)    return 'status-done';
+  if (s.indexOf('不�???) !== -1)  return 'status-grey';
   return 'status-proc';
 }
 
@@ -725,15 +728,15 @@ function esc(s) {
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── 類別彩色標籤 ──
+// ?�?� 類別彩色標籤 ?�?�
 var CATE_COLOR = {
-  '生活':  { bg:'#E0F7FA', txt:'#006B6B' },
-  '校園':  { bg:'#FFF3E0', txt:'#B75D00' },
-  '交通':  { bg:'#EBF3FF', txt:'#1A56A8' },
-  '環境':  { bg:'#EAF3EB', txt:'#2F6836' },
-  '治安':  { bg:'#FEE2E2', txt:'#991B1B' },
-  '修繕':  { bg:'#FFF8E1', txt:'#F57F17' },
-  '其他':  { bg:'#F0EEEC', txt:'#7A6E66' },
+  '?�活':  { bg:'#E0F7FA', txt:'#006B6B' },
+  '?��?':  { bg:'#FFF3E0', txt:'#B75D00' },
+  '交�?:  { bg:'#EBF3FF', txt:'#1A56A8' },
+  '?��?':  { bg:'#EAF3EB', txt:'#2F6836' },
+  '治�?':  { bg:'#FEE2E2', txt:'#991B1B' },
+  '修�?':  { bg:'#FFF8E1', txt:'#F57F17' },
+  '?��?':  { bg:'#F0EEEC', txt:'#7A6E66' },
 };
 function cateBadge(cat) {
   var c = CATE_COLOR[cat] || { bg:'#F0EEEC', txt:'#7A6E66' };
@@ -742,44 +745,44 @@ function cateBadge(cat) {
     esc(cat) + '</span>';
 }
 
-// Extract numeric part from caseId for sort (e.g. "HP-00123" → 123)
+// Extract numeric part from caseId for sort (e.g. "HP-00123" ??123)
 function caseIdNum(id) {
   if (!id) return 0;
   var m = String(id).match(/(\d+)/);
   return m ? parseInt(m[1], 10) : 0;
 }
 
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 // STATE
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 var allCases = [];
 var currentStatusFilter   = 'all';
 var currentCategoryFilter = 'all';
 var chartsDrawn = false;
 var chartInstances = [];
 
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 // LOAD DATA
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 function loadAll() {
   apiCall('getCases')
     .then(function(json){
-      if (!json.success) { showError(json.error || '無法取得資料'); return; }
+      if (!json.success) { showError(json.error || '?��??��?資�?'); return; }
       allCases = json.cases || [];
       buildCategoryChips();
       applyFilters();
       document.getElementById('headerSubtitle').textContent =
-        CONFIG.VILLAGE_NAME + '・' + CONFIG.SYSTEM_NAME;
+        CONFIG.VILLAGE_NAME + '?? + CONFIG.SYSTEM_NAME;
     })
     .catch(function(){
-      showError('資料載入失敗，請稍後再試');
+      showError('資�?載入失�?，�?稍�??�試');
     });
 }
 
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 // FILTER & RENDER
-// ──────────────────────────────────────────
-// ── Dropdown helpers ──
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// ?�?� Dropdown helpers ?�?�
 function toggleDropdown(id) {
   var panel = document.getElementById(id).querySelector('.dropdown-panel');
   var btn   = document.getElementById(id).querySelector('.dropdown-btn');
@@ -814,7 +817,7 @@ function selectStatus(el) {
   currentStatusFilter = el.dataset.value;
   document.querySelectorAll('#statusList .dropdown-item').forEach(function(i){ i.classList.remove('selected'); });
   el.classList.add('selected');
-  var label = currentStatusFilter === 'all' ? '案件狀態' : el.querySelector('.item-dot') ? el.textContent.trim() : el.textContent.trim();
+  var label = currentStatusFilter === 'all' ? '案件?�?? : el.querySelector('.item-dot') ? el.textContent.trim() : el.textContent.trim();
   document.getElementById('statusLabel').textContent = label;
   document.getElementById('statusBtn').classList.toggle('active', currentStatusFilter !== 'all');
   closeAllDropdowns();
@@ -825,7 +828,7 @@ function selectCategory(el) {
   currentCategoryFilter = el.dataset.value;
   document.querySelectorAll('#categoryList .dropdown-item').forEach(function(i){ i.classList.remove('selected'); });
   el.classList.add('selected');
-  document.getElementById('categoryLabel').textContent = currentCategoryFilter === 'all' ? '通報類別' : el.textContent.trim();
+  document.getElementById('categoryLabel').textContent = currentCategoryFilter === 'all' ? '?�報類別' : el.textContent.trim();
   document.getElementById('categoryBtn').classList.toggle('active', currentCategoryFilter !== 'all');
   closeAllDropdowns();
   applyFilters();
@@ -836,7 +839,7 @@ function buildCategoryChips() {
   allCases.forEach(function(d){ if (d.category) cats[d.category] = true; });
   var keys = Object.keys(cats).sort();
   var list = document.getElementById('categoryList');
-  var html = '<div class="dropdown-item selected" data-value="all" onclick="selectCategory(this)">全部類別</div>';
+  var html = '<div class="dropdown-item selected" data-value="all" onclick="selectCategory(this)">?�部類別</div>';
   keys.forEach(function(c){
     html += '<div class="dropdown-item" data-value="' + esc(c) + '" onclick="selectCategory(this)">' + esc(c) + '</div>';
   });
@@ -857,14 +860,14 @@ function applyFilters() {
     if (statusF !== 'all') {
       var s = d.status || '';
       var matched = false;
-      if (statusF === '新案件'  && s.indexOf('新案件') !== -1) matched = true;
-      if (statusF === '處理中'  && s.indexOf('處理中') !== -1) matched = true;
-      if (statusF === '已轉交'  && s.indexOf('轉交')   !== -1) matched = true;
-      if (statusF === '已結案'  && s.indexOf('結案')   !== -1) matched = true;
-      if (statusF === '不受理'  && s.indexOf('不受理') !== -1) matched = true;
+      if (statusF === '?��?�?  && s.indexOf('?��?�?) !== -1) matched = true;
+      if (statusF === '?��?�?  && s.indexOf('?��?�?) !== -1) matched = true;
+      if (statusF === '已�?�?  && s.indexOf('轉交')   !== -1) matched = true;
+      if (statusF === '已�?�?  && s.indexOf('結�?')   !== -1) matched = true;
+      if (statusF === '不�???  && s.indexOf('不�???) !== -1) matched = true;
       if (!matched) return false;
     }
-    // Text search（涵蓋所有可查詢欄位）
+    // Text search（涵?��??�可?�詢欄�?�?
     if (q) {
       var hay = [
         d.caseId, d.title, d.addr, d.category,
@@ -876,7 +879,7 @@ function applyFilters() {
     return true;
   });
 
-  // 排序：置頂優先（pinOrder asc），再依狀態權重，再依案件號 desc
+  // ?��?：置?�優?��?pinOrder asc）�??��??�?��??��??��?案件??desc
   filtered.sort(function(a, b){
     var pa = a.pinOrder > 0 ? a.pinOrder : 999999;
     var pb = b.pinOrder > 0 ? b.pinOrder : 999999;
@@ -895,12 +898,12 @@ function applyFilters() {
   var tags = '';
   if (statusF   !== 'all') tags += ' <span style="background:var(--primary-light);color:var(--primary);padding:1px 6px;border-radius:4px;font-size:11px">' + statusF + '</span>';
   if (categoryF !== 'all') tags += ' <span style="background:#FFF3E0;color:#B75D00;padding:1px 6px;border-radius:4px;font-size:11px">' + categoryF + '</span>';
-  if (q)                   tags += ' <span style="background:#F3EBFF;color:#6B28A8;padding:1px 6px;border-radius:4px;font-size:11px">「' + esc(q) + '」</span>';
+  if (q)                   tags += ' <span style="background:#F3EBFF;color:#6B28A8;padding:1px 6px;border-radius:4px;font-size:11px">?? + esc(q) + '??/span>';
   bar.innerHTML =
     '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
     '<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> ' +
-    '共 <strong>' + filtered.length + '</strong> 筆' +
-    (isFiltered ? tags : '・共 ' + allCases.length + ' 筆案件');
+    '??<strong>' + filtered.length + '</strong> �? +
+    (isFiltered ? tags : '?�共 ' + allCases.length + ' 筆�?�?);
 }
 
 function renderGrid(cases) {
@@ -909,7 +912,7 @@ function renderGrid(cases) {
     grid.innerHTML = '<div class="state-wrap">' +
       '<svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">' +
       '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
-      '<h3>沒有符合的案件</h3><p>請嘗試調整搜尋條件或篩選項目</p></div>';
+      '<h3>沒�?符�??��?�?/h3><p>請�?試調?��?尋�?件�?篩選?�目</p></div>';
     return;
   }
 
@@ -920,24 +923,24 @@ function renderGrid(cases) {
 
   cases.forEach(function(d){
     var isPinned = d.pinOrder > 0;
-    // 置頂組標頭
+    // 置�?組�???
     if (isPinned && !shownPinHeader) {
       var pinCnt = cases.filter(function(x){ return x.pinOrder > 0; }).length;
       html += '<div class="group-header">' +
-        '<span class="group-label">📌 置頂案件</span>' +
-        '<span class="group-count">' + pinCnt + ' 筆</span>' +
+        '<span class="group-label">?? 置�?案件</span>' +
+        '<span class="group-count">' + pinCnt + ' �?/span>' +
         '<div class="group-line"></div></div>';
       shownPinHeader = true;
-      lastGroup = '📌 置頂案件';
+      lastGroup = '?? 置�?案件';
     }
-    // 一般狀態組標頭
+    // 一?��??��?標頭
     if (!isPinned) {
       var grp = statusGroupLabel(d.status);
       if (grp !== lastGroup) {
         var cnt = cases.filter(function(x){ return !x.pinOrder && statusGroupLabel(x.status) === grp; }).length;
         html += '<div class="group-header">' +
           '<span class="group-label">' + grp + '</span>' +
-          '<span class="group-count">' + cnt + ' 筆</span>' +
+          '<span class="group-count">' + cnt + ' �?/span>' +
           '<div class="group-line"></div></div>';
         lastGroup = grp;
       }
@@ -978,9 +981,9 @@ function renderCard(d) {
   html += '<div class="card-top">';
   html += '<span class="card-id">#' + esc(d.caseId) + '</span>';
   html += '<span class="badge ' + badgeCls(d.status) + '">' + esc(d.status) + '</span>';
-  html += '<button class="pin-btn' + (isPinned ? ' pinned' : '') + '" title="' + (isPinned ? '取消置頂' : '設為置頂') + '" aria-label="' + (isPinned ? '取消置頂' : '設為置頂') + '" onclick="event.stopPropagation();togglePin(\'' + esc(d.caseId) + '\',' + (d.pinOrder || 0) + ')"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15 3a2 2 0 0 1 2 2v2.17c0 .53.21 1.04.59 1.41l1.83 1.83A1 1 0 0 1 18.71 12H13v8a1 1 0 1 1-2 0v-8H5.29a1 1 0 0 1-.71-1.71l1.83-1.83A2 2 0 0 0 7 7.17V5a2 2 0 0 1 2-2h6Z"/></svg></button>';
+  html += '<button class="pin-btn' + (isPinned ? ' pinned' : '') + '" title="' + (isPinned ? '?��?置�?' : '設為置�?') + '" aria-label="' + (isPinned ? '?��?置�?' : '設為置�?') + '" onclick="event.stopPropagation();togglePin(\'' + esc(d.caseId) + '\',' + (d.pinOrder || 0) + ')"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15 3a2 2 0 0 1 2 2v2.17c0 .53.21 1.04.59 1.41l1.83 1.83A1 1 0 0 1 18.71 12H13v8a1 1 0 1 1-2 0v-8H5.29a1 1 0 0 1-.71-1.71l1.83-1.83A2 2 0 0 0 7 7.17V5a2 2 0 0 1 2-2h6Z"/></svg></button>';
   html += '</div>';
-  html += '<div class="card-title">' + esc(d.title || '（無標題）') + '</div>';
+  html += '<div class="card-title">' + esc(d.title || '（無標�?�?) + '</div>';
 
   // Meta tags
   html += '<div class="card-meta">';
@@ -990,7 +993,7 @@ function renderCard(d) {
   if (d.addr) {
     html += '<span class="meta-tag">' +
       '<svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
-      esc(d.addr.length > 20 ? d.addr.slice(0,20)+'…' : d.addr) + '</span>';
+      esc(d.addr.length > 20 ? d.addr.slice(0,20)+'?? : d.addr) + '</span>';
   }
   html += '</div>';
 
@@ -1011,8 +1014,8 @@ function renderCard(d) {
 
 function noPhotoHtml() {
   return '<div class="no-photo-content">' +
-    '<span class="no-photo-emoji">📷</span>' +
-    '<span class="no-photo-text">尚無照片</span>' +
+    '<span class="no-photo-emoji">?��</span>' +
+    '<span class="no-photo-text">尚無?��?</span>' +
     '</div>';
 }
 
@@ -1020,40 +1023,40 @@ function openCase(id) {
   window.location.href = DETAIL_PAGE + '?id=' + encodeURIComponent(id);
 }
 
-// ──────────────────────────────────────────
-// 置頂功能
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// 置�??�能
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 function togglePin(caseId, currentPinOrder) {
   var newOrder;
   if (currentPinOrder > 0) {
-    newOrder = 0; // 取消置頂
+    newOrder = 0; // ?��?置�?
   } else {
-    // 自動找到最大 pin_order + 1
+    // ?��??�到?��?pin_order + 1
     var maxPin = 0;
     allCases.forEach(function(c){ if (c.pinOrder > maxPin) maxPin = c.pinOrder; });
     newOrder = maxPin + 1;
   }
   apiCall('pinCase', { caseId: caseId, pinOrder: newOrder })
     .then(function(json) {
-      if (!json.success) { alert('置頂操作失敗：' + (json.error || '')); return; }
+      if (!json.success) { alert('置�??��?失�?�? + (json.error || '')); return; }
       var idx = allCases.findIndex(function(c){ return c.caseId === caseId; });
       if (idx !== -1) allCases[idx].pinOrder = newOrder;
       applyFilters();
     })
-    .catch(function() { alert('網路錯誤，請稍後再試'); });
+    .catch(function() { alert('網路?�誤，�?稍�??�試'); });
 }
 
 function showError(msg) {
   document.getElementById('cardGrid').innerHTML =
     '<div class="state-wrap">' +
     '<svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
-    '<h3>載入失敗</h3><p>' + esc(msg) + '</p></div>';
-  document.getElementById('resultBar').textContent = '載入失敗';
+    '<h3>載入失�?</h3><p>' + esc(msg) + '</p></div>';
+  document.getElementById('resultBar').textContent = '載入失�?';
 }
 
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 // SIDEBAR TOGGLE
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 var sidebarOpen = false;
 
 function toggleSidebar() {
@@ -1077,9 +1080,9 @@ function closeSidebar() {
   document.getElementById('statsToggleBtn').classList.remove('active');
 }
 
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 // STATS & CHARTS
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 function renderStats() {
   var now = new Date();
   var thisYear  = now.getFullYear();
@@ -1111,7 +1114,7 @@ function renderStats() {
   allCases.forEach(function(d){
     var dt = parseDate(d.reportTime);
     var s  = d.status || '';
-    var c  = d.category || '其他';
+    var c  = d.category || '?��?';
 
     // Monthly / yearly
     if (dt) {
@@ -1127,22 +1130,22 @@ function renderStats() {
     catMap[c] = (catMap[c] || 0) + 1;
 
     // Status map
-    var sl = s.indexOf('新案件') !== -1 ? '新案件'
-           : s.indexOf('處理中') !== -1 ? '處理中'
-           : s.indexOf('轉交')   !== -1 ? '已轉交'
-           : s.indexOf('結案')   !== -1 ? '已結案'
-           : s.indexOf('不受理') !== -1 ? '不受理'
-           : (s || '其他');
+    var sl = s.indexOf('?��?�?) !== -1 ? '?��?�?
+           : s.indexOf('?��?�?) !== -1 ? '?��?�?
+           : s.indexOf('轉交')   !== -1 ? '已�?�?
+           : s.indexOf('結�?')   !== -1 ? '已�?�?
+           : s.indexOf('不�???) !== -1 ? '不�???
+           : (s || '?��?');
     statusMap[sl] = (statusMap[sl] || 0) + 1;
 
     // Overdue: not closed and > 7 days
-    if (s.indexOf('結案') === -1 && s.indexOf('不受理') === -1 && dt) {
+    if (s.indexOf('結�?') === -1 && s.indexOf('不�???) === -1 && dt) {
       var daysDiff = Math.floor((now - dt) / 86400000);
       if (daysDiff > 7) overdueCount++;
     }
 
     // Avg resolve days
-    if (s.indexOf('結案') !== -1 && dt) {
+    if (s.indexOf('結�?') !== -1 && dt) {
       var replyDt = parseDate(d.replyTime);
       if (replyDt) {
         totalResolveDays += Math.max(0, Math.floor((replyDt - dt) / 86400000));
@@ -1160,53 +1163,53 @@ function renderStats() {
   var catColors = catKeys.map(function(_,i){ return CAT_COLORS[i % CAT_COLORS.length]; });
 
   // Status bar colors
-  var statusOrder = ['新案件','處理中','已轉交','已結案','不受理'];
+  var statusOrder = ['?��?�?,'?��?�?,'已�?�?,'已�?�?,'不�???];
   var statusColors = {
-    '新案件': '#1A56A8', '處理中': '#B75D00',
-    '已轉交': '#6B28A8', '已結案': '#2F6836', '不受理': '#7A6E66'
+    '?��?�?: '#1A56A8', '?��?�?: '#B75D00',
+    '已�?�?: '#6B28A8', '已�?�?: '#2F6836', '不�???: '#7A6E66'
   };
   var statusKeys = statusOrder.filter(function(k){ return statusMap[k]; });
   var statusVals = statusKeys.map(function(k){ return statusMap[k] || 0; });
   var statusColors2 = statusKeys.map(function(k){ return statusColors[k] || '#aaa'; });
 
   // Monthly line
-  var lineLabels = last6.map(function(k){ return k.slice(5) + '月'; });
+  var lineLabels = last6.map(function(k){ return k.slice(5) + '??; });
   var lineVals   = last6.map(function(k){ return monthlyMap[k] || 0; });
 
   // HTML
   var html = '';
 
   // Big summary boxes
-  html += '<div style="margin-bottom:8px;font-size:11px;font-weight:700;color:var(--lbl);letter-spacing:.5px;text-transform:uppercase">本月 / 本年概覽</div>';
+  html += '<div style="margin-bottom:8px;font-size:11px;font-weight:700;color:var(--lbl);letter-spacing:.5px;text-transform:uppercase">?��? / ?�年概覽</div>';
 
   html += '<div class="stat-grid">';
-  html += '<div class="stat-box"><div class="stat-num">' + monthCount + '</div><div class="stat-lbl">本月案件</div></div>';
-  html += '<div class="stat-box"><div class="stat-num">' + yearCount  + '</div><div class="stat-lbl">本年案件</div></div>';
+  html += '<div class="stat-box"><div class="stat-num">' + monthCount + '</div><div class="stat-lbl">?��?案件</div></div>';
+  html += '<div class="stat-box"><div class="stat-num">' + yearCount  + '</div><div class="stat-lbl">?�年案件</div></div>';
   html += '</div>';
 
   // Extra metrics
   html += '<div style="margin-bottom:20px">';
-  html += '<div class="stat-row"><span class="stat-row-lbl">⏰ 超過7天未結案</span><span class="stat-row-val' + (overdueCount > 0 ? ' warn' : ' ok') + '">' + overdueCount + ' 件</span></div>';
+  html += '<div class="stat-row"><span class="stat-row-lbl">??超�?7天未結�?</span><span class="stat-row-val' + (overdueCount > 0 ? ' warn' : ' ok') + '">' + overdueCount + ' �?/span></div>';
   if (avgDays !== null) {
-    html += '<div class="stat-row"><span class="stat-row-lbl">📅 平均結案天數</span><span class="stat-row-val">' + avgDays + ' 天</span></div>';
+    html += '<div class="stat-row"><span class="stat-row-lbl">?? 平�?結�?天數</span><span class="stat-row-val">' + avgDays + ' �?/span></div>';
   }
-  html += '<div class="stat-row"><span class="stat-row-lbl">📁 總案件數</span><span class="stat-row-val">' + allCases.length + ' 件</span></div>';
+  html += '<div class="stat-row"><span class="stat-row-lbl">?? 總�?件數</span><span class="stat-row-val">' + allCases.length + ' �?/span></div>';
   html += '</div>';
 
   // Charts
   html += '<div class="chart-section"><div class="chart-title">' +
     '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' +
-    '案件類別分布</div>' +
+    '案件類別?��?</div>' +
     '<div class="chart-wrap pie-wrap"><canvas id="catPieChart"></canvas></div></div>';
 
   html += '<div class="chart-section"><div class="chart-title">' +
     '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>' +
-    '各狀態分布</div>' +
+    '?��??��?�?/div>' +
     '<div class="chart-wrap bar-wrap"><canvas id="statusBarChart"></canvas></div></div>';
 
   html += '<div class="chart-section"><div class="chart-title">' +
     '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>' +
-    '近6個月新增趨勢</div>' +
+    '�??��??��?趨勢</div>' +
     '<div class="chart-wrap line-wrap"><canvas id="trendLineChart"></canvas></div></div>';
 
   document.getElementById('sidebarBody').innerHTML = html;
@@ -1255,7 +1258,7 @@ function renderStats() {
       responsive: true, maintainAspectRatio: false,
       indexAxis: 'y',
       plugins: { legend: { display: false }, tooltip: { callbacks: {
-        label: function(ctx){ return ' ' + ctx.raw + ' 件'; }
+        label: function(ctx){ return ' ' + ctx.raw + ' �?; }
       }}},
       scales: {
         x: { beginAtZero: true, ticks: { font: fontDef, stepSize: 1 }, grid: { color: '#EDE7DF' } },
@@ -1271,7 +1274,7 @@ function renderStats() {
     data: {
       labels: lineLabels,
       datasets: [{
-        label: '新增案件',
+        label: '?��?案件',
         data: lineVals,
         borderColor: '#4B7A52',
         backgroundColor: 'rgba(75,122,82,.12)',
@@ -1284,7 +1287,7 @@ function renderStats() {
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false }, tooltip: { callbacks: {
-        label: function(ctx){ return ' ' + ctx.raw + ' 件'; }
+        label: function(ctx){ return ' ' + ctx.raw + ' �?; }
       }}},
       scales: {
         x: { ticks: { font: fontDef }, grid: { display: false } },
@@ -1313,9 +1316,9 @@ openSidebar = function() {
   }
 };
 
-// ──────────────────────────────────────────
-// AUTO REFRESH（每 60 秒靜默背景更新）
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
+// AUTO REFRESH（�? 60 秒�?默�??�更?��?
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 var _refreshing = false;
 function silentRefresh() {
   if (_refreshing) return;
@@ -1324,7 +1327,7 @@ function silentRefresh() {
     .then(function(json){
       if (!json.success) return;
       var fresh = json.cases || [];
-      // 比較總筆數 + 最後一筆 ID，有差異才重繪
+      // 比�?總�???+ ?�後�?�?ID，�?差異?��?�?
       var changed = fresh.length !== allCases.length ||
         (fresh.length && allCases.length &&
          fresh[0].caseId !== allCases[0].caseId) ||
@@ -1341,14 +1344,15 @@ function silentRefresh() {
     .finally(function(){ _refreshing = false; });
 }
 
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 // INIT
-// ──────────────────────────────────────────
+// ?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�?�
 loadAll();
 setInterval(silentRefresh, 60000);
 ['click','keydown','mousedown','touchstart','scroll'].forEach(function(eventName){
   window.addEventListener(eventName, function(){ touchSession(); }, { passive: true });
 });
 </script>
+  <script src="branding-footer.js"></script>
 </body>
 </html>
