@@ -1065,7 +1065,7 @@ function loadAdmins() {
     }
     adminsAccessible = true;
     allAdmins = json.admins || [];
-    setSummary('sumAdmins', String(allAdmins.length), '目前可管理帳號 ' + allAdmins.length + 位');
+    setSummary('sumAdmins', String(allAdmins.length), '目前可管理帳號 ' + allAdmins.length + ' 位');
     renderAdmins();
   }).catch(() => {
     adminsAccessible = false;
