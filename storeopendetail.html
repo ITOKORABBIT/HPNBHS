@@ -242,7 +242,7 @@ body{
 
 <!-- ── Page header ── -->
 <div class="page-header">
-  <button class="back-btn" onclick="history.back()">
+  <button class="back-btn" onclick="goBack()">
     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
     返回
   </button>
@@ -309,6 +309,18 @@ function closeLb() {
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeLb(); });
 
 var storeId = new URLSearchParams(location.search).get('id') || '';
+var backTarget = new URLSearchParams(location.search).get('back') || 'storeopenlist.html';
+
+function goBack() {
+  try {
+    var target = new URL(backTarget, location.href);
+    if (target.origin === location.origin) {
+      location.href = target.pathname + target.search + target.hash;
+      return;
+    }
+  } catch (error) {}
+  location.href = 'storeopenlist.html';
+}
 
 function loadStore() {
   if (!storeId) { showError('缺少商店編號'); return; }

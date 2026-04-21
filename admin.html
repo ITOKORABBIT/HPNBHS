@@ -924,7 +924,7 @@ function renderStores() {
     '<td>' + escapeHtml(fmtDate(item.applyTime)) + '</td>' +
     '<td><div class="inline-actions">' +
     '<a class="inline-link" href="storedetail.html?id=' + encodeURIComponent(item.storeId) + '">審核</a>' +
-    '<a class="inline-link" href="storeopendetail.html?id=' + encodeURIComponent(item.storeId) + '" target="_blank" rel="noopener">公開頁</a>' +
+    '<a class="inline-link" href="storeopendetail.html?id=' + encodeURIComponent(item.storeId) + '&back=' + encodeURIComponent('storeopenlist.html') + '" target="_blank" rel="noopener">公開頁</a>' +
     '</div></td>' +
     '</tr>'
   )).join('');

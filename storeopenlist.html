@@ -507,7 +507,7 @@ function renderCard(d) {
 
   var isPremium = d.planType === '優選';
   var isStd     = d.planType === '精選';
-  var detailUrl = 'storeopendetail.html?id=' + encodeURIComponent(d.storeId);
+  var detailUrl = 'storeopendetail.html?id=' + encodeURIComponent(d.storeId) + '&back=' + encodeURIComponent('storeopenlist.html');
   var cardCls = 'store-card' +
     (isPremium ? ' plan-premium' : '') +
     (isStd     ? ' plan-std'     : '');
