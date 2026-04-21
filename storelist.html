@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -32,6 +33,38 @@ button{cursor:pointer;font-family:inherit}
 }
 
 body{ font-family: var(--font); background: var(--bg); color: var(--val); font-size: 15px; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* ── Login screen ── */
+#loginScreen{
+  position: fixed; inset: 0; z-index: 500;
+  display: none; align-items: center; justify-content: center;
+  padding: 28px 16px;
+  background:
+    radial-gradient(circle at top left, rgba(196,154,60,.12), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(196,154,60,.08), transparent 28%),
+    var(--bg);
+}
+.login-card{
+  width: min(100%, 420px);
+  background: rgba(255,255,255,.92);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 18px 40px rgba(30,22,14,.08);
+  padding: 28px 24px;
+}
+.login-badge{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 12px; border-radius:999px;
+  background: var(--primary-light); color: var(--primary-dark);
+  font-size: 12px; font-weight: 700; margin-bottom: 16px;
+}
+.login-title{ font-size: 28px; font-weight: 800; color: var(--heading); margin-bottom: 8px; }
+.login-sub{ font-size: 14px; color: var(--lbl); line-height: 1.75; margin-bottom: 20px; }
+#loginBtnWrap{ display:flex; justify-content:center; }
+.login-error{
+  margin-top: 14px; padding: 12px 14px; border-radius: 12px;
+  background: #FFF1EF; color: #B95353; font-size: 13px; display: none;
+}
 
 /* ── Page header ── */
 .page-header{
@@ -225,6 +258,17 @@ body{ font-family: var(--font); background: var(--bg); color: var(--val); font-s
 </head>
 <body>
 
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-badge">特約商店管理入口</div>
+    <div class="login-title">商店管理</div>
+    <div class="login-sub">請使用已授權的 Google 帳號登入後，直接在這裡管理特約商店資料。</div>
+    <div id="loginBtnWrap"></div>
+    <div class="login-error" id="loginError">此帳號沒有管理員權限，請聯絡系統管理員。</div>
+  </div>
+</div>
+
+<div id="appShell" style="display:none">
 <div class="sidebar-backdrop" id="backdrop" onclick="closeSidebar()"></div>
 
 <div class="stats-sidebar" id="statsSidebar">
@@ -302,12 +346,16 @@ body{ font-family: var(--font); background: var(--bg); color: var(--val); font-s
   <div class="skel-card" style="height:220px"><div class="skel" style="height:130px;border-radius:0"></div><div style="padding:12px 14px"><div class="skel" style="height:12px;width:40%;margin-bottom:8px"></div><div class="skel" style="height:15px;width:90%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:70%"></div></div></div>
   <div class="skel-card" style="height:220px"><div class="skel" style="height:130px;border-radius:0"></div><div style="padding:12px 14px"><div class="skel" style="height:12px;width:55%;margin-bottom:8px"></div><div class="skel" style="height:15px;width:75%;margin-bottom:6px"></div><div class="skel" style="height:12px;width:60%"></div></div></div>
 </div>
+</div>
 
 <script src="storeconfig.js"></script>
 <script>
 // ── SESSION AUTH ──
 var SESSION_KEY = 'tokuten_admin';
 var SESSION_TTL = 2 * 3600 * 1000;
+function setSession(token, email, name) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ sessionToken: token, email: email, name: name, ts: Date.now() }));
+}
 function getSession() {
   try {
     var d = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
@@ -322,7 +370,66 @@ function touchSession() {
   d.ts = Date.now();
   localStorage.setItem(SESSION_KEY, JSON.stringify(d));
 }
-(function(){ if (!getSession()) { location.href = 'storeadmin.html'; } })();
+function showLogin(message) {
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  var el = document.getElementById('loginError');
+  if (message) {
+    el.textContent = message;
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+function enterApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  var redirect = new URLSearchParams(location.search).get('redirect') || '';
+  if (redirect) {
+    try {
+      var url = new URL(redirect, location.origin);
+      if (url.origin === location.origin && url.pathname !== location.pathname) {
+        location.href = redirect;
+        return;
+      }
+    } catch (e) {}
+  }
+  loadAll();
+}
+function initGoogle() {
+  var sess = getSession();
+  if (sess) { enterApp(); return; }
+  showLogin();
+  if (!CONFIG.GOOGLE_CLIENT_ID) return;
+  if (typeof google === 'undefined') { setTimeout(initGoogle, 300); return; }
+  google.accounts.id.initialize({
+    client_id: CONFIG.GOOGLE_CLIENT_ID,
+    callback: onGoogleSignIn,
+    auto_select: true
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('loginBtnWrap'),
+    { type: 'standard', theme: 'filled_blue', size: 'large', text: 'signin_with', locale: 'zh-TW', width: 280 }
+  );
+  google.accounts.id.prompt();
+}
+function onGoogleSignIn(resp) {
+  document.getElementById('loginError').style.display = 'none';
+  fetch(CONFIG.SCRIPT_URL, {
+    method: 'POST',
+    redirect: 'follow',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'login', id_token: resp.credential })
+  })
+  .then(function(r){ return r.text(); })
+  .then(function(t){ return JSON.parse(t); })
+  .then(function(json){
+    if (!json.success) { showLogin(json.error || '此帳號沒有管理員權限，請聯絡系統管理員。'); return; }
+    setSession(json.sessionToken, json.email, json.name || '');
+    enterApp();
+  })
+  .catch(function(){ showLogin('登入失敗，請稍後再試。'); });
+}
 
 // ── API ──
 function apiCall(action, extra) {
@@ -337,7 +444,11 @@ function apiCall(action, extra) {
   .then(function(r){ return r.text(); })
   .then(function(t){ return JSON.parse(t); })
   .then(function(json){
-    if (json.code === 401) { clearSession(); location.href = 'storeadmin.html'; }
+    if (json.code === 401) {
+      clearSession();
+      if (typeof google !== 'undefined') google.accounts.id.disableAutoSelect();
+      showLogin('登入已失效，請重新登入。');
+    }
     return json;
   });
 }
@@ -653,7 +764,12 @@ function silentRefresh() {
     .finally(function(){ _refreshing = false; });
 }
 
-loadAll();
+window.addEventListener('load', function(){
+  var tries = 0;
+  var t = setInterval(function(){
+    if (typeof google !== 'undefined' || ++tries > 30) { clearInterval(t); initGoogle(); }
+  }, 200);
+});
 setInterval(silentRefresh, 60000);
 ['click','keydown','mousedown','touchstart','scroll'].forEach(function(eventName){
   window.addEventListener(eventName, function(){ touchSession(); }, { passive: true });
