@@ -43,15 +43,16 @@ body{font-family:var(--font);background:var(--bg);color:var(--val);font-size:15p
   overflow:hidden;cursor:pointer;
   transition:transform .15s,box-shadow .15s;
   border-left:4px solid var(--primary);
+  display:flex;align-items:stretch;
 }
 .bull-card.pinned{border-left-color:var(--pin);background:var(--pin-bg)}
 .bull-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
 
-.card-img{width:100%;aspect-ratio:16/7;overflow:hidden;background:var(--divider)}
-.card-img img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
-.bull-card:hover .card-img img{transform:scale(1.03)}
+.card-thumb{width:88px;flex-shrink:0;overflow:hidden;background:var(--divider)}
+.card-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.bull-card:hover .card-thumb img{transform:scale(1.03)}
 
-.card-body{padding:13px 14px 14px}
+.card-body{padding:13px 14px 14px;flex:1;min-width:0}
 .card-meta{display:flex;align-items:center;gap:7px;margin-bottom:7px;flex-wrap:wrap}
 .pin-badge{
   display:inline-flex;align-items:center;gap:4px;
@@ -264,16 +265,15 @@ function render(list) {
     card.addEventListener('click', function() { openModal(idx); });
     card.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') openModal(idx); });
 
-    let html = '';
     const images = splitImageUrls(b.imageUrl);
-    if (images.length) {
-      html += '<div class="card-img"><img src="' + esc(images[0]) + '" alt="" loading="lazy"></div>';
-    }
-    html += '<div class="card-body"><div class="card-meta">';
+    let html = '<div class="card-body"><div class="card-meta">';
     if (b.pinned) html += '<span class="pin-badge">' + PIN_SVG + ' 置頂</span>';
     html += '<span class="date-lbl">' + esc(fmtDate(b.createdAt)) + '</span>';
     html += '</div><div class="card-title">' + esc(b.title) + '</div>';
     html += '<div class="card-preview">' + esc(stripHtml(b.content)) + '</div></div>';
+    if (images.length) {
+      html += '<div class="card-thumb"><img src="' + esc(images[0]) + '" alt="" loading="lazy"></div>';
+    }
     card.innerHTML = html;
     el.appendChild(card);
   });
