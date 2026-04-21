@@ -3,379 +3,273 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>服務報價單｜和平里</title>
+<title>和平里小幫手 專案報價單</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-    font-size: 14px;
-    color: #1a1a2e;
-    background: #fff;
-    padding: 40px;
-    max-width: 820px;
-    margin: 0 auto;
+  :root{
+    --bg:#f5f2ee;
+    --card:#ffffff;
+    --line:#ded4c8;
+    --text:#2c241b;
+    --muted:#7e6d5d;
+    --green:#4d7a56;
+    --green-soft:#ebf3ec;
+    --gold:#b98b3d;
+    --gold-soft:#fbf2df;
+    --shadow:0 18px 42px rgba(43,35,27,.08);
   }
-
-  /* Header */
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding-bottom: 24px;
-    border-bottom: 3px solid #1a4a7a;
-    margin-bottom: 28px;
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;
+    background:linear-gradient(180deg,#faf8f5 0%,#f5f2ee 100%);
+    color:var(--text);
   }
-  .header .brand h1 { font-size: 22px; color: #1a4a7a; }
-  .header .brand p { font-size: 12px; color: #888; margin-top: 4px; }
-  .header .doc-info { text-align: right; font-size: 13px; color: #555; line-height: 1.9; }
-  .header .doc-info .doc-no { font-size: 18px; color: #1a4a7a; font-weight: bold; }
-
-  /* Parties */
-  .parties {
-    display: flex;
-    gap: 24px;
-    margin-bottom: 28px;
+  .page{
+    width:min(980px,calc(100% - 32px));
+    margin:32px auto 48px;
   }
-  .party-box {
-    flex: 1;
-    border: 1px solid #d0dce8;
-    border-radius: 6px;
-    padding: 14px 16px;
+  .hero,.section{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:24px;
+    box-shadow:var(--shadow);
   }
-  .party-box .party-label {
-    font-size: 11px;
-    color: #888;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-    text-transform: uppercase;
+  .hero{
+    padding:36px;
+    margin-bottom:18px;
+    background:
+      radial-gradient(circle at top right, rgba(185,139,61,.10), transparent 32%),
+      radial-gradient(circle at bottom left, rgba(77,122,86,.10), transparent 28%),
+      var(--card);
   }
-  .party-box .party-name { font-size: 15px; font-weight: bold; color: #1a4a7a; }
-  .party-box p { font-size: 12px; color: #666; margin-top: 4px; line-height: 1.8; }
-
-  /* Table */
-  h3 {
-    font-size: 14px;
-    color: #1a4a7a;
-    border-left: 3px solid #3ba0c0;
-    padding-left: 8px;
-    margin: 24px 0 10px;
+  .eyebrow{
+    display:inline-flex;
+    padding:8px 14px;
+    border-radius:999px;
+    background:var(--gold-soft);
+    color:#805d19;
+    font-size:13px;
+    font-weight:800;
+    margin-bottom:18px;
   }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-    margin-bottom: 16px;
+  h1{
+    margin:0 0 10px;
+    font-size:34px;
+    line-height:1.35;
   }
-  th {
-    background: #1a4a7a;
-    color: white;
-    padding: 9px 12px;
-    text-align: left;
-    font-weight: normal;
+  .hero p{
+    margin:0;
+    color:var(--muted);
+    line-height:1.8;
   }
-  th.right { text-align: right; }
-  td {
-    padding: 10px 12px;
-    border-bottom: 1px solid #e5e5e5;
-    vertical-align: top;
-    line-height: 1.7;
+  .head-grid{
+    display:grid;
+    grid-template-columns:1.2fr .8fr;
+    gap:16px;
+    margin-top:24px;
   }
-  td.right { text-align: right; }
-  tr:nth-child(even) td { background: #f7fafc; }
-
-  .subtotal td { font-weight: bold; background: #eef4fa !important; }
-  .total-row td {
-    background: #1a4a7a !important;
-    color: white;
-    font-size: 15px;
-    font-weight: bold;
-    padding: 12px;
+  .meta-card{
+    padding:18px;
+    border:1px solid var(--line);
+    border-radius:18px;
+    background:#fcfbf8;
   }
-  .total-row td.right { text-align: right; }
-
-  /* Trial block */
-  .trial-block {
-    border: 2px solid #3ba0c0;
-    border-radius: 8px;
-    padding: 18px 20px;
-    margin: 20px 0;
-    background: #f0f9fd;
+  .meta-card h3{
+    margin:0 0 8px;
+    font-size:16px;
   }
-  .trial-block h4 {
-    color: #1a4a7a;
-    font-size: 14px;
-    margin-bottom: 12px;
+  .meta-card p{
+    margin:4px 0;
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.8;
   }
-  .trial-grid {
-    display: flex;
-    gap: 20px;
+  .section{
+    padding:28px 30px;
+    margin-bottom:18px;
   }
-  .trial-item {
-    flex: 1;
-    background: white;
-    border-radius: 6px;
-    padding: 12px 14px;
-    font-size: 13px;
+  h2{
+    margin:0 0 14px;
+    font-size:24px;
   }
-  .trial-item .t-label { color: #888; font-size: 11px; margin-bottom: 4px; }
-  .trial-item .t-value { font-size: 16px; font-weight: bold; color: #1a4a7a; }
-  .trial-item .t-desc { color: #666; font-size: 12px; margin-top: 4px; line-height: 1.6; }
-
-  /* Terms */
-  .terms {
-    background: #fafafa;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    padding: 16px 18px;
-    font-size: 13px;
-    color: #444;
-    margin: 20px 0;
-    line-height: 1.9;
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:14px;
+    border:1px solid var(--line);
+    border-radius:18px;
+    overflow:hidden;
   }
-  .terms h4 { color: #1a4a7a; margin-bottom: 8px; font-size: 13px; }
-  .terms ol { margin-left: 18px; }
-  .terms li { margin-bottom: 4px; }
-
-  .note {
-    background: #fff8e1;
-    border-left: 3px solid #f5a623;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: #666;
-    margin: 10px 0;
-    line-height: 1.7;
+  th,td{
+    padding:14px 16px;
+    border-bottom:1px solid #ece4da;
+    text-align:left;
+    vertical-align:top;
+    font-size:14px;
+    line-height:1.7;
   }
-
-  /* Sign */
-  .sign-area {
-    display: flex;
-    gap: 28px;
-    margin-top: 50px;
+  th{
+    background:#faf7f2;
+    color:var(--muted);
+    font-weight:800;
   }
-  .sign-box {
-    flex: 1;
-    border: 1px solid #ccc;
-    padding: 16px 18px;
-    font-size: 13px;
-    color: #555;
-    text-align: center;
+  tr:last-child td{border-bottom:none}
+  .right{text-align:right}
+  .subtotal td{
+    background:#faf7f2;
+    font-weight:800;
   }
-  .sign-box .s-label { font-weight: bold; color: #1a4a7a; margin-bottom: 32px; }
-  .sign-box .s-line {
-    border-top: 1px solid #aaa;
-    margin-top: 16px;
-    padding-top: 6px;
-    font-size: 12px;
+  .total td{
+    background:var(--green);
+    color:#fff;
+    font-size:18px;
+    font-weight:900;
   }
-
-  @media print {
-    body { padding: 20px; }
+  .pill-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:14px;
+  }
+  .pill{
+    padding:8px 12px;
+    border-radius:999px;
+    background:var(--green-soft);
+    color:var(--green);
+    font-size:13px;
+    font-weight:800;
+  }
+  .note{
+    margin-top:14px;
+    padding:14px 16px;
+    border-radius:16px;
+    background:#f9f7f3;
+    border:1px dashed var(--line);
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.8;
+  }
+  ul{
+    margin:0;
+    padding-left:22px;
+    line-height:1.9;
+  }
+  @media (max-width:780px){
+    .hero,.section{padding:24px}
+    .head-grid{grid-template-columns:1fr}
+    h1{font-size:28px}
   }
 </style>
 </head>
 <body>
+  <main class="page">
+    <section class="hero">
+      <div class="eyebrow">和平里小幫手專案文件</div>
+      <h1>和平里小幫手<br>專案報價單</h1>
+      <p>本報價依目前和平里小幫手已上線之功能範圍整理，包含里民前台、里長後台、Google 串接、通知流程與本次補充之專案文件與使用手冊。</p>
+      <div class="head-grid">
+        <div class="meta-card">
+          <h3>客戶資訊</h3>
+          <p>專案名稱：和平里小幫手</p>
+          <p>使用單位：和平里里辦公處</p>
+          <p>交付形式：GitHub Pages 網站 + Google Apps Script + 文件檔</p>
+        </div>
+        <div class="meta-card">
+          <h3>報價資訊</h3>
+          <p>報價日期：2026 / 04 / 21</p>
+          <p>文件版本：v2026.04</p>
+          <p>幣別：新台幣 NTD</p>
+        </div>
+      </div>
+    </section>
 
-<!-- Header -->
-<div class="header">
-  <div class="brand">
-    <h1>🐇 糸子兔資訊工作室</h1>
-    <p>ITOKO RABBIT｜客製化網頁開發 × 系統整合</p>
-  </div>
-  <div class="doc-info">
-    <div class="doc-no">報 價 單</div>
-    <div>文件編號：IR-2026-0415-HP</div>
-    <div>報價日期：2026 年 4 月 15 日</div>
-    <div>有效期限：2026 年 5 月 15 日</div>
-  </div>
-</div>
+    <section class="section">
+      <h2>1. 報價明細</h2>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:8%">項次</th>
+            <th style="width:24%">項目</th>
+            <th>內容說明</th>
+            <th class="right" style="width:14%">金額</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><strong>里民前台功能</strong></td>
+            <td>案件通報、公開案件清單、特約商店申請、公開商店清單、公告欄前台與手機版介面整理。</td>
+            <td class="right">3,600</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><strong>里長後台功能</strong></td>
+            <td>管理後台總覽、案件回覆與公開設定、商店審核與公開欄位整理、公告管理與管理員權限頁。</td>
+            <td class="right">3,200</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><strong>Google 串接與通知</strong></td>
+            <td>Google Apps Script API、Google Sheets 資料表、Google Drive 圖片上傳、Google 登入驗證、Make Webhook 推播整合。</td>
+            <td class="right">1,400</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><strong>專案文件與手冊</strong></td>
+            <td>完整規格書、報價單、獨立使用者手冊頁，並將手冊入口整合到後台頁面。</td>
+            <td class="right">1,400</td>
+          </tr>
+          <tr class="subtotal">
+            <td colspan="3">小計</td>
+            <td class="right">9,600</td>
+          </tr>
+          <tr class="subtotal">
+            <td colspan="3">稅額</td>
+            <td class="right">含稅</td>
+          </tr>
+          <tr class="total">
+            <td colspan="3">專案總計</td>
+            <td class="right">NT$ 9,600</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pill-list">
+        <span class="pill">GitHub Pages</span>
+        <span class="pill">Google Apps Script</span>
+        <span class="pill">Google Sheets / Drive</span>
+        <span class="pill">Make 推播</span>
+      </div>
+    </section>
 
-<!-- Parties -->
-<div class="parties">
-  <div class="party-box">
-    <div class="party-label">買方 / 甲方</div>
-    <div class="party-name">台中市北屯區和平里辦公處</div>
-    <p>
-      聯絡人：里長<br>
-      地址：台中市北屯區<br>
-      電話：<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>
-    </p>
-  </div>
-  <div class="party-box">
-    <div class="party-label">賣方 / 乙方</div>
-    <div class="party-name">糸子兔資訊工作室</div>
-    <p>
-      負責人：紀孫逸<br>
-      Email：<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u><br>
-      電話：<u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>
-    </p>
-  </div>
-</div>
+    <section class="section">
+      <h2>2. 交付內容</h2>
+      <ul>
+        <li>前台與後台網站原始碼。</li>
+        <li>Google Apps Script 後端程式碼。</li>
+        <li>系統規格書、報價單、使用者手冊。</li>
+        <li>GitHub Repository 更新與 GitHub Pages 上線版本。</li>
+      </ul>
+    </section>
 
-<!-- Fee Table -->
-<h3>費用明細</h3>
-<table>
-  <thead>
-    <tr>
-      <th style="width:5%">#</th>
-      <th style="width:30%">服務項目</th>
-      <th>說明</th>
-      <th class="right" style="width:12%">數量</th>
-      <th class="right" style="width:15%">金額（NTD）</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>1</td>
-      <td><strong>系統建置費</strong></td>
-      <td>
-        固定模組建置，包含：里民陳情通報系統（里民端 + 里長後台）、
-        特約商店系統（公開頁 + 審核後台）、LINE OA 串接設定、
-        統計儀表板、操作手冊提供
-      </td>
-      <td class="right">1 式</td>
-      <td class="right">含於年費</td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td><strong>年度維運費</strong></td>
-      <td>
-        系統維護、技術支援（工作日 09:00–18:00）、
-        定期安全更新、年度小幅調整（2次）、
-        系統異常 4 小時內回覆
-      </td>
-      <td class="right">12 個月</td>
-      <td class="right">9,600</td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>客製化調整費</td>
-      <td>超出標準模組範圍之功能需求，另行報價</td>
-      <td class="right">—</td>
-      <td class="right">另報</td>
-    </tr>
-    <tr class="subtotal">
-      <td colspan="4">小計（未稅）</td>
-      <td class="right">9,143</td>
-    </tr>
-    <tr class="subtotal">
-      <td colspan="4">營業稅（5%）</td>
-      <td class="right">457</td>
-    </tr>
-    <tr class="total-row">
-      <td colspan="4">合計（含稅）</td>
-      <td class="right">NT$ 9,600</td>
-    </tr>
-  </tbody>
-</table>
+    <section class="section">
+      <h2>3. 報價假設</h2>
+      <ul>
+        <li>本報價以現行和平里小幫手專案功能範圍為基礎，不含新增第三方付費服務費用。</li>
+        <li>Google Workspace、Google Drive、Google Sheets、Make 等第三方平台的帳號與用量費用由使用單位自行負擔。</li>
+        <li>若後續新增全新模組，例如簽到、報名、付款、地圖派工等，將另行評估報價。</li>
+      </ul>
+      <div class="note">本報價單主要作為和平里小幫手現行版本之專案整理文件，方便後續簡報、驗收、維護或提案使用。</div>
+    </section>
 
-<div class="note">
-  本報價採含稅總價計算，NT$ 9,600 即為最終應付金額。
-  乙方將依法開立三聯式統一發票（如甲方有統一編號）或二聯式發票。
-</div>
-
-<!-- Trial Period -->
-<div class="trial-block">
-  <h4>三個月試用保障機制</h4>
-  <div class="trial-grid">
-    <div class="trial-item">
-      <div class="t-label">合約期間</div>
-      <div class="t-value">12 個月</div>
-      <div class="t-desc">自系統正式上線日起算</div>
-    </div>
-    <div class="trial-item">
-      <div class="t-label">試用期</div>
-      <div class="t-value">前 3 個月</div>
-      <div class="t-desc">系統上線日起 90 天內</div>
-    </div>
-    <div class="trial-item">
-      <div class="t-label">試用期費用</div>
-      <div class="t-value">NT$ 2,400</div>
-      <div class="t-desc">800 元 × 3 個月（不退）</div>
-    </div>
-    <div class="trial-item">
-      <div class="t-label">退款金額</div>
-      <div class="t-value">NT$ 7,200</div>
-      <div class="t-desc">試用期內提出申請可退</div>
-    </div>
-  </div>
-</div>
-
-<!-- Terms -->
-<div class="terms">
-  <h4>服務條款重點摘要</h4>
-  <ol>
-    <li>
-      <strong>付款方式：</strong>簽約後 7 日內一次付清 NT$ 9,600，
-      乙方於收款確認後 2 工作日內開始建置作業。
-    </li>
-    <li>
-      <strong>試用退款條件：</strong>系統正式上線日起 90 天內，
-      甲方得以書面（Email 或 LINE）通知乙方申請退款。
-      退款事由限於：系統功能與本規格書明訂項目不符、
-      重大功能缺失且乙方無法於 14 工作日內修復。
-      一般操作習慣或喜好問題不在退款範圍內。
-    </li>
-    <li>
-      <strong>退款流程：</strong>乙方於收到退款申請後 14 工作日內完成退款，
-      退款金額為 NT$ 7,200（已使用 3 個月費用 NT$ 2,400 不退）。
-      退款完成後系統同步停止服務。
-    </li>
-    <li>
-      <strong>合約續約：</strong>合約到期前 30 日，乙方以 Email / LINE 通知甲方是否續約，
-      未收到終止通知則視為同意以同等條件自動續約一年。
-    </li>
-    <li>
-      <strong>資料歸屬：</strong>系統內所有里民資料、案件資料歸甲方所有，
-      合約終止後乙方提供完整資料匯出，並於 30 日後刪除相關資料。
-    </li>
-    <li>
-      <strong>不可抗力：</strong>因天災、政府命令、第三方平台（LINE/雲端服務）
-      中斷等不可抗力因素造成之服務中斷，乙方不負賠償責任，
-      但應積極協助恢復，並延長等同中斷時間之服務年限作為補償。
-    </li>
-  </ol>
-</div>
-
-<!-- Payment -->
-<h3>付款資訊</h3>
-<table>
-  <tbody>
-    <tr>
-      <td style="width:25%">銀行名稱</td>
-      <td><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
-    </tr>
-    <tr>
-      <td>銀行代碼</td>
-      <td><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
-    </tr>
-    <tr>
-      <td>帳號</td>
-      <td><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
-    </tr>
-    <tr>
-      <td>戶名</td>
-      <td>糸子兔資訊工作室</td>
-    </tr>
-    <tr>
-      <td>匯款備註</td>
-      <td>和平里系統 + 甲方聯絡人姓名</td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- Sign -->
-<div class="sign-area">
-  <div class="sign-box">
-    <div class="s-label">甲方確認｜台中市北屯區和平里</div>
-    <div class="s-line">里長 簽名</div>
-    <div class="s-line">日期：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日</div>
-  </div>
-  <div class="sign-box">
-    <div class="s-label">乙方確認｜糸子兔資訊工作室</div>
-    <div class="s-line">負責人 簽名</div>
-    <div class="s-line">日期：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年&nbsp;&nbsp;&nbsp;&nbsp;月&nbsp;&nbsp;&nbsp;&nbsp;日</div>
-  </div>
-</div>
-
+    <section class="section">
+      <h2>4. 建議後續維護項目</h2>
+      <ul>
+        <li>每月例行檢查 GitHub Pages、Apps Script 與 Google Drive 連線狀態。</li>
+        <li>定期備份 Google Sheets 重要資料。</li>
+        <li>管理員帳號異動時同步更新授權名單。</li>
+        <li>公告內容與公開資料定期整理，保持里民端資訊新鮮度。</li>
+      </ul>
+    </section>
+  </main>
 </body>
 </html>

@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>和平里小幫手 使用者手冊</title>
+<style>
+  :root{
+    --bg:#f3f0ea;
+    --card:#ffffff;
+    --line:#e1d7cb;
+    --text:#2b231b;
+    --muted:#8f7c69;
+    --heading:#17110c;
+    --green:#4d7a56;
+    --green-soft:#ebf3ec;
+    --gold:#be9445;
+    --gold-soft:#fbf4e4;
+    --blue:#2f63ce;
+    --blue-soft:#eef4ff;
+    --rose:#b95353;
+    --rose-soft:#fff1ef;
+    --shadow:0 18px 42px rgba(43,35,27,.08);
+    --radius:24px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(190,148,69,.12), transparent 28%),
+      radial-gradient(circle at bottom right, rgba(77,122,86,.14), transparent 26%),
+      var(--bg);
+    color:var(--text);
+    line-height:1.8;
+  }
+  a{color:inherit;text-decoration:none}
+  .page{
+    width:min(1320px,calc(100% - 24px));
+    margin:18px auto 40px;
+  }
+  .topbar,.hero,.panel,.step-card,.tip-card,.visual{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .topbar{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:12px;
+    padding:14px 18px;
+    margin-bottom:18px;
+  }
+  .back-link,.doc-link{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:12px 16px;
+    border-radius:16px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:18px;
+    font-weight:800;
+  }
+  .back-link{background:var(--green-soft);color:var(--green)}
+  .doc-link{background:#fcfbf9}
+  .topbar-spacer{flex:1}
+  .hero{
+    padding:34px 34px 28px;
+    margin-bottom:18px;
+    background:
+      radial-gradient(circle at top right, rgba(190,148,69,.12), transparent 30%),
+      radial-gradient(circle at bottom left, rgba(77,122,86,.10), transparent 26%),
+      var(--card);
+  }
+  .hero-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    border-radius:999px;
+    background:var(--gold-soft);
+    color:#8b651d;
+    font-size:15px;
+    font-weight:900;
+    margin-bottom:16px;
+  }
+  h1{
+    margin:0 0 14px;
+    font-size:42px;
+    line-height:1.3;
+    color:var(--heading);
+  }
+  .hero p{
+    margin:0;
+    max-width:960px;
+    font-size:22px;
+    color:var(--muted);
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:14px;
+    margin-top:24px;
+  }
+  .hero-note{
+    padding:18px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    background:#fcfbf8;
+  }
+  .hero-note strong{
+    display:block;
+    margin-bottom:6px;
+    font-size:18px;
+  }
+  .hero-note span{
+    font-size:16px;
+    color:var(--muted);
+  }
+  .controls{
+    display:grid;
+    grid-template-columns:290px 1fr;
+    gap:18px;
+    align-items:start;
+  }
+  .panel{padding:20px}
+  .panel h2{
+    margin:0 0 14px;
+    font-size:24px;
+  }
+  .role-switch{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .role-btn,.tab-btn{
+    border:none;
+    cursor:pointer;
+    font:inherit;
+    transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+  }
+  .role-btn{
+    padding:18px 16px;
+    border-radius:20px;
+    background:#f7f3ee;
+    color:var(--muted);
+    font-size:20px;
+    font-weight:900;
+    border:1px solid var(--line);
+  }
+  .role-btn.active{
+    background:var(--green-soft);
+    color:var(--green);
+    box-shadow:inset 0 0 0 2px rgba(77,122,86,.10);
+  }
+  .tab-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .tab-btn{
+    width:100%;
+    text-align:left;
+    padding:18px 18px;
+    border-radius:20px;
+    background:#fff;
+    border:1px solid var(--line);
+    font-size:20px;
+    font-weight:900;
+    color:var(--text);
+  }
+  .tab-btn small{
+    display:block;
+    margin-top:5px;
+    color:var(--muted);
+    font-size:14px;
+    font-weight:700;
+  }
+  .tab-btn.active{
+    background:var(--blue-soft);
+    color:var(--blue);
+    box-shadow:inset 0 0 0 2px rgba(47,99,206,.10);
+  }
+  .content{
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .content-head{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    align-items:flex-start;
+    justify-content:space-between;
+  }
+  .title-wrap h2{
+    margin:0 0 8px;
+    font-size:34px;
+  }
+  .title-wrap p{
+    margin:0;
+    font-size:20px;
+    color:var(--muted);
+  }
+  .summary-badge{
+    padding:12px 16px;
+    border-radius:16px;
+    background:var(--green-soft);
+    color:var(--green);
+    font-size:18px;
+    font-weight:900;
+  }
+  .visual{
+    padding:18px;
+    overflow:hidden;
+  }
+  .visual-caption{
+    margin-top:14px;
+    font-size:18px;
+    color:var(--muted);
+    font-weight:700;
+  }
+  .mockup{
+    position:relative;
+    min-height:420px;
+    border-radius:22px;
+    overflow:hidden;
+    background:linear-gradient(180deg,#fcfbfa 0%,#f6f1eb 100%);
+    border:1px solid #d8cdc0;
+  }
+  .mock-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 18px;
+    background:#fff;
+    border-bottom:1px solid #e7ddd1;
+    font-size:18px;
+    font-weight:900;
+  }
+  .mock-top span{
+    color:var(--muted);
+    font-size:14px;
+    font-weight:800;
+  }
+  .mock-body{
+    padding:18px;
+    display:grid;
+    gap:14px;
+  }
+  .mock-strip{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+  }
+  .mock-chip,.mock-box,.mock-row,.mock-card,.mock-note{
+    border-radius:16px;
+    border:1px solid #ddd1c4;
+    background:#fff;
+  }
+  .mock-chip{
+    padding:12px;
+    font-size:15px;
+    font-weight:800;
+    text-align:center;
+    color:var(--muted);
+  }
+  .mock-chip.active{
+    background:var(--green-soft);
+    color:var(--green);
+    border-color:#cfe0d2;
+  }
+  .mock-grid{
+    display:grid;
+    grid-template-columns:1.15fr .85fr;
+    gap:14px;
+  }
+  .mock-card{
+    padding:16px;
+    display:grid;
+    gap:10px;
+  }
+  .mock-title{
+    font-size:18px;
+    font-weight:900;
+    color:var(--heading);
+  }
+  .mock-sub{
+    font-size:14px;
+    color:var(--muted);
+  }
+  .mock-row{
+    position:relative;
+    padding:12px 14px;
+    min-height:58px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    font-size:15px;
+    font-weight:800;
+  }
+  .mock-row strong{
+    color:var(--text);
+  }
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:900;
+  }
+  .badge-green{background:var(--green-soft);color:var(--green)}
+  .badge-gold{background:var(--gold-soft);color:#9b6e19}
+  .badge-blue{background:var(--blue-soft);color:var(--blue)}
+  .badge-rose{background:var(--rose-soft);color:var(--rose)}
+  .mock-search{
+    padding:14px 16px;
+    border-radius:16px;
+    background:#fff;
+    border:1px solid #ddd1c4;
+    font-size:15px;
+    color:#a18f7d;
+    font-weight:700;
+  }
+  .callout{
+    position:absolute;
+    width:42px;
+    height:42px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:var(--blue);
+    color:#fff;
+    font-size:22px;
+    font-weight:900;
+    box-shadow:0 10px 18px rgba(47,99,206,.28);
+  }
+  .callout.left{left:-12px;top:-12px}
+  .callout.right{right:-12px;top:-12px}
+  .steps{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
+  }
+  .step-card{
+    padding:20px;
+  }
+  .step-no{
+    width:52px;
+    height:52px;
+    display:grid;
+    place-items:center;
+    border-radius:18px;
+    background:var(--blue-soft);
+    color:var(--blue);
+    font-size:24px;
+    font-weight:900;
+    margin-bottom:12px;
+  }
+  .step-card h3{
+    margin:0 0 10px;
+    font-size:24px;
+    line-height:1.4;
+  }
+  .step-card p{
+    margin:0;
+    font-size:20px;
+    color:var(--muted);
+  }
+  .tips{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
+  }
+  .tip-card{
+    padding:20px;
+  }
+  .tip-card h3{
+    margin:0 0 10px;
+    font-size:22px;
+  }
+  .tip-card ul{
+    margin:0;
+    padding-left:22px;
+  }
+  .tip-card li{
+    font-size:18px;
+    margin-bottom:8px;
+    color:var(--muted);
+  }
+  .notice{
+    padding:18px 20px;
+    border-radius:20px;
+    background:#f9f7f3;
+    border:1px dashed var(--line);
+    font-size:19px;
+    color:var(--muted);
+    font-weight:700;
+  }
+  @media (max-width:1100px){
+    .controls{grid-template-columns:1fr}
+  }
+  @media (max-width:900px){
+    h1{font-size:34px}
+    .hero p,.title-wrap p,.step-card p,.notice,.tip-card li{font-size:18px}
+    .hero-grid,.steps,.tips,.mock-grid,.mock-strip{grid-template-columns:1fr}
+  }
+  @media (max-width:680px){
+    .page{width:min(100%,calc(100% - 16px))}
+    .topbar,.hero,.panel,.step-card,.tip-card,.visual{border-radius:20px}
+    .topbar,.hero,.panel{padding:16px}
+    .role-btn,.tab-btn{font-size:18px}
+    h1{font-size:30px}
+    .title-wrap h2{font-size:28px}
+    .mockup{min-height:380px}
+  }
+</style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <a class="back-link" href="admin.html">回管理後台</a>
+      <a class="doc-link" href="里民系統規格書_和平里.html" target="_blank" rel="noopener">查看規格書</a>
+      <a class="doc-link" href="里民報價單_和平里.html" target="_blank" rel="noopener">查看報價單</a>
+      <div class="topbar-spacer"></div>
+      <div class="doc-link">和平里小幫手使用者手冊</div>
+    </div>
+
+    <section class="hero">
+      <div class="hero-badge">大字版圖文操作說明</div>
+      <h1>和平里小幫手使用者手冊</h1>
+      <p>這份手冊特別用放大的字、放大的畫面示意與一步一步說明整理。請先選擇「里長端」或「里民端」，再點選要看的功能頁籤，就能看到最適合自己的操作教學。</p>
+      <div class="hero-grid">
+        <div class="hero-note">
+          <strong>先選角色</strong>
+          <span>里長端看管理操作，里民端看查詢與送出表單。</span>
+        </div>
+        <div class="hero-note">
+          <strong>再選頁籤</strong>
+          <span>案件、商店、公告、管理者四個頁面分開教學。</span>
+        </div>
+        <div class="hero-note">
+          <strong>照著數字做</strong>
+          <span>每張圖上的藍色數字，對應下面的步驟說明。</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <aside class="panel">
+        <h2>1. 先選擇身分</h2>
+        <div class="role-switch">
+          <button class="role-btn active" data-role="mayor">里長端</button>
+          <button class="role-btn" data-role="resident">里民端</button>
+        </div>
+        <h2>2. 再選功能頁面</h2>
+        <div class="tab-list">
+          <button class="tab-btn active" data-tab="cases">里民案件清單<small>案件通報、查詢、回覆與公開</small></button>
+          <button class="tab-btn" data-tab="stores">特約商店清單<small>店家申請、審核、公開資訊</small></button>
+          <button class="tab-btn" data-tab="bulletins">活動公告欄<small>公告發佈、閱讀與置頂</small></button>
+          <button class="tab-btn" data-tab="admins">管理者頁面<small>後台登入與帳號權限說明</small></button>
+        </div>
+      </aside>
+
+      <section class="content">
+        <div class="panel">
+          <div class="content-head">
+            <div class="title-wrap">
+              <h2 id="guideTitle"></h2>
+              <p id="guideDesc"></p>
+            </div>
+            <div class="summary-badge" id="roleBadge"></div>
+          </div>
+        </div>
+
+        <div class="visual" id="visualWrap"></div>
+
+        <div class="steps" id="stepsWrap"></div>
+
+        <div class="tips" id="tipsWrap"></div>
+
+        <div class="notice" id="noticeWrap"></div>
+      </section>
+    </section>
+  </main>
+
+<script>
+const GUIDE_DATA = {
+  cases: {
+    title: '里民案件清單',
+    desc: {
+      mayor: '里長端重點是看新案件、篩選狀態、打開案件後回覆與決定是否公開。',
+      resident: '里民端重點是送出案件、查看公開處理結果，了解目前進度。'
+    },
+    steps: {
+      mayor: [
+        ['先從後台進入案件管理頁', '登入 admin 後，在「里民案件清單」頁籤按下「進入案件管理頁」，就會看到全部案件。'],
+        ['用搜尋與狀態快速找案件', '可輸入案件編號、主旨、地點，也可按狀態篩選，例如新案件或已處理。'],
+        ['按編輯進入單一案件', '打開案件後可查看里民原始通報、電話、地點、照片與 1999 案號。'],
+        ['填寫回覆並決定是否公開', '輸入回覆內容、更新狀態，若希望里民都看得到，再打開公開開關並填寫公開標題與摘要。']
+      ],
+      resident: [
+        ['按我要通報', '從案件公開清單右上角按「我要通報」，會進入案件通報表單。'],
+        ['把資料填完整', '姓名、電話、類別、主旨、描述、發生地點越完整，里長越容易快速協助。'],
+        ['上傳照片再送出', '若有現場照片，建議一起附上；送出後系統會建立案件資料。'],
+        ['回公開清單查看結果', '等里長處理並公開後，就能在公開清單或公開詳情看到處理內容與照片。']
+      ]
+    },
+    tips: {
+      mayor: {
+        title: '里長端小提醒',
+        items: ['新案件先回覆，再決定是否公開。', '公開內容建議改成里民容易看懂的短句。', '若有照片，回覆照片會讓里民更安心。']
+      },
+      resident: {
+        title: '里民端小提醒',
+        items: ['地點務必寫清楚，例如巷口、門牌、哪一側。', '如果有 1999 案號，也可以一起填上。', '公開頁只會看到里長選擇公開的案件內容。']
+      }
+    },
+    notice: {
+      mayor: '如果找不到案件，先看是不是在其他狀態裡，或輸入的關鍵字太少。',
+      resident: '若剛送出就找不到，屬於正常情況，因為案件需等里長端處理後才會公開。'
+    }
+  },
+  stores: {
+    title: '特約商店清單',
+    desc: {
+      mayor: '里長端重點是審核店家資料、整理公開內容，並設定免費、標準、精選方案。',
+      resident: '里民端重點是查看特約商店有哪些優惠，店家也可從前台送出申請。'
+    },
+    steps: {
+      mayor: [
+        ['先進入商店管理頁', '在 admin 的「特約商店清單」頁籤，按「進入商店管理頁」，可以看到所有申請。'],
+        ['打開申請資料檢查內容', '確認店家名稱、電話、地址、優惠方案、營業時間與照片是否完整。'],
+        ['選擇狀態與方案', '可設定待審核、公開、退回，並依需求調整免費、標準或精選方案。'],
+        ['整理里民端會看到的文字', '公開店名、公開電話、公開地址、公開優惠與公開簡介可重新整理成更清楚版本。']
+      ],
+      resident: [
+        ['看公開商店清單', '打開特約商店清單後，可直接看到已公開的店家與分類。'],
+        ['點進單一商店看詳情', '可查看優惠內容、營業時間、地址、電話與地圖連結。'],
+        ['想加入特約商店時按申請', '從頁面上的「店家申請」或「我要申請」進入表單。'],
+        ['填完店家資料後送出', '商店送出後，需等里長端審核公開，才會出現在里民清單。']
+      ]
+    },
+    tips: {
+      mayor: {
+        title: '里長端小提醒',
+        items: ['公開前，建議把優惠內容改成一句就看懂。', '精選或標準方案可搭配置頂排序。', '地址與 Google 地圖連結最好一起確認。']
+      },
+      resident: {
+        title: '里民端小提醒',
+        items: ['若要直接前往店家，可先查看地圖再出門。', '公開電話與營業時間若有變動，請以店家最新資訊為準。', '不是所有送出申請都會立刻公開。']
+      }
+    },
+    notice: {
+      mayor: '若商店尚未公開，里民端清單看不到，這是正常設計。',
+      resident: '若新申請的店家沒有出現在清單，通常是還在審核中。'
+    }
+  },
+  bulletins: {
+    title: '活動公告欄',
+    desc: {
+      mayor: '里長端重點是新增公告、編輯公告、決定是否發佈與是否置頂。',
+      resident: '里民端重點是看最新公告，點開後閱讀完整內容與圖片。'
+    },
+    steps: {
+      mayor: [
+        ['進入公告管理頁', '在 admin 的「活動公告欄」頁籤按「進入公告管理頁」，即可管理所有公告。'],
+        ['新增或編輯公告', '可填寫標題、內容、圖片，必要時先存成草稿。'],
+        ['決定是否發佈與置頂', '重要公告可設成置頂，活動尚未確認前可先維持草稿。'],
+        ['再到里民前台確認', '按「查看里民前台」確認字有沒有太小、圖片有沒有跑掉。']
+      ],
+      resident: [
+        ['打開公告欄', '里民打開公告欄後，最上方會先看到置頂或最新公告。'],
+        ['看到有興趣的公告就點進去', '點一下公告卡片，畫面會跳出完整內容視窗。'],
+        ['閱讀完整資訊', '可看到標題、日期、內文與相關圖片。'],
+        ['看完再關閉視窗', '按右上角關閉鈕，或點畫面外圍即可回到公告清單。']
+      ]
+    },
+    tips: {
+      mayor: {
+        title: '里長端小提醒',
+        items: ['標題建議先寫活動名稱，再寫時間。', '重要通知可用置頂，避免被新公告往下擠。', '前台確認一次，較能避免長輩看不清楚。']
+      },
+      resident: {
+        title: '里民端小提醒',
+        items: ['若看不到新公告，先重新整理頁面。', '公告圖片可幫助快速理解活動內容。', '只有已發佈的公告才會出現在前台。']
+      }
+    },
+    notice: {
+      mayor: '公告若還在草稿狀態，里民端不會看到。',
+      resident: '若公告打不開，先確認網路是否穩定，再重新進入一次。'
+    }
+  },
+  admins: {
+    title: '管理者頁面',
+    desc: {
+      mayor: '里長端重點是登入後台、查看四大頁籤摘要，超級管理者還能維護管理員名單。',
+      resident: '里民端原則上不需要使用管理者頁面；若看到登入畫面，直接回到公開頁即可。'
+    },
+    steps: {
+      mayor: [
+        ['用 Google 帳號登入', '打開 admin 頁後，請用已授權的 Google 帳號登入。'],
+        ['看四個總覽頁籤', '登入後會看到案件、商店、公告、管理者四個頁籤與統計摘要。'],
+        ['按按鈕進入各管理頁', '每個頁籤右側都有前往管理頁或公開頁的捷徑。'],
+        ['超級管理者可維護帳號', '若您有最高權限，可新增、停用或刪除管理者 Email。']
+      ],
+      resident: [
+        ['看到登入畫面就不用再往下', '管理者頁是里長專用，里民不需要登入。'],
+        ['請改走公開頁面', '若要查案件，請看案件公開清單；若要看商店，請看特約商店清單。'],
+        ['想看公告就到公告欄', '公告有獨立前台，不需要登入。'],
+        ['不清楚請請教里辦公處', '若誤點進後台，可直接關閉頁面，或請里辦公處協助。']
+      ]
+    },
+    tips: {
+      mayor: {
+        title: '里長端小提醒',
+        items: ['只有在授權名單內的 Email 才能登入。', '管理員異動後，記得同步更新後台帳號。', '沒有超級權限時，看不到完整帳號管理功能。']
+      },
+      resident: {
+        title: '里民端小提醒',
+        items: ['後台不是里民操作區。', '請優先使用公開頁面，不必擔心看不到後台。', '若需要協助，可直接聯絡里辦公處。']
+      }
+    },
+    notice: {
+      mayor: '若登入後顯示無權限，通常是授權 Email 尚未加入管理員名單。',
+      resident: '看到登入頁是正常的，代表您進到了里長專用的管理入口。'
+    }
+  }
+};
+
+let currentRole = 'mayor';
+let currentTab = 'cases';
+
+function renderMockup(tab, role){
+  if (tab === 'cases' && role === 'mayor') {
+    return `
+      <div class="mockup">
+        <div class="mock-top">和平里小幫手後台 <span>案件管理示意圖</span></div>
+        <div class="mock-body">
+          <div class="mock-strip">
+            <div class="mock-chip active">里民案件清單</div>
+            <div class="mock-chip">特約商店</div>
+            <div class="mock-chip">公告欄</div>
+            <div class="mock-chip">管理者</div>
+          </div>
+          <div class="mock-grid">
+            <div class="mock-card">
+              <div class="mock-title">案件摘要與搜尋</div>
+              <div class="mock-search">搜尋案件編號、主旨、地址</div>
+              <div class="mock-row"><span>HP-0261 路燈不亮</span><span class="badge badge-gold">新案件</span><div class="callout left">1</div></div>
+              <div class="mock-row"><span>HP-0258 排水溝阻塞</span><span class="badge badge-blue">處理中</span><div class="callout right">2</div></div>
+              <div class="mock-row"><span>HP-0251 巷口反光鏡</span><span class="badge badge-green">已完成</span></div>
+            </div>
+            <div class="mock-card">
+              <div class="mock-title">單一案件</div>
+              <div class="mock-sub">查看里民資料、照片與地點</div>
+              <div class="mock-row"><strong>里民電話</strong><span>0912-345-678</span></div>
+              <div class="mock-row"><strong>地點</strong><span>和平街 20 號前</span></div>
+              <div class="mock-row"><strong>回覆與公開</strong><span class="badge badge-green">可設定</span><div class="callout left">3</div></div>
+              <div class="mock-row"><strong>送出更新</strong><span class="badge badge-blue">儲存</span><div class="callout right">4</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (tab === 'cases' && role === 'resident') {
+    return `
+      <div class="mockup">
+        <div class="mock-top">里民案件清單 <span>公開頁示意圖</span></div>
+        <div class="mock-body">
+          <div class="mock-search">點這裡可以搜尋公開案件</div>
+          <div class="mock-card">
+            <div class="mock-row"><span>我要通報</span><span class="badge badge-green">按這裡</span><div class="callout left">1</div></div>
+            <div class="mock-row"><strong>公開案件卡片</strong><span class="badge badge-blue">可點開</span><div class="callout right">4</div></div>
+            <div class="mock-row"><span>案件主旨：人行道破損</span><span class="badge badge-green">已處理</span></div>
+            <div class="mock-row"><span>地點：和平路口</span><span>查看詳情</span></div>
+          </div>
+          <div class="mock-grid">
+            <div class="mock-card">
+              <div class="mock-title">通報表單</div>
+              <div class="mock-row"><strong>姓名 / 電話</strong><span>必填</span><div class="callout left">2</div></div>
+              <div class="mock-row"><strong>類別 / 主旨</strong><span>必填</span></div>
+              <div class="mock-row"><strong>照片 / 地址</strong><span>建議填寫</span><div class="callout right">3</div></div>
+            </div>
+            <div class="mock-note mock-card">
+              <div class="mock-title">送出後</div>
+              <div class="mock-sub">等待里長處理並公開後，就能在公開清單看到處理結果。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (tab === 'stores' && role === 'mayor') {
+    return `
+      <div class="mockup">
+        <div class="mock-top">特約商店管理 <span>審核頁示意圖</span></div>
+        <div class="mock-body">
+          <div class="mock-search">搜尋店家名稱、地址、申請人</div>
+          <div class="mock-grid">
+            <div class="mock-card">
+              <div class="mock-title">申請清單</div>
+              <div class="mock-row"><span>ST-0105 幸福早餐店</span><span class="badge badge-gold">待審核</span><div class="callout left">1</div></div>
+              <div class="mock-row"><span>ST-0101 和平藥局</span><span class="badge badge-green">已公開</span></div>
+              <div class="mock-row"><span>ST-0098 阿美美髮</span><span class="badge badge-rose">退回</span></div>
+            </div>
+            <div class="mock-card">
+              <div class="mock-title">審核內容</div>
+              <div class="mock-row"><strong>公開狀態</strong><span class="badge badge-green">公開</span><div class="callout right">2</div></div>
+              <div class="mock-row"><strong>方案等級</strong><span class="badge badge-blue">精選</span><div class="callout left">3</div></div>
+              <div class="mock-row"><strong>公開店名與優惠</strong><span>可重新整理</span></div>
+              <div class="mock-row"><strong>置頂排序</strong><span>1</span><div class="callout right">4</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (tab === 'stores' && role === 'resident') {
+    return `
+      <div class="mockup">
+        <div class="mock-top">特約商店清單 <span>里民前台示意圖</span></div>
+        <div class="mock-body">
+          <div class="mock-row"><span>我要申請特約商店</span><span class="badge badge-green">店家入口</span><div class="callout left">3</div></div>
+          <div class="mock-grid">
+            <div class="mock-card">
+              <div class="mock-title">公開商店卡片</div>
+              <div class="mock-row"><strong>和平藥局</strong><span class="badge badge-blue">藥局</span><div class="callout left">1</div></div>
+              <div class="mock-row"><span>長者量血壓免費</span><span>查看詳情</span><div class="callout right">2</div></div>
+              <div class="mock-row"><span>地址與電話</span><span>可點地圖</span></div>
+            </div>
+            <div class="mock-card">
+              <div class="mock-title">申請表單</div>
+              <div class="mock-row"><strong>店家資料</strong><span>店名、類別、地址</span></div>
+              <div class="mock-row"><strong>優惠方案</strong><span>請寫清楚</span><div class="callout left">4</div></div>
+              <div class="mock-row"><strong>照片</strong><span>可附上</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (tab === 'bulletins' && role === 'mayor') {
+    return `
+      <div class="mockup">
+        <div class="mock-top">公告管理 <span>後台示意圖</span></div>
+        <div class="mock-body">
+          <div class="mock-row"><span>新增公告</span><span class="badge badge-green">按鈕</span><div class="callout left">1</div></div>
+          <div class="mock-grid">
+            <div class="mock-card">
+              <div class="mock-title">公告列表</div>
+              <div class="mock-row"><span>母親節活動</span><span class="badge badge-green">已發佈</span><div class="callout right">4</div></div>
+              <div class="mock-row"><span>健檢通知</span><span class="badge badge-gold">草稿</span></div>
+              <div class="mock-row"><span>清潔日公告</span><span class="badge badge-blue">置頂</span></div>
+            </div>
+            <div class="mock-card">
+              <div class="mock-title">編輯區</div>
+              <div class="mock-row"><strong>標題</strong><span>活動名稱</span><div class="callout left">2</div></div>
+              <div class="mock-row"><strong>內容</strong><span>詳細說明</span></div>
+              <div class="mock-row"><strong>圖片 / 狀態</strong><span>草稿或發佈</span><div class="callout right">3</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (tab === 'bulletins' && role === 'resident') {
+    return `
+      <div class="mockup">
+        <div class="mock-top">公告欄 <span>里民前台示意圖</span></div>
+        <div class="mock-body">
+          <div class="mock-card">
+            <div class="mock-row"><strong>置頂公告</strong><span class="badge badge-blue">最上面</span><div class="callout left">1</div></div>
+            <div class="mock-row"><span>母親節活動通知</span><span>點開閱讀</span><div class="callout right">2</div></div>
+            <div class="mock-row"><span>日期與內文預覽</span><span>清楚易讀</span></div>
+          </div>
+          <div class="mock-grid">
+            <div class="mock-card">
+              <div class="mock-title">內容視窗</div>
+              <div class="mock-row"><strong>完整標題</strong><span>活動時間</span><div class="callout left">3</div></div>
+              <div class="mock-row"><strong>完整內文</strong><span>地點與提醒</span></div>
+              <div class="mock-row"><strong>關閉</strong><span>回清單</span><div class="callout right">4</div></div>
+            </div>
+            <div class="mock-note mock-card">
+              <div class="mock-title">閱讀方式</div>
+              <div class="mock-sub">里民只需點卡片閱讀，不需要登入。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (tab === 'admins' && role === 'mayor') {
+    return `
+      <div class="mockup">
+        <div class="mock-top">管理後台 <span>admin 頁示意圖</span></div>
+        <div class="mock-body">
+          <div class="mock-strip">
+            <div class="mock-chip active">案件</div>
+            <div class="mock-chip">商店</div>
+            <div class="mock-chip">公告</div>
+            <div class="mock-chip">管理者</div>
+          </div>
+          <div class="mock-grid">
+            <div class="mock-card">
+              <div class="mock-title">登入後先看總覽</div>
+              <div class="mock-row"><span>案件總數</span><span>128</span><div class="callout left">1</div></div>
+              <div class="mock-row"><span>商店總數</span><span>36</span></div>
+              <div class="mock-row"><span>公告總數</span><span>18</span></div>
+            </div>
+            <div class="mock-card">
+              <div class="mock-title">管理者頁籤</div>
+              <div class="mock-row"><strong>新增帳號</strong><span class="badge badge-green">超級管理者</span><div class="callout right">4</div></div>
+              <div class="mock-row"><strong>姓名 / Email</strong><span>必填</span><div class="callout left">2</div></div>
+              <div class="mock-row"><strong>角色 / 啟用</strong><span>可調整</span><div class="callout right">3</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  return `
+    <div class="mockup">
+      <div class="mock-top">管理者頁面 <span>里民端說明</span></div>
+      <div class="mock-body">
+        <div class="mock-card">
+          <div class="mock-row"><strong>Google 登入畫面</strong><span class="badge badge-rose">里長專用</span><div class="callout left">1</div></div>
+          <div class="mock-row"><span>里民看到這裡就不用登入</span><span>直接離開</span><div class="callout right">2</div></div>
+        </div>
+        <div class="mock-grid">
+          <div class="mock-card">
+            <div class="mock-title">改走公開入口</div>
+            <div class="mock-row"><strong>看案件</strong><span>案件公開清單</span><div class="callout left">3</div></div>
+            <div class="mock-row"><strong>看商店</strong><span>特約商店清單</span></div>
+            <div class="mock-row"><strong>看公告</strong><span>公告欄</span><div class="callout right">4</div></div>
+          </div>
+          <div class="mock-note mock-card">
+            <div class="mock-title">重點</div>
+            <div class="mock-sub">里民不需要也不建議登入管理後台。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderGuide(){
+  const data = GUIDE_DATA[currentTab];
+  document.getElementById('guideTitle').textContent = data.title;
+  document.getElementById('guideDesc').textContent = data.desc[currentRole];
+  document.getElementById('roleBadge').textContent = currentRole === 'mayor' ? '目前顯示：里長端教學' : '目前顯示：里民端教學';
+  document.getElementById('visualWrap').innerHTML = renderMockup(currentTab, currentRole) + '<div class="visual-caption">藍色數字 1、2、3、4 對應下面的步驟，請照順序看最清楚。</div>';
+
+  document.getElementById('stepsWrap').innerHTML = data.steps[currentRole].map((item, index) => `
+    <article class="step-card">
+      <div class="step-no">${index + 1}</div>
+      <h3>${item[0]}</h3>
+      <p>${item[1]}</p>
+    </article>
+  `).join('');
+
+  const tipData = data.tips[currentRole];
+  const otherRole = currentRole === 'mayor' ? 'resident' : 'mayor';
+  document.getElementById('tipsWrap').innerHTML = `
+    <article class="tip-card">
+      <h3>${tipData.title}</h3>
+      <ul>${tipData.items.map(item => `<li>${item}</li>`).join('')}</ul>
+    </article>
+    <article class="tip-card">
+      <h3>切換看另一邊會更完整</h3>
+      <ul>
+        <li>同一個頁面也有 ${otherRole === 'mayor' ? '里長端' : '里民端'} 的說明。</li>
+        <li>若您需要協助別人操作，建議兩邊都看一次。</li>
+        <li>系統畫面以目前和平里小幫手的顏色與版型整理示意。</li>
+      </ul>
+    </article>
+  `;
+
+  document.getElementById('noticeWrap').textContent = data.notice[currentRole];
+}
+
+document.querySelectorAll('.role-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentRole = btn.dataset.role;
+    document.querySelectorAll('.role-btn').forEach(item => item.classList.toggle('active', item === btn));
+    renderGuide();
+  });
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentTab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(item => item.classList.toggle('active', item === btn));
+    renderGuide();
+  });
+});
+
+renderGuide();
+</script>
+</body>
+</html>
