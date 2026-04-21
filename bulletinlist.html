@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -131,6 +131,9 @@ a{text-decoration:none;color:inherit}
 }
 .panel{
   padding:20px;
+}
+.editor-panel.collapsed{
+  display:none;
 }
 .toolbar{
   display:flex;
@@ -309,12 +312,28 @@ tbody tr:last-child td{border-bottom:none}
   gap:4px;
 }
 .upload-item{
-  display:block;
+  display:flex;
+  align-items:center;
+  gap:8px;
   max-width:100%;
+}
+.upload-link{
+  flex:1;
   overflow:hidden;
   white-space:nowrap;
   text-overflow:ellipsis;
 }
+.upload-remove{
+  flex:0 0 auto;
+  padding:4px 10px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:#fff;
+  color:#b0584d;
+  font-size:12px;
+  font-weight:700;
+}
+.upload-remove:hover{background:#fff4f2}
 .upload-actions{
   display:flex;
   flex-wrap:wrap;
@@ -432,12 +451,13 @@ tbody tr:last-child td{border-bottom:none}
       <div class="list-wrap" id="listWrap"></div>
     </section>
 
-    <section class="card panel">
+    <section class="card panel editor-panel collapsed" id="editorPanel">
       <div class="editor-head">
         <div>
           <div class="editor-title" id="editorTitle">新增公告</div>
           <div class="editor-sub" id="editorSub">建立新公告後，可先存成草稿，再決定是否發布到里民前台。</div>
         </div>
+        <button class="btn" type="button" onclick="closeEditor()">收起編輯器</button>
       </div>
 
       <div class="hint" id="messageBox" style="display:none"></div>
@@ -516,6 +536,15 @@ let allBulletins = [];
 let filterStatus = 'all';
 let editingBulletinId = null;
 let uploadingBulletinImage = false;
+
+function openEditor() {
+  document.getElementById('editorPanel').classList.remove('collapsed');
+}
+
+function closeEditor() {
+  document.getElementById('editorPanel').classList.add('collapsed');
+  hideMessage();
+}
 
 function splitImageUrls(value) {
   return String(value || '')
@@ -688,11 +717,12 @@ function onGoogleSignIn(resp) {
 function enterApp() {
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appShell').style.display = 'block';
-  createBulletin();
+  closeEditor();
   loadBulletins();
 }
 
 function createBulletin() {
+  openEditor();
   editingBulletinId = null;
   document.getElementById('editorTitle').textContent = '新增公告';
   document.getElementById('editorSub').textContent = '建立新公告後，可先存成草稿，再決定是否發布到里民前台。';
@@ -714,6 +744,7 @@ function resetEditor() {
 }
 
 function fillEditor(item) {
+  openEditor();
   editingBulletinId = item.bulletinId;
   document.getElementById('editorTitle').textContent = '編輯公告';
   document.getElementById('editorSub').textContent = '目前正在編輯 ' + item.bulletinId + '，儲存後會立即同步到資料表。';
@@ -739,14 +770,23 @@ function updateImageMeta(urls) {
     return;
   }
   if (urls && urls.length) {
-    meta.innerHTML = '<strong>已上傳圖片 ' + urls.length + ' 張</strong><div class="upload-list">' + urls.map(url => (
-      '<a class="upload-item" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a>'
+    meta.innerHTML = '<strong>已上傳圖片 ' + urls.length + ' 張</strong><div class="upload-list">' + urls.map((url, index) => (
+      '<div class="upload-item"><a class="upload-link" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a><button class="upload-remove" type="button" onclick="removeBulletinImage(' + index + ')">移除</button></div>'
     )).join('') + '</div>';
     removeBtn.style.display = 'inline-flex';
     return;
   }
   meta.textContent = '尚未上傳圖片';
   removeBtn.style.display = 'none';
+}
+
+function removeBulletinImage(index) {
+  const urls = getImageUrls();
+  if (index < 0 || index >= urls.length) return;
+  urls.splice(index, 1);
+  setImageUrls(urls);
+  updateImageMeta(urls);
+  refreshPreview();
 }
 
 function clearBulletinImage() {
