@@ -471,15 +471,9 @@ body{
   color: var(--muted); font-size: 13px; transition: all .15s;
   cursor: pointer; flex-shrink: 0; padding: 0;
 }
-.pin-btn:hover { background: #FFF8E1; border-color: #F59E0B; color: #B45309; }
-.pin-btn.pinned { background: #FFF8E1; border-color: #F59E0B; color: #B45309; }
+.pin-btn:hover { background: #F5F2EE; border-color: #D6C8BA; color: #8C7B6A; }
+.pin-btn.pinned { background: #FFF1F1; border-color: #E57373; color: #C62828; }
 .case-card.is-pinned { border-left: 3px solid #F59E0B; }
-.pin-badge {
-  display: inline-flex; align-items: center; gap: 3px;
-  padding: 2px 7px; border-radius: 999px;
-  font-size: 10px; font-weight: 700; letter-spacing: .2px;
-  background: #FFF8E1; color: #B45309; border: 1px solid #FCD34D;
-}
 
 /* ── RWD ── */
 @media(max-width: 480px){
@@ -983,8 +977,7 @@ function renderCard(d) {
   html += '<div class="card-top">';
   html += '<span class="card-id">#' + esc(d.caseId) + '</span>';
   html += '<span class="badge ' + badgeCls(d.status) + '">' + esc(d.status) + '</span>';
-  if (isPinned) html += '<span class="pin-badge">📌 置頂</span>';
-  html += '<button class="pin-btn' + (isPinned ? ' pinned' : '') + '" title="' + (isPinned ? '取消置頂' : '設為置頂') + '" onclick="event.stopPropagation();togglePin(\'' + esc(d.caseId) + '\',' + (d.pinOrder || 0) + ')">📌</button>';
+  html += '<button class="pin-btn' + (isPinned ? ' pinned' : '') + '" title="' + (isPinned ? '取消置頂' : '設為置頂') + '" aria-label="' + (isPinned ? '取消置頂' : '設為置頂') + '" onclick="event.stopPropagation();togglePin(\'' + esc(d.caseId) + '\',' + (d.pinOrder || 0) + ')">📌</button>';
   html += '</div>';
   html += '<div class="card-title">' + esc(d.title || '（無標題）') + '</div>';
 
