@@ -68,20 +68,23 @@ body{font-family:var(--font);background:var(--bg);color:var(--val);font-size:15p
 /* Modal */
 .modal-backdrop{
   display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.45);z-index:200;
-  align-items:flex-end;
+  background:rgba(17,38,32,.38);z-index:200;
+  align-items:center;justify-content:center;
+  padding:20px;
+  backdrop-filter:blur(5px);
 }
 .modal-backdrop.open{display:flex}
 .modal{
-  width:100%;max-height:90vh;
-  background:var(--card);border-radius:18px 18px 0 0;
+  width:min(100%,560px);max-height:88vh;
+  background:var(--card);border-radius:18px;
   display:flex;flex-direction:column;
-  animation:slideUp .25s ease;
+  box-shadow:0 24px 60px rgba(17,38,32,.18);
+  animation:popIn .2s ease;
 }
-@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-handle{width:36px;height:4px;background:var(--divider);border-radius:2px;margin:10px auto 0}
-.modal-header{padding:14px 16px 12px;border-bottom:1px solid var(--divider);display:flex;align-items:center;gap:10px}
-.modal-close{width:32px;height:32px;border-radius:50%;border:none;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+@keyframes popIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-header{padding:16px 16px 14px;border-bottom:1px solid var(--divider);display:flex;align-items:center;gap:10px}
+.modal-close{width:34px;height:34px;border-radius:50%;border:none;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.modal-close:hover{background:var(--divider)}
 .modal-title{flex:1;font-size:16px;font-weight:700;color:var(--heading);line-height:1.4}
 .modal-scroll{overflow-y:auto;flex:1}
 .modal-body{padding:16px 16px 8px}
@@ -155,7 +158,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--val);font-size:15p
 <!-- Modal -->
 <div class="modal-backdrop" id="modalBackdrop" onclick="closeModal(event)">
   <div class="modal" id="modal">
-    <div class="modal-handle"></div>
     <div class="modal-header">
       <button class="modal-close" onclick="closeModalDirect()" aria-label="關閉">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
