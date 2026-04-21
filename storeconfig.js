@@ -9,9 +9,8 @@ const CONFIG = {
   VILLAGE_NAME: '北屯區和平里',
   SYSTEM_NAME: '特約商店系統',
 
-  // Make Webhook URL（商店申請通報用）
-  // ⚠️ 建議在 Make 重新產生此 URL 以確保安全
-  STORE_WEBHOOK_URL: 'https://hook.us2.make.com/h9dkeqo7b1brd8fmqgjrcq73n1yqiu7c',
+  // Make Webhook URL（已改為純 LINE 通知用，資料寫入由 Apps Script 直接處理）
+  // STORE_WEBHOOK_URL: 'https://hook.us2.make.com/h9dkeqo7b1brd8fmqgjrcq73n1yqiu7c',
 
   // Google Apps Script（照片上傳，公開，無需登入）
   UPLOAD_URL: 'https://script.google.com/macros/s/AKfycbx-cXnsVlLf1uHObO4V8tym6hK68O5MRriEY-aF_19HRN346IxDZ9vI2tL_qxwgh5Kl0Q/exec',

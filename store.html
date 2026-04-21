@@ -463,6 +463,8 @@ body.loading-submit { overflow: hidden; }
 
 <div class="form-container">
   <form id="reportForm" novalidate>
+    <!-- 蜜罐：機器人才會填這個欄位 -->
+    <input type="text" name="website" id="f_website" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;pointer-events:none">
 
     <!-- 卡片 1：申請人資訊 -->
     <div class="card">
@@ -704,6 +706,9 @@ body.loading-submit { overflow: hidden; }
 
 <script src="storeconfig.js"></script>
 <script>
+// 記錄頁面開啟時間，用於防機器人驗證
+window._storeFormTs = Date.now();
+
 // ── 方案選擇邏輯 ──
 var PLAN_FEATURES = {
   '精選': ['刊登於特約商店頁面', '顯示 ⭐ 精選商家 藍色標章', '提升里民搜尋能見度'],
@@ -916,6 +921,9 @@ async function doSubmit() {
     setSubmitProgress('正在送出申請資料…', 88, '資料送出後會自動進入完成畫面');
 
     var payload = {
+      action:      'submitStore',
+      website:     document.getElementById('f_website').value,
+      formTs:      window._storeFormTs || 0,
       name:        document.getElementById('f_name').value.trim(),
       phone:       document.getElementById('f_phone').value.trim(),
       lineId:      document.getElementById('f_line').value.trim(),
@@ -934,13 +942,15 @@ async function doSubmit() {
       planType:    getSelectedPlan(),
     };
 
-    var res = await fetch(CONFIG.STORE_WEBHOOK_URL, {
+    var res = await fetch(CONFIG.SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
     });
 
     if (!res.ok) throw new Error('HTTP ' + res.status);
+    var result = await res.json();
+    if (!result.success) throw new Error(result.error || '送出失敗');
 
     setSubmitProgress('申請已送出，正在完成畫面…', 100, '完成後會自動顯示成功訊息');
     closePlanOverlay();

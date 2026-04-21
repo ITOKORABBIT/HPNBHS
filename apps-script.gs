@@ -13,6 +13,7 @@ var SHEET_BULLETIN = '公佈欄';
 var GOOGLE_CLIENT_ID = '998009736888-v0hng93jchshicessbc6pjf4e6eiolju.apps.googleusercontent.com';
 var API_KEY          = 'hpnbhs_sk_Qm7Kp2Xa9Wv8Ld5Rn6Yf4Jb';
 var REPORT_WEBHOOK_URL = 'https://hook.us2.make.com/wa9jtsqq171jf7yoycpb7upnpii30m5g';
+var STORE_NOTIFY_WEBHOOK_URL = 'https://hook.us2.make.com/h9dkeqo7b1brd8fmqgjrcq73n1yqiu7c';
 var DETAIL_BASE_URL   = 'https://itokorabbit.github.io/HPNBHS/detail.html?id=';
 var DEFAULT_REPORT_IMAGE_URL = 'https://itokorabbit.github.io/HPNBHS/assets/no-photo.svg';
 var NBH_FOLDER_ID    = '10M_y9gRB3FIGILLi4Dq-wxTqjHqNSC_o'; // Photos/NBH — 里民通報照片
@@ -33,6 +34,7 @@ function doPost(e) {
       case 'login':             return handleLogin(data);
       case 'refreshSession':    return handleRefreshSession(data);
       case 'submitReport':      return handleSubmitReport(data);
+      case 'submitStore':       return handleSubmitStore(data);
       // ── 里民通報系統 ──
       case 'getCases':          return requireAdmin(data, handleGetCases);
       case 'getCase':           return requireAdmin(data, handleGetCase);
@@ -219,6 +221,107 @@ function handleSubmitReport(data) {
   });
 
   return jsonOut({ success: true, caseId: caseId });
+}
+
+function handleSubmitStore(data) {
+  // 蜜罐防機器人
+  if (String(data.website || '').trim()) return jsonOut({ success: false, error: 'bot_rejected' });
+
+  // 表單時間戳防止過舊/過快送出
+  var formTs = parseInt(data.formTs || '0', 10);
+  var elapsed = Date.now() - formTs;
+  if (!formTs || elapsed < PUBLIC_FORM_MIN_MS || elapsed > PUBLIC_FORM_MAX_MS)
+    return jsonOut({ success: false, error: 'form_expired' });
+
+  // 必填欄位檢查
+  var required = ['name', 'phone', 'cate', 'title', 'addr'];
+  for (var i = 0; i < required.length; i++) {
+    if (!String(data[required[i]] || '').trim())
+      return jsonOut({ success: false, error: 'missing_required_fields' });
+  }
+
+  // 電話格式
+  var phone = normalizePhone_(data.phone);
+  if (!phone || phone.length < 8) return jsonOut({ success: false, error: 'invalid_phone' });
+
+  // 防重複送出（同電話+店名 5 分鐘冷卻）
+  var dedupeKey = 'store_' + Utilities.base64EncodeWebSafe(
+    phone + '|' + String(data.title || '').trim()
+  ).substring(0, 120);
+  var cache = CacheService.getScriptCache();
+  if (cache.get(dedupeKey)) return jsonOut({ success: false, error: 'too_many_requests' });
+  cache.put(dedupeKey, '1', PUBLIC_SUBMIT_COOLDOWN);
+
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_STORES);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+
+  var now = new Date();
+  var nowText = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd HH:mm');
+  var storeId = nextStoreId_(sheet);
+  var planType = ['免費', '精選', '優選'].indexOf(String(data.planType || '')) !== -1
+    ? String(data.planType) : '免費';
+
+  sheet.appendRow([
+    storeId,                                    // A: 商店ID
+    nowText,                                    // B: 申請時間
+    '申請審核中',                               // C: 狀態
+    String(data.cate      || '').trim(),        // D: 商家類別
+    String(data.name      || '').trim(),        // E: 申請人姓名
+    toSheetText_(data.phone),                   // F: 申請人電話
+    toSheetText_(data.lineId),                  // G: 申請人LineID
+    String(data.title     || '').trim(),        // H: 店家名稱
+    String(data.storephone|| '').trim(),        // I: 店家電話
+    String(data.taxid     || '').trim(),        // J: 統一編號
+    String(data.desc      || '').trim(),        // K: 經營內容
+    String(data.offer     || '').trim(),        // L: 優惠方案
+    String(data.opentime  || '').trim(),        // M: 營業時間
+    String(data.addr      || '').trim(),        // N: 店家地址
+    String(data.map       || '').trim(),        // O: 地圖網址
+    String(data.photo1    || ''),               // P: 照片1
+    String(data.photo2    || ''),               // Q: 照片2
+    String(data.photo3    || ''),               // R: 照片3
+    '',                                         // S: 管理員備註
+    nowText,                                    // T: 最後更新
+    '',                                         // U: 審核人
+    '', '', '', '', '', '', '', '', '',          // V-AD: 公開欄位（審核後填）
+    planType,                                   // AE: 方案類型
+    0,                                          // AF: 置頂順序
+  ]);
+
+  notifyNewStore_({
+    storeId: storeId, applyTime: nowText, planType: planType,
+    cate:       String(data.cate      || '').trim(),
+    name:       String(data.name      || '').trim(),
+    phone:      String(data.phone     || '').trim(),
+    storeName:  String(data.title     || '').trim(),
+    addr:       String(data.addr      || '').trim(),
+    offer:      String(data.offer     || '').trim(),
+  });
+
+  return jsonOut({ success: true, storeId: storeId });
+}
+
+function nextStoreId_(sheet) {
+  var all = sheet.getDataRange().getValues();
+  var datePart = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyMMdd');
+  var monthPart = datePart.substring(0, 4);
+  var maxNum = 0;
+  var idPattern = new RegExp('^STOR' + monthPart + '\\d{2}(\\d{3})$');
+  for (var i = 1; i < all.length; i++) {
+    var match = String(all[i][0] || '').match(idPattern);
+    if (match) maxNum = Math.max(maxNum, parseInt(match[1], 10) || 0);
+  }
+  return 'STOR' + datePart + Utilities.formatString('%03d', maxNum + 1);
+}
+
+function notifyNewStore_(payload) {
+  if (!STORE_NOTIFY_WEBHOOK_URL) return;
+  try {
+    UrlFetchApp.fetch(STORE_NOTIFY_WEBHOOK_URL, {
+      method: 'post', contentType: 'application/json',
+      payload: JSON.stringify(payload), muteHttpExceptions: true
+    });
+  } catch (err) { console.error('[notifyNewStore_]', err.toString()); }
 }
 
 function validatePublicReport_(data) {

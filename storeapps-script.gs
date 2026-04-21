@@ -120,7 +120,8 @@ function requireAdmin(data, handler) {
 // 19(S)=管理員備註, 20(T)=最後更新,   21(U)=審核人,
 // 22(V)=公開店名,   23(W)=公開類別,   24(X)=公開電話,
 // 25(Y)=公開地址,   26(Z)=公開地圖,   27(AA)=公開經營內容,
-// 28(AB)=公開優惠,  29(AC)=公開營業時間, 30(AD)=公開統一編號
+// 28(AB)=公開優惠,  29(AC)=公開營業時間, 30(AD)=公開統一編號,
+// 31(AE)=方案類型,  32(AF)=置頂順序
 
 function handleGetStores(data) {
   var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_STORES);
@@ -194,6 +195,8 @@ function rowToStore(r) {
     pubOffer:    String(r[27] || ''),
     pubHours:    String(r[28] || ''),
     pubStoreNum: String(r[29] || ''),
+    planType:    String(r[30] || '免費'),
+    pinOrder:    Number(r[31] || 0),
   };
 }
 
@@ -245,6 +248,8 @@ function handleUpdateStore(data) {
   sheet.getRange(rowIndex, 19).setValue(data.note     || '');  // S: 管理員備註
   sheet.getRange(rowIndex, 20).setValue(now);                  // T: 最後更新
   sheet.getRange(rowIndex, 21).setValue(data.reviewer || '');  // U: 審核人
+  sheet.getRange(rowIndex, 31).setValue(data.planType || '免費');  // AE: 方案類型
+  sheet.getRange(rowIndex, 32).setValue(Number(data.pinOrder) || 0);  // AF: 置頂順序
 
   // 公開資訊欄位（只有狀態為已公開時才覆蓋，避免改回審核中時清空）
   if (data.status === '已公開') {
