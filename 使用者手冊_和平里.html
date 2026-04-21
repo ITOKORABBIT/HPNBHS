@@ -775,6 +775,16 @@ document.querySelectorAll('.role-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     currentRole = btn.dataset.role;
     document.querySelectorAll('.role-btn').forEach(item => item.classList.toggle('active', item === btn));
+    const adminTabBtn = document.querySelector('.tab-btn[data-tab="admins"]');
+    if (adminTabBtn) {
+      const shouldShowAdminTab = currentRole === 'mayor';
+      adminTabBtn.style.display = shouldShowAdminTab ? '' : 'none';
+      if (!shouldShowAdminTab && currentTab === 'admins') {
+        currentTab = 'cases';
+        const fallbackBtn = document.querySelector('.tab-btn[data-tab="cases"]');
+        document.querySelectorAll('.tab-btn').forEach(item => item.classList.toggle('active', item === fallbackBtn));
+      }
+    }
     renderGuide();
   });
 });
@@ -787,6 +797,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
+document.querySelector('.tab-btn[data-tab="admins"]').style.display = currentRole === 'mayor' ? '' : 'none';
 renderGuide();
 </script>
 </body>
