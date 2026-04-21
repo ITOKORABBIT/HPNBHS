@@ -1,6 +1,6 @@
 const CONFIG = {
-  VILLAGE_NAME: '和平里',
-  SYSTEM_NAME: '里民通報系統',
+  VILLAGE_NAME: '北屯區和平里',
+  SYSTEM_NAME: '里民小幫手',
 
   // Public pages should not ship writable webhook secrets.
   REPORT_WEBHOOK_URL: '',

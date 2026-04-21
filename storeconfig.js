@@ -7,7 +7,7 @@
 const CONFIG = {
   // 里別資訊
   VILLAGE_NAME: '北屯區和平里',
-  SYSTEM_NAME: '特約商店系統',
+  SYSTEM_NAME: '里民小幫手',
 
   // Make Webhook URL（已改為純 LINE 通知用，資料寫入由 Apps Script 直接處理）
   // STORE_WEBHOOK_URL: 'https://hook.us2.make.com/h9dkeqo7b1brd8fmqgjrcq73n1yqiu7c',
