@@ -136,9 +136,6 @@ a{text-decoration:none;color:inherit}
   gap:20px;
   align-items:start;
 }
-.layout.composer-open{
-  grid-template-columns:minmax(0,1.18fr) minmax(360px,.82fr);
-}
 .card{
   background:var(--card);
   border:1px solid var(--border);
@@ -150,54 +147,6 @@ a{text-decoration:none;color:inherit}
 }
 .editor-panel.collapsed{
   display:none;
-}
-.workspace-panel{
-  padding:0;
-  overflow:hidden;
-}
-.workspace-head{
-  display:flex;
-  flex-wrap:wrap;
-  align-items:flex-end;
-  justify-content:space-between;
-  gap:16px;
-  padding:24px 24px 18px;
-  background:
-    linear-gradient(180deg, rgba(255,248,243,.95), rgba(255,255,255,.94));
-  border-bottom:1px solid #efe4d8;
-}
-.workspace-copy{
-  max-width:620px;
-}
-.workspace-eyebrow{
-  display:inline-flex;
-  align-items:center;
-  padding:6px 10px;
-  border-radius:999px;
-  background:var(--accent-soft);
-  color:var(--accent);
-  font-size:12px;
-  font-weight:800;
-  letter-spacing:.04em;
-}
-.workspace-title{
-  margin-top:12px;
-  font-size:24px;
-  line-height:1.2;
-  color:var(--heading);
-}
-.workspace-desc{
-  margin-top:8px;
-  color:var(--muted);
-  line-height:1.7;
-}
-.workspace-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-}
-.workspace-tools{
-  padding:18px 24px 0;
 }
 .toolbar{
   display:flex;
@@ -229,13 +178,7 @@ a{text-decoration:none;color:inherit}
   color:var(--accent);
 }
 
-.list-wrap{
-  margin:0 24px 24px;
-  border:1px solid var(--border);
-  border-radius:18px;
-  overflow:hidden;
-  background:#fff;
-}
+.list-wrap{border:1px solid var(--border);border-radius:18px;overflow:hidden;background:#fff}
 table{width:100%;border-collapse:collapse}
 th,td{
   padding:14px 16px;
@@ -274,9 +217,22 @@ tbody tr:last-child td{border-bottom:none}
   font-size:13px;
   font-weight:700;
 }
+.editor-modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(43,35,27,.32);
+  backdrop-filter:blur(6px);
+  z-index:200;
+}
+.editor-modal.open{display:flex}
 .editor-panel{
-  position:sticky;
-  top:20px;
+  width:min(100%,920px);
+  max-height:min(92vh,980px);
+  overflow:auto;
 }
 
 .editor-head{
@@ -484,16 +440,12 @@ tbody tr:last-child td{border-bottom:none}
 .empty h3{font-size:18px;color:var(--heading);margin-bottom:8px}
 
 @media (max-width: 980px){
-  .layout,
-  .layout.composer-open{grid-template-columns:1fr}
-  .editor-panel{position:static}
+  .layout{grid-template-columns:1fr}
 }
 @media (max-width: 720px){
   .page{padding:18px 14px 30px}
   .topbar{padding:18px}
-  .workspace-head,
-  .workspace-tools{padding-left:18px;padding-right:18px}
-  .list-wrap{margin:0 18px 18px}
+  .editor-modal{padding:12px}
   th:nth-child(4),td:nth-child(4){display:none}
   .grid-2{grid-template-columns:1fr}
 }
@@ -523,27 +475,17 @@ tbody tr:last-child td{border-bottom:none}
     </div>
   </div>
 
-  <div class="layout" id="workspaceLayout">
-    <section class="card panel workspace-panel">
-      <div class="workspace-head">
-        <div class="workspace-copy">
-          <div class="workspace-eyebrow">公告工作台</div>
-          <h2 class="workspace-title">先找公告，再決定要不要打開編輯器</h2>
-          <p class="workspace-desc">平常先在左邊管理已發布與草稿內容，需要新增或修改時，再展開右側編輯區，畫面會更乾淨也更專注。</p>
-        </div>
-        <div class="workspace-actions">
-          <button class="btn ghost" type="button" onclick="createBulletin()">新增公告</button>
-        </div>
-      </div>
-      <div class="workspace-tools">
-        <div class="toolbar">
+  <div class="layout">
+    <section class="card panel">
+      <div class="toolbar">
         <input class="search" id="searchInput" type="text" placeholder="搜尋標題、內容、建立者…" oninput="renderBulletins()">
         <div class="pill-group" id="statusPills"></div>
       </div>
-      </div>
       <div class="list-wrap" id="listWrap"></div>
     </section>
+  </div>
 
+  <div class="editor-modal" id="editorModal" onclick="handleEditorBackdrop(event)">
     <section class="card panel editor-panel collapsed" id="editorPanel">
       <div class="editor-head">
         <div>
@@ -631,14 +573,20 @@ let editingBulletinId = null;
 let uploadingBulletinImage = false;
 
 function openEditor() {
+  document.getElementById('editorModal').classList.add('open');
   document.getElementById('editorPanel').classList.remove('collapsed');
-  document.getElementById('workspaceLayout').classList.add('composer-open');
+  document.body.style.overflow = 'hidden';
 }
 
 function closeEditor() {
+  document.getElementById('editorModal').classList.remove('open');
   document.getElementById('editorPanel').classList.add('collapsed');
-  document.getElementById('workspaceLayout').classList.remove('composer-open');
+  document.body.style.overflow = '';
   hideMessage();
+}
+
+function handleEditorBackdrop(event) {
+  if (event.target === document.getElementById('editorModal')) closeEditor();
 }
 
 function splitImageUrls(value) {
@@ -1134,6 +1082,12 @@ function refreshPreview() {
 document.getElementById('contentEditor').addEventListener('input', function() {
   syncEditorContent();
   refreshPreview();
+});
+
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape' && document.getElementById('editorModal').classList.contains('open')) {
+    closeEditor();
+  }
 });
 
 window.addEventListener('load', function() {
