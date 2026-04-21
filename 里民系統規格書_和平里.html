@@ -3,10 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="./web_logo.png">
-<link rel="shortcut icon" href="./web_logo.png">
-<link rel="apple-touch-icon" href="./web_logo.png">
-<title>系統規格書 - 北屯區和平里 里民小幫手</title>
+<title>和平里小幫手 系統規格書</title>
 <style>
   :root{
     --bg:#f5f2ee;
@@ -166,276 +163,275 @@
 <body>
   <main class="page">
     <section class="hero">
-      <div class="eyebrow">?�平?��?幫�?專�??�件</div>
-      <h1>?�平?��?幫�?<br>系統規格??/h1>
-      <p>?��?件�??��? GitHub Pages ?�端?�Google Apps Script?�Google Sheets?�Google Drive ??Make ?�播流�??��?，用?�說?��?平�?小幫?��??��??�能範�??��??��??��??��??��?維�??��???/p>
+      <div class="eyebrow">和平里小幫手專案文件</div>
+      <h1>和平里小幫手<br>系統規格書</h1>
+      <p>本文件依目前 GitHub Pages 前端、Google Apps Script、Google Sheets、Google Drive 與 Make 推播流程整理，用於說明和平里小幫手的現行功能範圍、資料流、角色權限與維運方式。</p>
       <div class="meta">
         <div class="meta-card">
-          <div class="meta-label">?�件?�本</div>
+          <div class="meta-label">文件版本</div>
           <div class="meta-value">v2026.04</div>
         </div>
         <div class="meta-card">
-          <div class="meta-label">專�??�稱</div>
-          <div class="meta-value">?�平?��?幫�?</div>
+          <div class="meta-label">專案名稱</div>
+          <div class="meta-value">和平里小幫手</div>
         </div>
         <div class="meta-card">
-          <div class="meta-label">?�署網�?</div>
+          <div class="meta-label">部署網址</div>
           <div class="meta-value">GitHub Pages</div>
         </div>
         <div class="meta-card">
-          <div class="meta-label">主�?對象</div>
-          <div class="meta-value">?�長�?/ ?��?�?/div>
+          <div class="meta-label">主要對象</div>
+          <div class="meta-value">里長端 / 里民端</div>
         </div>
       </div>
     </section>
 
     <section class="section">
-      <h2>1. 專�??��?</h2>
+      <h2>1. 專案目標</h2>
       <ul>
-        <li>?��??��??�以?��?機直?�送出案件?�報?�查詢公?��?件、查?�活?�公?��??��??��?資�???/li>
-        <li>?��??�長端可?�中管�?案件?�審?��?店、發佈公?��?維護管�??�帳?��?/li>
-        <li>以�?安�? App ?�方式建置�??��? GitHub Pages ?��??��??�面，�?低使?��?檻�?/li>
-        <li>?��? Google Apps Script 串接 Google Sheets ??Google Drive，�?低建置�?後�?維護?�本??/li>
-        <li>?��? Make Webhook 將新案件?�新?��??��?等�?件推?�到?��??�知流�???/li>
+        <li>提供里民可以用手機直接送出案件通報、查詢公開案件、查看活動公告與特約商店資訊。</li>
+        <li>提供里長端可集中管理案件、審核商店、發佈公告與維護管理者帳號。</li>
+        <li>以免安裝 App 的方式建置，透過 GitHub Pages 提供公開頁面，降低使用門檻。</li>
+        <li>透過 Google Apps Script 串接 Google Sheets 與 Google Drive，降低建置與後續維護成本。</li>
+        <li>透過 Make Webhook 將新案件、新商店申請等事件推播到既有通知流程。</li>
       </ul>
       <div class="chips">
-        <span class="chip">?��?�?/span>
-        <span class="chip">?��??��?</span>
-        <span class="chip">Google ?��??��?</span>
-        <span class="chip">?�長後台管�?</span>
+        <span class="chip">免安裝</span>
+        <span class="chip">手機優先</span>
+        <span class="chip">Google 生態整合</span>
+        <span class="chip">里長後台管理</span>
       </div>
     </section>
 
     <section class="section">
-      <h2>2. 角色?��???/h2>
+      <h2>2. 角色與權限</h2>
       <table>
         <thead>
           <tr>
             <th style="width:18%">角色</th>
-            <th style="width:28%">?�入?��?</th>
-            <th>?��?作內�?/th>
+            <th style="width:28%">登入方式</th>
+            <th>可操作內容</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>?��?�?/strong></td>
-            <td>?�登?�瀏覽?��??��??�出案件?��?店申請�??�填表單資�?</td>
-            <td>?�出案件?�報?�送出?��??��??��??�查?�公?��?件�??�、查?��?店�??�、閱讀?��?</td>
+            <td><strong>里民端</strong></td>
+            <td>免登入瀏覽公開頁，送出案件或商店申請時僅填表單資料</td>
+            <td>送出案件通報、送出特約商店申請、查閱公開案件清單、查閱商店清單、閱讀公告</td>
           </tr>
           <tr>
-            <td><strong>管�???/strong></td>
-            <td>Google Sign-In 驗�? + 管�??��??��?�?/td>
-            <td>?��?後台?��??�進入案件管�??�審?��?店、管?�公??/td>
+            <td><strong>管理者</strong></td>
+            <td>Google Sign-In 驗證 + 管理員名單授權</td>
+            <td>查看後台摘要、進入案件管理、審核商店、管理公告</td>
           </tr>
           <tr>
-            <td><strong>超�?管�???/strong></td>
-            <td>Google Sign-In 驗�? + 管�??��??��??�判??/td>
-            <td>?��??�管?��?，可?��??�編輯、�??�、刪?�管?�者帳??/td>
+            <td><strong>超級管理者</strong></td>
+            <td>Google Sign-In 驗證 + 管理員名單角色判斷</td>
+            <td>除一般管理外，可新增、編輯、停用、刪除管理者帳號</td>
           </tr>
         </tbody>
       </table>
     </section>
 
     <section class="section">
-      <h2>3. ?�能模�?總覽</h2>
+      <h2>3. 功能模組總覽</h2>
       <table>
         <thead>
           <tr>
-            <th style="width:22%">模�?</th>
-            <th style="width:22%">主�??�面</th>
-            <th>?��??�能</th>
+            <th style="width:22%">模組</th>
+            <th style="width:22%">主要頁面</th>
+            <th>現行功能</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>?��?案件?�報</strong></td>
-            <td>`report.html`?�`openlist.html`?�`opendetail.html`?�`list.html`?�`detail.html`</td>
-            <td>?��??�送出案件?��??�照?�、填寫地點�? 1999 案�?；�??�端?�更?��??�、填寫�?覆、設定公?�內容�?上傳?��??��???/td>
+            <td><strong>里民案件通報</strong></td>
+            <td>`report.html`、`openlist.html`、`opendetail.html`、`list.html`、`detail.html`</td>
+            <td>里民可送出案件、上傳照片、填寫地點與 1999 案號；里長端可更新狀態、填寫回覆、設定公開內容與上傳處理照片。</td>
           </tr>
           <tr>
-            <td><strong>?��??��??��?</strong></td>
-            <td>`store.html`?�`storeopenlist.html`?�`storeopendetail.html`?�`storelist.html`?�`storedetail.html`</td>
-            <td>店家?�送出?��?；�??�端?�審?��??�、整?�公?�內容、設定方案�?級�?置�??��???/td>
+            <td><strong>特約商店申請</strong></td>
+            <td>`store.html`、`storeopenlist.html`、`storeopendetail.html`、`storelist.html`、`storedetail.html`</td>
+            <td>店家可送出申請；里長端可審核狀態、整理公開內容、設定方案等級與置頂排序。</td>
           </tr>
           <tr>
-            <td><strong>活�??��?�?/strong></td>
-            <td>`bulletin.html`?�`bulletinlist.html`?�`admin.html`</td>
-            <td>管�?端可?��??�編輯、刪?�公?��??�援?�稿/?��??�?�、置?��??��?；�?民端?�瀏覽?��??��?並�??�內容�?窗�?/td>
+            <td><strong>活動公告欄</strong></td>
+            <td>`bulletin.html`、`bulletinlist.html`、`admin.html`</td>
+            <td>管理端可新增、編輯、刪除公告，支援草稿/發佈狀態、置頂與圖片；里民端可瀏覽公告卡片並開啟內容視窗。</td>
           </tr>
           <tr>
-            <td><strong>管�?後台</strong></td>
+            <td><strong>管理後台</strong></td>
             <td>`admin.html`</td>
-            <td>顯示案件?��?店、公?�、管?�員?�大?�籤?��?；可快速進入對�?管�??��??��??��?/td>
+            <td>顯示案件、商店、公告、管理員四大頁籤摘要；可快速進入對應管理頁或公開頁。</td>
           </tr>
         </tbody>
       </table>
     </section>
 
     <section class="section">
-      <h2>4. ?��??��??��?�?/h2>
+      <h2>4. 前後台頁面列表</h2>
       <div class="grid-2">
         <div>
-          <h3>?��?端�???/h3>
+          <h3>里民端頁面</h3>
           <ul>
-            <li>`report.html`：�?件通報表單</li>
-            <li>`openlist.html`：公?��?件�???/li>
-            <li>`opendetail.html`：公?��?件詳??/li>
-            <li>`store.html`：特約�?店申請表??/li>
-            <li>`storeopenlist.html`：公?��?店�???/li>
-            <li>`storeopendetail.html`：公?��?店詳??/li>
-            <li>`bulletin.html`：公?��??�台</li>
+            <li>`report.html`：案件通報表單</li>
+            <li>`openlist.html`：公開案件清單</li>
+            <li>`opendetail.html`：公開案件詳情</li>
+            <li>`store.html`：特約商店申請表單</li>
+            <li>`storeopenlist.html`：公開商店清單</li>
+            <li>`storeopendetail.html`：公開商店詳情</li>
+            <li>`bulletin.html`：公告欄前台</li>
           </ul>
         </div>
         <div>
-          <h3>管�?端�???/h3>
+          <h3>管理端頁面</h3>
           <ul>
-            <li>`admin.html`：�??�總覽�?導覽</li>
-            <li>`list.html`：�?件管?��???/li>
-            <li>`detail.html`：�?件�?覆�??��?設�?</li>
-            <li>`storelist.html`：�?店審?��???/li>
-            <li>`storedetail.html`：�?店審?��??��?設�?</li>
-            <li>`bulletinlist.html`：公?�管?��?</li>
+            <li>`admin.html`：後台總覽與導覽</li>
+            <li>`list.html`：案件管理清單</li>
+            <li>`detail.html`：案件回覆與公開設定</li>
+            <li>`storelist.html`：商店審核清單</li>
+            <li>`storedetail.html`：商店審核與公開設定</li>
+            <li>`bulletinlist.html`：公告管理頁</li>
           </ul>
         </div>
       </div>
     </section>
 
     <section class="section">
-      <h2>5. 主�?流�?說�?</h2>
-      <h3>5-1. ?��?案件流�?</h3>
+      <h2>5. 主要流程說明</h2>
+      <h3>5-1. 里民案件流程</h3>
       <ul>
-        <li>?��???`report.html` 填寫姓�??�電話、�??�、主?�、�?述、地?�?�地?��??��?後送出??/li>
-        <li>?�端將�??�送至 Apps Script `submitReport`，寫??Google Sheet?��?件�??�」工作表??/li>
-        <li>系統建�?案件編�??��?覆網?�?�照?��??，並?��? Make Webhook ?�出?�通報?�知??/li>
-        <li>?�長??`list.html` ??`detail.html` ?��??��??�更?��??�、決定是?�公?��?/li>
-        <li>?�選?��?後�?資�??�出?�在 `openlist.html` ??`opendetail.html`??/li>
+        <li>里民於 `report.html` 填寫姓名、電話、類別、主旨、描述、地址、地圖與照片後送出。</li>
+        <li>前端將資料送至 Apps Script `submitReport`，寫入 Google Sheet「案件清單」工作表。</li>
+        <li>系統建立案件編號、回覆網址、照片連結，並透過 Make Webhook 送出新通報通知。</li>
+        <li>里長在 `list.html` 與 `detail.html` 進行回覆、更新狀態、決定是否公開。</li>
+        <li>勾選公開後，資料會出現在 `openlist.html` 與 `opendetail.html`。</li>
       </ul>
 
-      <h3>5-2. ?��??��?流�?</h3>
+      <h3>5-2. 特約商店流程</h3>
       <ul>
-        <li>店家??`store.html` ?�出?��?，含?�絡資�??��?家�?訊、優?�方案、�?業�??��??��???/li>
-        <li>Apps Script `submitStore` ?��??�本驗�??�防機器人�?節流�??��?寫入 Google Sheet??/li>
-        <li>?�長??`storelist.html` / `storedetail.html` 審核，決定是?�公?�、調?�公?��?位、方案�?級�?置�??��???/li>
-        <li>?�?�為?��?後�?資�??�出?�在 `storeopenlist.html` ??`storeopendetail.html`??/li>
+        <li>店家於 `store.html` 送出申請，含聯絡資料、店家資訊、優惠方案、營業時間與照片。</li>
+        <li>Apps Script `submitStore` 進行基本驗證、防機器人與節流處理後寫入 Google Sheet。</li>
+        <li>里長在 `storelist.html` / `storedetail.html` 審核，決定是否公開、調整公開欄位、方案等級與置頂排序。</li>
+        <li>狀態為公開後，資料會出現在 `storeopenlist.html` 與 `storeopendetail.html`。</li>
       </ul>
 
-      <h3>5-3. ?��?流�?</h3>
+      <h3>5-3. 公告流程</h3>
       <ul>
-        <li>管�??�於 `bulletinlist.html` 建�??�編輯公?��??�設定�?題、內容、�??�、�?稿�??��??�是?�置?��?/li>
-        <li>Apps Script `addBulletin` / `updateBulletin` 寫入 Google Sheet?�公?�」工作表??/li>
-        <li>`bulletin.html` ?��??�已?��??�公?��?並�?置�??��??��?序顯示�?/li>
+        <li>管理者於 `bulletinlist.html` 建立或編輯公告，可設定標題、內容、圖片、草稿或發佈、是否置頂。</li>
+        <li>Apps Script `addBulletin` / `updateBulletin` 寫入 Google Sheet「公告」工作表。</li>
+        <li>`bulletin.html` 僅讀取已發佈的公告，並依置頂與時間排序顯示。</li>
       </ul>
 
-      <h3>5-4. 管�??��?�?/h3>
+      <h3>5-4. 管理者流程</h3>
       <ul>
-        <li>`admin.html` ?��? Google Sign-In ?�入後�??��?大模組�?要�?/li>
-        <li>?�具超�?管�?權�??�可�?`getAdmins`?�`addAdmin`?�`updateAdmin`?�`deleteAdmin` ?��??��???/li>
+        <li>`admin.html` 透過 Google Sign-In 登入後讀取四大模組摘要。</li>
+        <li>僅具超級管理權限者可對 `getAdmins`、`addAdmin`、`updateAdmin`、`deleteAdmin` 進行操作。</li>
       </ul>
     </section>
 
     <section class="section">
-      <h2>6. 資�?結�?</h2>
+      <h2>6. 資料結構</h2>
       <table>
         <thead>
           <tr>
-            <th style="width:18%">資�?�?/th>
-            <th style="width:26%">主�?欄�?</th>
-            <th>?��?/th>
+            <th style="width:18%">資料表</th>
+            <th style="width:26%">主要欄位</th>
+            <th>用途</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td><strong>案件清單</strong></td>
-            <td>案件編�??��??�、�??�、聯絡人?�地?�?�照?�、�?覆內容、公?��?位、置?��?�?/td>
-            <td>?��??��??�報?��?資�??��??��?覆、公?��?要�??��???/td>
+            <td>案件編號、狀態、類別、聯絡人、地址、照片、回覆內容、公開欄位、置頂順序</td>
+            <td>儲存里民通報原始資料、里長回覆、公開摘要與照片。</td>
           </tr>
           <tr>
-            <td><strong>?��?清單</strong></td>
-            <td>?��?編�??�申請人資�??��?家�??�、公?��?位、方案�?級、置?��?�?/td>
-            <td>?��??��??��??��??�審?��??��??�容??/td>
+            <td><strong>商店清單</strong></td>
+            <td>商店編號、申請人資料、店家資料、公開欄位、方案等級、置頂順序</td>
+            <td>儲存特約商店申請、審核與公開內容。</td>
           </tr>
           <tr>
-            <td><strong>管�???/strong></td>
-            <td>顯示?�稱?��??�、�??��??�、Email</td>
-            <td>作為 Google ?�入?��??�單?��??��??��?源�?/td>
+            <td><strong>管理員</strong></td>
+            <td>顯示名稱、角色、啟用狀態、Email</td>
+            <td>作為 Google 登入授權名單與後台權限來源。</td>
           </tr>
           <tr>
-            <td><strong>?��?</strong></td>
-            <td>?��?編�??�建立�??�、�?題、內容、�??�、置?�、�??�、�???/td>
-            <td>?��??��?欄內容�??��??�?��?/td>
+            <td><strong>公告</strong></td>
+            <td>公告編號、建立時間、標題、內容、圖片、置頂、狀態、作者</td>
+            <td>儲存公告欄內容與發佈狀態。</td>
           </tr>
         </tbody>
       </table>
     </section>
 
     <section class="section">
-      <h2>7. ?�術架�?/h2>
+      <h2>7. 技術架構</h2>
       <table>
         <thead>
           <tr>
-            <th style="width:22%">層�?</th>
-            <th style="width:28%">?��?/th>
-            <th>說�?</th>
+            <th style="width:22%">層級</th>
+            <th style="width:28%">技術</th>
+            <th>說明</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>?�端網�?</td>
+            <td>前端網站</td>
             <td>HTML / CSS / Vanilla JavaScript / GitHub Pages</td>
-            <td>?�?�使?�者�??��??��??��??��??�接??GitHub Pages ?��???/td>
+            <td>所有使用者頁面皆為靜態頁面，直接由 GitHub Pages 提供。</td>
           </tr>
           <tr>
-            <td>資�?存�? API</td>
+            <td>資料存取 API</td>
             <td>Google Apps Script Web App</td>
-            <td>負責?�入驗�??��??��?寫、�??��??�、�??�檢?��?資�?轉�???/td>
+            <td>負責登入驗證、資料讀寫、圖片上傳、權限檢查與資料轉換。</td>
           </tr>
           <tr>
-            <td>資�?�?/td>
+            <td>資料庫</td>
             <td>Google Sheets</td>
-            <td>以工作表?��??��?案件?��?店、管?�員?�公?��??��?/td>
+            <td>以工作表方式儲存案件、商店、管理員與公告資料。</td>
           </tr>
           <tr>
-            <td>?��??��?</td>
+            <td>圖片儲存</td>
             <td>Google Drive</td>
-            <td>?��??�管?�端上傳?��?後�?轉為?��?檢�????供�?端�??��?/td>
+            <td>里民與管理端上傳圖片後，轉為公開檢視連結供前端載入。</td>
           </tr>
           <tr>
-            <td>?�入</td>
+            <td>登入</td>
             <td>Google Identity Services</td>
-            <td>管�?端使??Google 帳�??�入，�??��?端�?對�?權�??��?/td>
+            <td>管理端使用 Google 帳號登入，再由後端比對授權名單。</td>
           </tr>
           <tr>
-            <td>?�知?�播</td>
+            <td>通知推播</td>
             <td>Make Webhook</td>
-            <td>?��?件�??��?店申請可?�送到?��??�知?��???/td>
+            <td>新案件與新商店申請可推送到既有通知情境。</td>
           </tr>
         </tbody>
       </table>
     </section>
 
     <section class="section">
-      <h2>8. ?��??��?�?/h2>
+      <h2>8. 非功能需求</h2>
       <ul>
-        <li>介面?�?�援?��??�覽，主要�?作以觸控?�主??/li>
-        <li>管�?端�??��??�入?��??�判?��??��??��?權帳?��?寫�??��?/li>
-        <li>?��?上傳?�??API Key?��?源檢?�、�?流�??��?檔�?大�??�制??/li>
-        <li>?��??��?件、�?店�?模�??�?�無額�?資�?庫�?況�??�維?�基?�維?��?/li>
-        <li>?�面視覺?�延�??��?系統?�米?�、�??�、�??�系設�?語�???/li>
+        <li>介面需支援手機瀏覽，主要操作以觸控為主。</li>
+        <li>管理端需具備登入與角色判斷，避免未授權帳號讀寫資料。</li>
+        <li>公開上傳需有 API Key、來源檢查、節流限制與檔案大小限制。</li>
+        <li>公告、案件、商店等模組需在無額外資料庫情況下可維持基本維運。</li>
+        <li>頁面視覺需延續目前系統的米白、綠色、金色系設計語言。</li>
       </ul>
-      <div class="note">?�註：目?�系統屬?��??��??�政資�?平台，部署快?�、維護�??��?，�?也�??��??��? Google Apps Script ?��??�Google Drive 權�???GitHub Pages ?��??�署?�制??/div>
+      <div class="note">備註：目前系統屬於輕量型里政資訊平台，部署快速、維護成本低，但也需持續留意 Google Apps Script 配額、Google Drive 權限與 GitHub Pages 靜態部署限制。</div>
     </section>
 
     <section class="section">
-      <h2>9. 交�??�目</h2>
+      <h2>9. 交付項目</h2>
       <ul>
-        <li>?��??�台?�面?�管?��??��??��?/li>
-        <li>Google Apps Script API 程�?碼�?/li>
-        <li>Google Sheets / Drive / Make 串接規格??/li>
-        <li>規格?�、報?�單?�使?�者�??��?份�?件�?/li>
-        <li>GitHub Repository ??GitHub Pages ?�署?�本??/li>
+        <li>公開前台頁面與管理後台頁面。</li>
+        <li>Google Apps Script API 程式碼。</li>
+        <li>Google Sheets / Drive / Make 串接規格。</li>
+        <li>規格書、報價單、使用者手冊三份文件。</li>
+        <li>GitHub Repository 與 GitHub Pages 部署版本。</li>
       </ul>
     </section>
   </main>
-  <script src="branding-footer.js"></script>
 </body>
 </html>

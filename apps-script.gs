@@ -36,7 +36,7 @@ function doPost(e) {
       case 'refreshSession':    return handleRefreshSession(data);
       case 'submitReport':      return handleSubmitReport(data);
       case 'submitStore':       return handleSubmitStore(data);
-      // ── 里民小幫手 ──
+      // ── 里民通報系統 ──
       case 'getCases':          return requireAdmin(data, handleGetCases);
       case 'getCase':           return requireAdmin(data, handleGetCase);
       case 'updateReply':       return requireAdmin(data, handleUpdateReply);
@@ -46,7 +46,7 @@ function doPost(e) {
       case 'uploadStorePhoto':  return handleStorePublicUpload(data, e);
       case 'getPublicCases':    return handleGetPublicCases(data);
       case 'getPublicCase':     return handleGetPublicCase(data);
-      // ── 里民小幫手：特約商店 ──
+      // ── 特約商店系統 ──
       case 'getStores':         return requireAdmin(data, handleGetStores);
       case 'getStore':          return requireAdmin(data, handleGetStore);
       case 'updateStore':       return requireAdmin(data, handleUpdateStore);
@@ -174,7 +174,7 @@ function isSuperAdminRole(role) {
 }
 
 // ══════════════════════════════════════════════
-// 里民小幫手 — 公開送出通報
+// 里民通報系統 — 公開送出通報
 // ══════════════════════════════════════════════
 
 function handleSubmitReport(data) {
@@ -429,7 +429,7 @@ function createUploadedFileUrl_(base64, mimeType, folderId, fileNamePrefix) {
 }
 
 // ══════════════════════════════════════════════
-// 里民小幫手 — 案件讀取
+// 里民通報系統 — 案件讀取
 // ══════════════════════════════════════════════
 
 function handleGetCases(data) {
@@ -502,7 +502,7 @@ function rowToCase(r) {
 }
 
 // ══════════════════════════════════════════════
-// 里民小幫手 — 里長回覆更新
+// 里民通報系統 — 里長回覆更新
 // ══════════════════════════════════════════════
 
 function handleUpdateReply(data) {
@@ -602,7 +602,7 @@ function doUpload(data, folderId, fileNamePrefix) {
 }
 
 // ══════════════════════════════════════════════
-// 里民小幫手 — 公開端點
+// 里民通報系統 — 公開端點
 // ══════════════════════════════════════════════
 
 function handleGetPublicCases(data) {
@@ -649,7 +649,7 @@ function handleGetPublicCase(data) {
 }
 
 // ══════════════════════════════════════════════
-// 里民小幫手：特約商店 — 商店讀取
+// 特約商店系統 — 商店讀取
 // ══════════════════════════════════════════════
 
 // Google Sheet 欄位對照（1-based）:
@@ -753,7 +753,7 @@ function rowToPublicStore(r) {
 }
 
 // ══════════════════════════════════════════════
-// 里民小幫手：特約商店 — 商店審核更新
+// 特約商店系統 — 商店審核更新
 // ══════════════════════════════════════════════
 
 function handleUpdateStore(data) {
@@ -1046,15 +1046,6 @@ function nextBulletinId(sheet) {
   return 'BULL-' + String(max + 1).padStart(3, '0');
 }
 
-function nextBulletinWriteRow(sheet) {
-  var lastRow = Math.max(sheet.getLastRow(), 2);
-  var idValues = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
-  for (var i = 0; i < idValues.length; i++) {
-    if (!String(idValues[i][0] || '').trim()) return i + 2;
-  }
-  return lastRow + 1;
-}
-
 function normalizeBulletinStatus(status) {
   return String(status || '').trim() === '已發布' ? '已發布' : '未發布';
 }
@@ -1134,7 +1125,7 @@ function handleAddBulletin(data) {
   }
   var id  = nextBulletinId(sheet);
   var now = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm');
-  sheet.getRange(nextBulletinWriteRow(sheet), 1, 1, 8).setValues([[
+  sheet.appendRow([
     id, now,
     title,
     String(data.content  || ''),
@@ -1142,7 +1133,7 @@ function handleAddBulletin(data) {
     data.pinned ? 'TRUE' : 'FALSE',
     normalizeBulletinStatus(data.status),
     data._session ? data._session.name : '',
-  ]]);
+  ]);
   return jsonOut({ success: true, bulletinId: id });
 }
 
