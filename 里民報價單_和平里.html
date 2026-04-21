@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>和平里小幫手 專案報價單</title>
+<title>和平里小幫手 維護報價單</title>
 <style>
   :root{
     --bg:#f5f2ee;
@@ -15,6 +15,8 @@
     --green-soft:#ebf3ec;
     --gold:#b98b3d;
     --gold-soft:#fbf2df;
+    --rose:#b95353;
+    --rose-soft:#fff1ef;
     --shadow:0 18px 42px rgba(43,35,27,.08);
   }
   *{box-sizing:border-box}
@@ -125,19 +127,23 @@
     font-size:18px;
     font-weight:900;
   }
-  .pill-list{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-top:14px;
+  .trial{
+    margin-top:16px;
+    padding:18px;
+    border-radius:18px;
+    background:var(--rose-soft);
+    border:1px solid #f1d3cf;
   }
-  .pill{
-    padding:8px 12px;
-    border-radius:999px;
-    background:var(--green-soft);
-    color:var(--green);
-    font-size:13px;
-    font-weight:800;
+  .trial h3{
+    margin:0 0 8px;
+    font-size:18px;
+    color:var(--rose);
+  }
+  .trial p{
+    margin:0;
+    color:#8e5454;
+    line-height:1.8;
+    font-size:15px;
   }
   .note{
     margin-top:14px;
@@ -165,110 +171,85 @@
   <main class="page">
     <section class="hero">
       <div class="eyebrow">和平里小幫手專案文件</div>
-      <h1>和平里小幫手<br>專案報價單</h1>
-      <p>本報價依目前和平里小幫手已上線之功能範圍整理，包含里民前台、里長後台、Google 串接、通知流程與本次補充之專案文件與使用手冊。</p>
+      <h1>和平里小幫手<br>維護報價單</h1>
+      <p>本報價單改為和平里小幫手上線後的年度維護方案，自 2026 年 5 月 1 日起算一年，採每月維護費方式計價，總額含稅。</p>
       <div class="head-grid">
         <div class="meta-card">
-          <h3>客戶資訊</h3>
+          <h3>專案資訊</h3>
           <p>專案名稱：和平里小幫手</p>
-          <p>使用單位：和平里里辦公處</p>
-          <p>交付形式：GitHub Pages 網站 + Google Apps Script + 文件檔</p>
+          <p>維護期間：2026 / 05 / 01 至 2027 / 04 / 30</p>
+          <p>維護形式：網站與後台系統年度維護</p>
         </div>
         <div class="meta-card">
           <h3>報價資訊</h3>
           <p>報價日期：2026 / 04 / 21</p>
-          <p>文件版本：v2026.04</p>
+          <p>計價方式：每月 800 元</p>
           <p>幣別：新台幣 NTD</p>
         </div>
       </div>
     </section>
 
     <section class="section">
-      <h2>1. 報價明細</h2>
+      <h2>1. 維護費用明細</h2>
       <table>
         <thead>
           <tr>
-            <th style="width:8%">項次</th>
-            <th style="width:24%">項目</th>
+            <th style="width:10%">項次</th>
+            <th style="width:28%">項目</th>
             <th>內容說明</th>
-            <th class="right" style="width:14%">金額</th>
+            <th class="right" style="width:16%">金額</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>1</td>
-            <td><strong>里民前台功能</strong></td>
-            <td>案件通報、公開案件清單、特約商店申請、公開商店清單、公告欄前台與手機版介面整理。</td>
-            <td class="right">3,600</td>
-          </tr>
-          <tr>
-            <td>2</td>
-            <td><strong>里長後台功能</strong></td>
-            <td>管理後台總覽、案件回覆與公開設定、商店審核與公開欄位整理、公告管理與管理員權限頁。</td>
-            <td class="right">3,200</td>
-          </tr>
-          <tr>
-            <td>3</td>
-            <td><strong>Google 串接與通知</strong></td>
-            <td>Google Apps Script API、Google Sheets 資料表、Google Drive 圖片上傳、Google 登入驗證、Make Webhook 推播整合。</td>
-            <td class="right">1,400</td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td><strong>專案文件與手冊</strong></td>
-            <td>完整規格書、報價單、獨立使用者手冊頁，並將手冊入口整合到後台頁面。</td>
-            <td class="right">1,400</td>
+            <td><strong>年度系統維護費</strong></td>
+            <td>自 2026/5/1 起使用一年，包含網站與後台維護，每月維護費 800 元，共 12 個月。</td>
+            <td class="right">NT$ 9,600</td>
           </tr>
           <tr class="subtotal">
-            <td colspan="3">小計</td>
-            <td class="right">9,600</td>
+            <td colspan="3">每月費用</td>
+            <td class="right">NT$ 800</td>
+          </tr>
+          <tr class="subtotal">
+            <td colspan="3">使用期間</td>
+            <td class="right">12 個月</td>
           </tr>
           <tr class="subtotal">
             <td colspan="3">稅額</td>
             <td class="right">含稅</td>
           </tr>
           <tr class="total">
-            <td colspan="3">專案總計</td>
+            <td colspan="3">一年總額</td>
             <td class="right">NT$ 9,600</td>
           </tr>
         </tbody>
       </table>
-      <div class="pill-list">
-        <span class="pill">GitHub Pages</span>
-        <span class="pill">Google Apps Script</span>
-        <span class="pill">Google Sheets / Drive</span>
-        <span class="pill">Make 推播</span>
+
+      <div class="trial">
+        <h3>前三個月試用解約條款</h3>
+        <p>自維護起始日算起，前三個月屬於試用階段。若使用效果不如預期，可於試用期內提出解約，並退回 NT$ 7,200。</p>
       </div>
     </section>
 
     <section class="section">
-      <h2>2. 交付內容</h2>
+      <h2>2. 維護內容範圍</h2>
       <ul>
-        <li>前台與後台網站原始碼。</li>
-        <li>Google Apps Script 後端程式碼。</li>
-        <li>系統規格書、報價單、使用者手冊。</li>
-        <li>GitHub Repository 更新與 GitHub Pages 上線版本。</li>
+        <li>GitHub Pages 網站頁面與既有前端功能維護。</li>
+        <li>Google Apps Script、Google Sheets、Google Drive 串接異常排查。</li>
+        <li>既有案件、商店、公告、後台頁面之小幅度調整與維護。</li>
+        <li>上線後使用問題協助與基本操作支援。</li>
       </ul>
     </section>
 
     <section class="section">
-      <h2>3. 報價假設</h2>
+      <h2>3. 備註說明</h2>
       <ul>
-        <li>本報價以現行和平里小幫手專案功能範圍為基礎，不含新增第三方付費服務費用。</li>
-        <li>Google Workspace、Google Drive、Google Sheets、Make 等第三方平台的帳號與用量費用由使用單位自行負擔。</li>
-        <li>若後續新增全新模組，例如簽到、報名、付款、地圖派工等，將另行評估報價。</li>
+        <li>本報價單為既有和平里小幫手系統之年度維護報價，非重新開發報價。</li>
+        <li>若後續新增全新模組、第三方付費服務或大型改版，將另行評估與報價。</li>
+        <li>前三個月試用期若解約，依本文件退回 NT$ 7,200。</li>
       </ul>
-      <div class="note">本報價單主要作為和平里小幫手現行版本之專案整理文件，方便後續簡報、驗收、維護或提案使用。</div>
-    </section>
-
-    <section class="section">
-      <h2>4. 建議後續維護項目</h2>
-      <ul>
-        <li>每月例行檢查 GitHub Pages、Apps Script 與 Google Drive 連線狀態。</li>
-        <li>定期備份 Google Sheets 重要資料。</li>
-        <li>管理員帳號異動時同步更新授權名單。</li>
-        <li>公告內容與公開資料定期整理，保持里民端資訊新鮮度。</li>
-      </ul>
+      <div class="note">維護費用以「2026/5/1 起一年，每月 800 元，總共 9,600 元含稅」為本次正式版本內容。</div>
     </section>
   </main>
 </body>
