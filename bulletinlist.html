@@ -242,6 +242,32 @@ tbody tr:last-child td{border-bottom:none}
   gap:14px;
   margin-bottom:18px;
 }
+.editor-head-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.editor-close{
+  width:42px;
+  height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--border);
+  border-radius:999px;
+  background:#fff;
+  color:var(--muted);
+  transition:background .18s ease, color .18s ease, transform .18s ease;
+}
+.editor-close:hover{
+  background:#f8f2ec;
+  color:var(--heading);
+  transform:translateY(-1px);
+}
+.editor-close svg{
+  width:18px;
+  height:18px;
+}
 .editor-title{font-size:24px;font-weight:800;color:var(--heading)}
 .editor-sub{margin-top:6px;color:var(--muted);line-height:1.7}
 .form-section{margin-bottom:16px}
@@ -492,7 +518,13 @@ tbody tr:last-child td{border-bottom:none}
           <div class="editor-title" id="editorTitle">新增公告</div>
           <div class="editor-sub" id="editorSub">建立新公告後，可先存成草稿，再決定是否發布到里民前台。</div>
         </div>
-        <button class="btn" type="button" onclick="closeEditor()">收起編輯器</button>
+        <div class="editor-head-actions">
+          <button class="editor-close" type="button" onclick="closeEditor()" aria-label="關閉編輯器">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+              <path d="M6 6l12 12M18 6 6 18"></path>
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div class="hint" id="messageBox" style="display:none"></div>
@@ -567,6 +599,7 @@ tbody tr:last-child td{border-bottom:none}
 <script>
 const SESSION_KEY = 'hpnbhs_admin';
 const SESSION_TTL = 2 * 3600 * 1000;
+const BULLETIN_DRAFT_KEY = 'hpnbhs_bulletin_editor_drafts';
 let allBulletins = [];
 let filterStatus = 'all';
 let editingBulletinId = null;
@@ -579,6 +612,7 @@ function openEditor() {
 }
 
 function closeEditor() {
+  persistCurrentDraftCache();
   document.getElementById('editorModal').classList.remove('open');
   document.getElementById('editorPanel').classList.add('collapsed');
   document.body.style.overflow = '';
@@ -586,7 +620,7 @@ function closeEditor() {
 }
 
 function handleEditorBackdrop(event) {
-  if (event.target === document.getElementById('editorModal')) closeEditor();
+  return;
 }
 
 function splitImageUrls(value) {
@@ -625,6 +659,81 @@ function stripHtml(html) {
   const div = document.createElement('div');
   div.innerHTML = html || '';
   return (div.textContent || div.innerText || '').trim();
+}
+
+function getDraftScope() {
+  return editingBulletinId || '__new__';
+}
+
+function getDraftStore() {
+  try {
+    return JSON.parse(localStorage.getItem(BULLETIN_DRAFT_KEY) || '{}');
+  } catch (error) {
+    localStorage.removeItem(BULLETIN_DRAFT_KEY);
+    return {};
+  }
+}
+
+function setDraftStore(store) {
+  localStorage.setItem(BULLETIN_DRAFT_KEY, JSON.stringify(store || {}));
+}
+
+function buildEditorSnapshot() {
+  syncEditorContent();
+  return {
+    bulletinId: editingBulletinId || '',
+    title: document.getElementById('titleInput').value.trim(),
+    status: document.getElementById('statusInput').value,
+    imageUrl: getImageUrls().join('\n'),
+    content: document.getElementById('contentInput').value.trim(),
+    pinned: document.getElementById('pinnedInput').checked,
+    ts: Date.now()
+  };
+}
+
+function hasDraftContent(snapshot) {
+  if (!snapshot) return false;
+  return !!(snapshot.title || stripHtml(snapshot.content) || snapshot.imageUrl || snapshot.pinned);
+}
+
+function persistCurrentDraftCache() {
+  const store = getDraftStore();
+  const scope = getDraftScope();
+  const snapshot = buildEditorSnapshot();
+  if (hasDraftContent(snapshot)) {
+    snapshot.status = '草稿';
+    store[scope] = snapshot;
+  } else {
+    delete store[scope];
+  }
+  setDraftStore(store);
+}
+
+function clearDraftCache(scope) {
+  const store = getDraftStore();
+  delete store[scope];
+  setDraftStore(store);
+}
+
+function applyDraftSnapshot(snapshot) {
+  if (!snapshot) return;
+  document.getElementById('titleInput').value = snapshot.title || '';
+  document.getElementById('statusInput').value = snapshot.status || '草稿';
+  setImageUrls(splitImageUrls(snapshot.imageUrl || ''));
+  document.getElementById('imageFileInput').value = '';
+  document.getElementById('contentInput').value = snapshot.content || '';
+  document.getElementById('contentEditor').innerHTML = snapshot.content || '';
+  document.getElementById('pinnedInput').checked = !!snapshot.pinned;
+  updateImageMeta(getImageUrls());
+  refreshPreview();
+}
+
+function restoreDraftCache(scope) {
+  const snapshot = getDraftStore()[scope];
+  if (!snapshot || !hasDraftContent(snapshot)) return false;
+  applyDraftSnapshot(snapshot);
+  showMessage('已替你恢復上次未送出的草稿內容。', true);
+  return true;
 }
 
 function getSession() {
@@ -780,9 +889,11 @@ function createBulletin() {
   hideMessage();
   updateImageMeta([]);
   refreshPreview();
+  restoreDraftCache('__new__');
 }
 
 function resetEditor() {
+  clearDraftCache('__new__');
   createBulletin();
 }
 
@@ -802,6 +913,7 @@ function fillEditor(item) {
   hideMessage();
   updateImageMeta(splitImageUrls(item.imageUrl || ''));
   refreshPreview();
+  restoreDraftCache(item.bulletinId);
 }
 
 function updateImageMeta(urls) {
@@ -830,6 +942,7 @@ function removeBulletinImage(index) {
   setImageUrls(urls);
   updateImageMeta(urls);
   refreshPreview();
+  persistCurrentDraftCache();
 }
 
 function clearBulletinImage() {
@@ -837,6 +950,7 @@ function clearBulletinImage() {
   document.getElementById('imageFileInput').value = '';
   updateImageMeta([]);
   refreshPreview();
+  persistCurrentDraftCache();
 }
 
 async function uploadBulletinImages(fileList) {
@@ -872,6 +986,7 @@ async function uploadBulletinImages(fileList) {
       setImageUrls(existing);
       updateImageMeta(existing);
       refreshPreview();
+      persistCurrentDraftCache();
     }
     showMessage('圖片已上傳。', true);
   } catch (error) {
@@ -1021,7 +1136,10 @@ function saveBulletin() {
       return;
     }
     showMessage(editingBulletinId ? '公告已更新。' : '公告已新增。', true);
+    const previousScope = getDraftScope();
     if (!editingBulletinId && json.bulletinId) editingBulletinId = json.bulletinId;
+    clearDraftCache(previousScope);
+    clearDraftCache(getDraftScope());
     loadBulletins();
   }).catch(() => {
     document.getElementById('saveBtn').textContent = '儲存公告';
@@ -1032,6 +1150,7 @@ function saveBulletin() {
 function removeBulletin() {
   if (!editingBulletinId) return;
   if (!confirm('確定要刪除這則公告？')) return;
+  const removingScope = getDraftScope();
   apiCall('deleteBulletin', { bulletinId: editingBulletinId }).then(json => {
     if (json.code === 401) {
       clearSession();
@@ -1043,6 +1162,7 @@ function removeBulletin() {
       return;
     }
     showMessage('公告已刪除。', true);
+    clearDraftCache(removingScope);
     createBulletin();
     loadBulletins();
   }).catch(() => {
@@ -1082,12 +1202,14 @@ function refreshPreview() {
 document.getElementById('contentEditor').addEventListener('input', function() {
   syncEditorContent();
   refreshPreview();
+  persistCurrentDraftCache();
 });
 
-document.addEventListener('keydown', function(event) {
-  if (event.key === 'Escape' && document.getElementById('editorModal').classList.contains('open')) {
-    closeEditor();
-  }
+['titleInput', 'contentInput', 'imageInput', 'statusInput', 'pinnedInput'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', persistCurrentDraftCache);
+  el.addEventListener('change', persistCurrentDraftCache);
 });
 
 window.addEventListener('load', function() {
