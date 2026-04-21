@@ -1021,7 +1021,7 @@ function setupBulletinSheet() {
 
   // 資料驗證：狀態欄 (G) → 下拉選單
   var statusRule = SpreadsheetApp.newDataValidation()
-    .requireValueInList(['已發布', '草稿'], true)
+    .requireValueInList(['已發布', '未發布'], true)
     .build();
   sheet.getRange(2, 7, 100, 1).setDataValidation(statusRule);
 
@@ -1046,6 +1046,27 @@ function nextBulletinId(sheet) {
   return 'BULL-' + String(max + 1).padStart(3, '0');
 }
 
+function normalizeBulletinStatus(status) {
+  return String(status || '').trim() === '已發布' ? '已發布' : '未發布';
+}
+
+function normalizeBulletinSheetStatuses(sheet) {
+  if (!sheet) return;
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+  var range = sheet.getRange(2, 7, lastRow - 1, 1);
+  var values = range.getValues();
+  var changed = false;
+  for (var i = 0; i < values.length; i++) {
+    var normalized = normalizeBulletinStatus(values[i][0]);
+    if (String(values[i][0] || '') !== normalized) {
+      values[i][0] = normalized;
+      changed = true;
+    }
+  }
+  if (changed) range.setValues(values);
+}
+
 function rowToBulletin(r) {
   return {
     bulletinId: String(r[0] || ''),
@@ -1054,7 +1075,7 @@ function rowToBulletin(r) {
     content:    String(r[3] || ''),
     imageUrl:   String(r[4] || ''),
     pinned:     String(r[5] || '').toUpperCase() === 'TRUE',
-    status:     String(r[6] || '草稿'),
+    status:     normalizeBulletinStatus(r[6]),
     author:     String(r[7] || ''),
   };
 }
@@ -1066,7 +1087,7 @@ function handleGetPublicBulletins(data) {
   var list = [];
   for (var i = 1; i < all.length; i++) {
     if (!all[i][0]) continue;
-    if (String(all[i][6]) !== '已發布') continue;
+    if (normalizeBulletinStatus(all[i][6]) !== '已發布') continue;
     list.push(rowToBulletin(all[i]));
   }
   list.sort(function(a, b) {
@@ -1079,6 +1100,7 @@ function handleGetPublicBulletins(data) {
 function handleGetBulletins(data) {
   var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_BULLETIN);
   if (!sheet) return jsonOut({ success: true, bulletins: [] });
+  normalizeBulletinSheetStatuses(sheet);
   var all = sheet.getDataRange().getValues();
   var list = [];
   for (var i = 1; i < all.length; i++) {
@@ -1109,7 +1131,7 @@ function handleAddBulletin(data) {
     String(data.content  || ''),
     String(data.imageUrl || ''),
     data.pinned ? 'TRUE' : 'FALSE',
-    data.status || '草稿',
+    normalizeBulletinStatus(data.status),
     data._session ? data._session.name : '',
   ]);
   return jsonOut({ success: true, bulletinId: id });
@@ -1128,7 +1150,7 @@ function handleUpdateBulletin(data) {
     if (data.content  !== undefined) sheet.getRange(row, 4).setValue(data.content);
     if (data.imageUrl !== undefined) sheet.getRange(row, 5).setValue(data.imageUrl);
     if (data.pinned   !== undefined) sheet.getRange(row, 6).setValue(data.pinned ? 'TRUE' : 'FALSE');
-    if (data.status   !== undefined) sheet.getRange(row, 7).setValue(data.status);
+    if (data.status   !== undefined) sheet.getRange(row, 7).setValue(normalizeBulletinStatus(data.status));
     return jsonOut({ success: true });
   }
   return jsonOut({ success: false, error: '找不到公告: ' + id });

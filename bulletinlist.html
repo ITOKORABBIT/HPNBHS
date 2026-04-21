@@ -519,7 +519,7 @@ tbody tr:last-child td{border-bottom:none}
       <div class="editor-head">
         <div>
           <div class="editor-title" id="editorTitle">新增公告</div>
-          <div class="editor-sub" id="editorSub">建立新公告後，可先存成草稿，再決定是否發布到里民前台。</div>
+          <div class="editor-sub" id="editorSub">建立新公告後，可先存為未發布，再決定是否發布到里民前台。</div>
         </div>
         <div class="editor-head-actions">
           <button class="editor-close" type="button" onclick="closeEditor()" aria-label="關閉編輯器">
@@ -541,7 +541,7 @@ tbody tr:last-child td{border-bottom:none}
         <div class="form-section">
           <label class="label" for="statusInput">狀態</label>
           <select class="select" id="statusInput">
-            <option value="草稿">未發布</option>
+            <option value="未發布">未發布</option>
             <option value="已發布">已發布</option>
           </select>
         </div>
@@ -664,7 +664,7 @@ function stripHtml(html) {
   return (div.textContent || div.innerText || '').trim();
 }
 
-function statusLabel(status) {
+function normalizeBulletinStatus(status) {
   return status === '已發布' ? '已發布' : '未發布';
 }
 
@@ -708,7 +708,7 @@ function persistCurrentDraftCache() {
   const scope = getDraftScope();
   const snapshot = buildEditorSnapshot();
   if (hasDraftContent(snapshot)) {
-    snapshot.status = '草稿';
+    snapshot.status = '未發布';
     store[scope] = snapshot;
   } else {
     delete store[scope];
@@ -725,7 +725,7 @@ function clearDraftCache(scope) {
 function applyDraftSnapshot(snapshot) {
   if (!snapshot) return;
   document.getElementById('titleInput').value = snapshot.title || '';
-  document.getElementById('statusInput').value = snapshot.status || '草稿';
+  document.getElementById('statusInput').value = normalizeBulletinStatus(snapshot.status);
   setImageUrls(splitImageUrls(snapshot.imageUrl || ''));
   document.getElementById('imageFileInput').value = '';
   document.getElementById('contentInput').value = snapshot.content || '';
@@ -739,7 +739,7 @@ function restoreDraftCache(scope) {
   const snapshot = getDraftStore()[scope];
   if (!snapshot || !hasDraftContent(snapshot)) return false;
   applyDraftSnapshot(snapshot);
-  showMessage('已替你恢復上次未送出的草稿內容。', true);
+  showMessage('已替你恢復上次未送出的內容。', true);
   return true;
 }
 
@@ -884,9 +884,9 @@ function createBulletin() {
   openEditor();
   editingBulletinId = null;
   document.getElementById('editorTitle').textContent = '新增公告';
-  document.getElementById('editorSub').textContent = '建立新公告後，可先存成草稿，再決定是否發布到里民前台。';
+  document.getElementById('editorSub').textContent = '建立新公告後，可先存為未發布，再決定是否發布到里民前台。';
   document.getElementById('titleInput').value = '';
-  document.getElementById('statusInput').value = '草稿';
+  document.getElementById('statusInput').value = '未發布';
   document.getElementById('imageInput').value = '';
   document.getElementById('imageFileInput').value = '';
   document.getElementById('contentInput').value = '';
@@ -910,7 +910,7 @@ function fillEditor(item) {
   document.getElementById('editorTitle').textContent = '編輯公告';
   document.getElementById('editorSub').textContent = '目前正在編輯 ' + item.bulletinId + '，儲存後會立即同步到資料表。';
   document.getElementById('titleInput').value = item.title || '';
-  document.getElementById('statusInput').value = item.status || '草稿';
+  document.getElementById('statusInput').value = normalizeBulletinStatus(item.status);
   document.getElementById('imageInput').value = item.imageUrl || '';
   document.getElementById('imageFileInput').value = '';
   document.getElementById('contentInput').value = item.content || '';
@@ -1017,7 +1017,7 @@ function readFileAsDataUrl(file) {
 function buildPills() {
   const counts = { all: allBulletins.length };
   allBulletins.forEach(item => {
-    const key = statusLabel(item.status || '草稿');
+    const key = normalizeBulletinStatus(item.status);
     counts[key] = (counts[key] || 0) + 1;
   });
   const pills = [{ value: 'all', label: '全部 ' + counts.all }];
@@ -1038,7 +1038,7 @@ function renderBulletins() {
   buildPills();
   const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
   const list = allBulletins.filter(item => {
-    if (filterStatus !== 'all' && statusLabel(item.status || '草稿') !== filterStatus) return false;
+    if (filterStatus !== 'all' && normalizeBulletinStatus(item.status) !== filterStatus) return false;
     if (!q) return true;
     const hay = [item.bulletinId, item.title, item.content, item.author].join(' ').toLowerCase();
     return hay.includes(q);
@@ -1053,9 +1053,9 @@ function renderBulletins() {
     '<tr>' +
     '<td>' + escapeHtml(item.bulletinId) + '</td>' +
     '<td><div class="title-cell">' + escapeHtml(item.title || '（無標題）') + '</div><span class="preview">' + escapeHtml(stripHtml(item.content || '').slice(0, 60)) + '</span></td>' +
-    '<td><span class="badge ' + (item.status === '已發布' ? 'badge-published' : 'badge-draft') + '">' + escapeHtml(statusLabel(item.status || '草稿')) + '</span>' + (item.pinned ? ' <span class="badge badge-pinned">置頂</span>' : '') + '</td>' +
+    '<td><span class="badge ' + (normalizeBulletinStatus(item.status) === '已發布' ? 'badge-published' : 'badge-draft') + '">' + escapeHtml(normalizeBulletinStatus(item.status)) + '</span>' + (item.pinned ? ' <span class="badge badge-pinned">置頂</span>' : '') + '</td>' +
     '<td>' + escapeHtml(fmtDate(item.createdAt)) + '</td>' +
-    '<td><div class="inline-actions"><button class="inline-btn" onclick="editBulletin(\'' + escapeHtml(item.bulletinId) + '\')">編輯</button><button class="inline-btn" onclick="quickToggleStatus(\'' + escapeHtml(item.bulletinId) + '\')">' + (item.status === '已發布' ? '取消發布' : '發布') + '</button></div></td>' +
+    '<td><div class="inline-actions"><button class="inline-btn" onclick="editBulletin(\'' + escapeHtml(item.bulletinId) + '\')">編輯</button><button class="inline-btn" onclick="quickToggleStatus(\'' + escapeHtml(item.bulletinId) + '\')">' + (normalizeBulletinStatus(item.status) === '已發布' ? '取消發布' : '發布') + '</button></div></td>' +
     '</tr>'
   )).join('');
 
@@ -1074,7 +1074,7 @@ function quickToggleStatus(id) {
   if (!item) return;
   apiCall('updateBulletin', {
     bulletinId: id,
-    status: item.status === '已發布' ? '草稿' : '已發布'
+    status: normalizeBulletinStatus(item.status) === '已發布' ? '未發布' : '已發布'
   }).then(json => {
     if (json.code === 401) {
       clearSession();
@@ -1112,7 +1112,7 @@ function saveBulletin() {
   const title = document.getElementById('titleInput').value.trim();
   const content = document.getElementById('contentInput').value.trim();
   const imageUrl = getImageUrls().join('\n');
-  const status = document.getElementById('statusInput').value;
+  const status = normalizeBulletinStatus(document.getElementById('statusInput').value);
   const pinned = document.getElementById('pinnedInput').checked;
 
   if (!title) {
@@ -1185,7 +1185,7 @@ function refreshPreview() {
   const status = document.getElementById('statusInput').value;
   const pinned = document.getElementById('pinnedInput').checked;
   document.getElementById('previewTitle').textContent = title || '尚未輸入標題';
-  document.getElementById('previewMeta').textContent = '狀態：' + statusLabel(status) + (pinned ? ' ・ 置頂' : '');
+  document.getElementById('previewMeta').textContent = '狀態：' + normalizeBulletinStatus(status) + (pinned ? ' ・ 置頂' : '');
   const previewContent = document.getElementById('previewContent');
   previewContent.innerHTML = content || '尚未輸入內容';
   const gallery = document.getElementById('previewGallery');
