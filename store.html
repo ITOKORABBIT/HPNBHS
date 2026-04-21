@@ -341,6 +341,53 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
 }
 .poc-back-btn:hover { background: var(--blue-50); }
 
+/* ── 送出進度 Overlay ── */
+.submit-progress-overlay {
+  position: fixed; inset: 0; z-index: 650;
+  background: rgba(15,30,50,.56);
+  display: none; align-items: center; justify-content: center; padding: 20px;
+}
+.submit-progress-overlay.open { display: flex; }
+.submit-progress-card {
+  width: 100%; max-width: 380px;
+  background: rgba(255,255,255,.96);
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 22px;
+  box-shadow: 0 24px 64px rgba(15,30,50,.2);
+  padding: 28px 24px 22px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+.submit-progress-spinner {
+  width: 56px; height: 56px; margin: 0 auto 14px;
+  border-radius: 50%;
+  border: 4px solid rgba(59,130,246,.14);
+  border-top-color: var(--blue-500);
+  animation: spin .8s linear infinite;
+}
+.submit-progress-title {
+  font-size: 20px; font-weight: 700; color: var(--ink-900); margin-bottom: 8px;
+}
+.submit-progress-desc {
+  font-size: 13px; line-height: 1.65; color: var(--ink-500); margin-bottom: 16px;
+}
+.submit-progress-step {
+  font-size: 14px; font-weight: 700; color: var(--blue-700); margin-bottom: 10px;
+}
+.submit-progress-bar {
+  width: 100%; height: 10px; border-radius: 999px; overflow: hidden;
+  background: #E8EEF7; margin-bottom: 10px;
+}
+.submit-progress-fill {
+  width: 0%; height: 100%;
+  background: linear-gradient(135deg, var(--blue-500), #7CB7FF);
+  border-radius: inherit; transition: width .25s ease;
+}
+.submit-progress-note {
+  font-size: 12px; color: var(--ink-400); line-height: 1.6;
+}
+body.loading-submit { overflow: hidden; }
+
 @media (max-width: 480px) {
   .form-container { padding: 0 12px 40px; margin-top: -28px; }
   .header { padding: 36px 16px 50px; }
@@ -398,6 +445,19 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
       <button type="button" class="poc-confirm-btn" id="pocConfirmBtn">確認方案，送出申請</button>
       <button type="button" class="poc-back-btn" onclick="closePlanOverlay()">返回修改</button>
     </div>
+  </div>
+</div>
+
+<div class="submit-progress-overlay" id="submitProgressOverlay" aria-hidden="true">
+  <div class="submit-progress-card">
+    <div class="submit-progress-spinner"></div>
+    <div class="submit-progress-title">正在送出申請</div>
+    <div class="submit-progress-desc">照片需要先壓縮並上傳，過程可能需要 10 到 30 秒，請先不要關閉頁面。</div>
+    <div class="submit-progress-step" id="submitProgressStep">準備處理資料…</div>
+    <div class="submit-progress-bar">
+      <div class="submit-progress-fill" id="submitProgressFill"></div>
+    </div>
+    <div class="submit-progress-note" id="submitProgressNote">送出完成後會自動顯示成功畫面</div>
   </div>
 </div>
 
@@ -684,6 +744,34 @@ function closePlanOverlay() {
   document.getElementById('planOverlay').classList.remove('open');
 }
 
+function setSubmitProgress(stepText, percent, noteText) {
+  document.getElementById('submitProgressStep').textContent = stepText || '正在處理…';
+  document.getElementById('submitProgressFill').style.width = Math.max(0, Math.min(100, percent || 0)) + '%';
+  if (noteText) document.getElementById('submitProgressNote').textContent = noteText;
+}
+
+function openSubmitProgress(stepText, percent, noteText) {
+  setSubmitProgress(stepText, percent, noteText);
+  document.body.classList.add('loading-submit');
+  document.getElementById('submitProgressOverlay').classList.add('open');
+  document.getElementById('submitProgressOverlay').setAttribute('aria-hidden', 'false');
+}
+
+function closeSubmitProgress() {
+  document.body.classList.remove('loading-submit');
+  document.getElementById('submitProgressOverlay').classList.remove('open');
+  document.getElementById('submitProgressOverlay').setAttribute('aria-hidden', 'true');
+}
+
+function resetSubmitActions() {
+  var btn = document.getElementById('submitBtn');
+  var confirmBtn = document.getElementById('pocConfirmBtn');
+  btn.disabled = false;
+  btn.innerHTML = '<svg class="icon"><use href="#i-send"/></svg> 送出申請';
+  confirmBtn.disabled = false;
+  confirmBtn.textContent = '確認方案，送出申請';
+}
+
 // 照片預覽
 function previewPhoto(input, previewId) {
   var preview = document.getElementById(previewId);
@@ -759,10 +847,18 @@ async function uploadAllPhotos(btn) {
   var hasPhotos = inputs.some(function(i) { return i.files && i.files.length > 0; });
   if (!hasPhotos) return ['', '', ''];
 
+  var total = inputs.filter(function(i) { return i.files && i.files.length > 0; }).length;
+  var done = 0;
   var results = [];
   for (var i = 0; i < inputs.length; i++) {
-    btn.innerHTML = '<span class="spinner"></span> 上傳照片 ' + (i + 1) + '/3…';
-    results.push(await uploadPhoto(inputs[i]));
+    if (inputs[i].files && inputs[i].files.length > 0) {
+      done += 1;
+      btn.innerHTML = '<span class="spinner"></span> 上傳照片 ' + done + '/' + total + '…';
+      setSubmitProgress('正在上傳照片 ' + done + '/' + total + '…', Math.round((done / (total + 1)) * 75), '大圖會需要多幾秒，這是正常的');
+      results.push(await uploadPhoto(inputs[i]));
+    } else {
+      results.push('');
+    }
   }
   return results;
 }
@@ -807,12 +903,17 @@ document.querySelectorAll('input, textarea, select').forEach(function(el) {
 // 實際送出（不論有無 overlay）
 async function doSubmit() {
   var btn = document.getElementById('submitBtn');
+  var confirmBtn = document.getElementById('pocConfirmBtn');
   btn.disabled = true;
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = '處理中，請稍候…';
   btn.innerHTML = '<span class="spinner"></span> 準備上傳…';
+  openSubmitProgress('正在整理申請資料…', 10, '若有照片，系統會先壓縮再上傳');
 
   try {
     var photoUrls = await uploadAllPhotos(btn);
     btn.innerHTML = '<span class="spinner"></span> 送出申請中…';
+    setSubmitProgress('正在送出申請資料…', 88, '資料送出後會自動進入完成畫面');
 
     var payload = {
       name:        document.getElementById('f_name').value.trim(),
@@ -841,16 +942,18 @@ async function doSubmit() {
 
     if (!res.ok) throw new Error('HTTP ' + res.status);
 
+    setSubmitProgress('申請已送出，正在完成畫面…', 100, '完成後會自動顯示成功訊息');
     closePlanOverlay();
+    closeSubmitProgress();
     document.getElementById('reportForm').style.display = 'none';
     document.getElementById('successMsg').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
   } catch (err) {
     closePlanOverlay();
+    closeSubmitProgress();
     alert('送出失敗，請稍後再試。\n錯誤：' + err.message);
-    btn.disabled = false;
-    btn.innerHTML = '<svg class="icon"><use href="#i-send"/></svg> 送出申請';
+    resetSubmitActions();
   }
 }
 
