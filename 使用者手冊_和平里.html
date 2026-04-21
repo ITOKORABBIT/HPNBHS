@@ -242,88 +242,58 @@
     color:var(--muted);
     font-weight:700;
   }
-  .mockup{
-    position:relative;
-    min-height:420px;
-    border-radius:22px;
-    overflow:hidden;
-    background:linear-gradient(180deg,#fcfbfa 0%,#f6f1eb 100%);
-    border:1px solid #d8cdc0;
-  }
-  .mock-top{
+  .preview-meta{
     display:flex;
+    flex-wrap:wrap;
+    gap:10px;
     align-items:center;
     justify-content:space-between;
-    padding:16px 18px;
-    background:#fff;
-    border-bottom:1px solid #e7ddd1;
-    font-size:18px;
-    font-weight:900;
+    margin-bottom:14px;
   }
-  .mock-top span{
-    color:var(--muted);
-    font-size:14px;
-    font-weight:800;
-  }
-  .mock-body{
-    padding:18px;
-    display:grid;
-    gap:14px;
-  }
-  .mock-strip{
-    display:grid;
-    grid-template-columns:repeat(4,minmax(0,1fr));
-    gap:10px;
-  }
-  .mock-chip,.mock-box,.mock-row,.mock-card,.mock-note{
-    border-radius:16px;
-    border:1px solid #ddd1c4;
-    background:#fff;
-  }
-  .mock-chip{
-    padding:12px;
-    font-size:15px;
-    font-weight:800;
-    text-align:center;
-    color:var(--muted);
-  }
-  .mock-chip.active{
-    background:var(--green-soft);
-    color:var(--green);
-    border-color:#cfe0d2;
-  }
-  .mock-grid{
-    display:grid;
-    grid-template-columns:1.15fr .85fr;
-    gap:14px;
-  }
-  .mock-card{
-    padding:16px;
-    display:grid;
-    gap:10px;
-  }
-  .mock-title{
+  .preview-label{
     font-size:18px;
     font-weight:900;
     color:var(--heading);
   }
-  .mock-sub{
-    font-size:14px;
-    color:var(--muted);
-  }
-  .mock-row{
-    position:relative;
-    padding:12px 14px;
-    min-height:58px;
+  .preview-actions{
     display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .preview-action{
+    display:inline-flex;
     align-items:center;
-    justify-content:space-between;
-    gap:12px;
+    gap:8px;
+    padding:10px 14px;
+    border-radius:14px;
+    border:1px solid var(--line);
+    background:#fcfbf9;
     font-size:15px;
     font-weight:800;
   }
-  .mock-row strong{
-    color:var(--text);
+  .preview-shell{
+    width:100%;
+    min-height:520px;
+    border-radius:22px;
+    overflow:hidden;
+    border:1px solid #d8cdc0;
+    background:#fff;
+  }
+  .preview-frame{
+    width:100%;
+    height:520px;
+    border:0;
+    background:#fff;
+  }
+  .preview-note{
+    margin-top:14px;
+    padding:14px 16px;
+    border-radius:16px;
+    background:#f9f7f3;
+    border:1px dashed var(--line);
+    font-size:16px;
+    color:var(--muted);
+    font-weight:700;
   }
   .badge{
     display:inline-flex;
@@ -337,30 +307,6 @@
   .badge-gold{background:var(--gold-soft);color:#9b6e19}
   .badge-blue{background:var(--blue-soft);color:var(--blue)}
   .badge-rose{background:var(--rose-soft);color:var(--rose)}
-  .mock-search{
-    padding:14px 16px;
-    border-radius:16px;
-    background:#fff;
-    border:1px solid #ddd1c4;
-    font-size:15px;
-    color:#a18f7d;
-    font-weight:700;
-  }
-  .callout{
-    position:absolute;
-    width:42px;
-    height:42px;
-    display:grid;
-    place-items:center;
-    border-radius:50%;
-    background:var(--blue);
-    color:#fff;
-    font-size:22px;
-    font-weight:900;
-    box-shadow:0 10px 18px rgba(47,99,206,.28);
-  }
-  .callout.left{left:-12px;top:-12px}
-  .callout.right{right:-12px;top:-12px}
   .steps{
     display:grid;
     grid-template-columns:repeat(2,minmax(0,1fr));
@@ -427,7 +373,7 @@
   @media (max-width:900px){
     h1{font-size:34px}
     .hero p,.title-wrap p,.step-card p,.notice,.tip-card li{font-size:18px}
-    .hero-grid,.steps,.tips,.mock-grid,.mock-strip{grid-template-columns:1fr}
+    .hero-grid,.steps,.tips{grid-template-columns:1fr}
   }
   @media (max-width:680px){
     .page{width:min(100%,calc(100% - 16px))}
@@ -436,7 +382,7 @@
     .role-btn,.tab-btn{font-size:18px}
     h1{font-size:30px}
     .title-wrap h2{font-size:28px}
-    .mockup{min-height:380px}
+    .preview-shell,.preview-frame{min-height:420px;height:420px}
   }
 </style>
 </head>
@@ -671,216 +617,29 @@ let currentRole = 'mayor';
 let currentTab = 'cases';
 
 function renderMockup(tab, role){
-  if (tab === 'cases' && role === 'mayor') {
-    return `
-      <div class="mockup">
-        <div class="mock-top">list.html <span>案件管理示意圖</span></div>
-        <div class="mock-body">
-          <div class="mock-strip">
-            <div class="mock-chip active">里民案件清單</div>
-            <div class="mock-chip">特約商店</div>
-            <div class="mock-chip">公告欄</div>
-            <div class="mock-chip">管理者</div>
-          </div>
-          <div class="mock-grid">
-            <div class="mock-card">
-              <div class="mock-title">案件摘要與搜尋</div>
-              <div class="mock-search">搜尋案件編號、主旨、地址</div>
-              <div class="mock-row"><span>HP-0261 路燈不亮</span><span class="badge badge-gold">新案件</span><div class="callout left">1</div></div>
-              <div class="mock-row"><span>HP-0258 排水溝阻塞</span><span class="badge badge-blue">處理中</span><div class="callout right">2</div></div>
-              <div class="mock-row"><span>HP-0251 巷口反光鏡</span><span class="badge badge-green">已完成</span></div>
-            </div>
-            <div class="mock-card">
-              <div class="mock-title">單一案件</div>
-              <div class="mock-sub">查看里民資料、照片與地點</div>
-              <div class="mock-row"><strong>里民電話</strong><span>0912-345-678</span></div>
-              <div class="mock-row"><strong>地點</strong><span>和平街 20 號前</span></div>
-              <div class="mock-row"><strong>回覆與公開</strong><span class="badge badge-green">可設定</span><div class="callout left">3</div></div>
-              <div class="mock-row"><strong>送出更新</strong><span class="badge badge-blue">儲存</span><div class="callout right">4</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-  if (tab === 'cases' && role === 'resident') {
-    return `
-      <div class="mockup">
-        <div class="mock-top">openlist.html <span>公開案件頁示意圖</span></div>
-        <div class="mock-body">
-          <div class="mock-search">點這裡可以搜尋公開案件</div>
-          <div class="mock-card">
-            <div class="mock-row"><span>我要通報</span><span class="badge badge-green">按這裡</span><div class="callout left">1</div></div>
-            <div class="mock-row"><strong>公開案件卡片</strong><span class="badge badge-blue">可點開</span><div class="callout right">4</div></div>
-            <div class="mock-row"><span>案件主旨：人行道破損</span><span class="badge badge-green">已處理</span></div>
-            <div class="mock-row"><span>地點：和平路口</span><span>查看詳情</span></div>
-          </div>
-          <div class="mock-grid">
-            <div class="mock-card">
-              <div class="mock-title">通報表單</div>
-              <div class="mock-row"><strong>姓名 / 電話</strong><span>必填</span><div class="callout left">2</div></div>
-              <div class="mock-row"><strong>類別 / 主旨</strong><span>必填</span></div>
-              <div class="mock-row"><strong>照片 / 地址</strong><span>建議填寫</span><div class="callout right">3</div></div>
-            </div>
-            <div class="mock-note mock-card">
-              <div class="mock-title">送出後</div>
-              <div class="mock-sub">等待里長處理並公開後，就能在公開清單看到處理結果。</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-  if (tab === 'stores' && role === 'mayor') {
-    return `
-      <div class="mockup">
-        <div class="mock-top">storelist.html <span>商店審核頁示意圖</span></div>
-        <div class="mock-body">
-          <div class="mock-search">搜尋店家名稱、地址、申請人</div>
-          <div class="mock-grid">
-            <div class="mock-card">
-              <div class="mock-title">申請清單</div>
-              <div class="mock-row"><span>ST-0105 幸福早餐店</span><span class="badge badge-gold">待審核</span><div class="callout left">1</div></div>
-              <div class="mock-row"><span>ST-0101 和平藥局</span><span class="badge badge-green">已公開</span></div>
-              <div class="mock-row"><span>ST-0098 阿美美髮</span><span class="badge badge-rose">退回</span></div>
-            </div>
-            <div class="mock-card">
-              <div class="mock-title">審核內容</div>
-              <div class="mock-row"><strong>公開狀態</strong><span class="badge badge-green">公開</span><div class="callout right">2</div></div>
-              <div class="mock-row"><strong>方案等級</strong><span class="badge badge-blue">精選</span><div class="callout left">3</div></div>
-              <div class="mock-row"><strong>公開店名與優惠</strong><span>可重新整理</span></div>
-              <div class="mock-row"><strong>置頂排序</strong><span>1</span><div class="callout right">4</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-  if (tab === 'stores' && role === 'resident') {
-    return `
-      <div class="mockup">
-        <div class="mock-top">storeopenlist.html <span>里民前台示意圖</span></div>
-        <div class="mock-body">
-          <div class="mock-row"><span>我要申請特約商店</span><span class="badge badge-green">店家入口</span><div class="callout left">3</div></div>
-          <div class="mock-grid">
-            <div class="mock-card">
-              <div class="mock-title">公開商店卡片</div>
-              <div class="mock-row"><strong>和平藥局</strong><span class="badge badge-blue">藥局</span><div class="callout left">1</div></div>
-              <div class="mock-row"><span>長者量血壓免費</span><span>查看詳情</span><div class="callout right">2</div></div>
-              <div class="mock-row"><span>地址與電話</span><span>可點地圖</span></div>
-            </div>
-            <div class="mock-card">
-              <div class="mock-title">申請表單</div>
-              <div class="mock-row"><strong>店家資料</strong><span>店名、類別、地址</span></div>
-              <div class="mock-row"><strong>優惠方案</strong><span>請寫清楚</span><div class="callout left">4</div></div>
-              <div class="mock-row"><strong>照片</strong><span>可附上</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-  if (tab === 'bulletins' && role === 'mayor') {
-    return `
-      <div class="mockup">
-        <div class="mock-top">bulletinlist.html <span>公告管理示意圖</span></div>
-        <div class="mock-body">
-          <div class="mock-row"><span>新增公告</span><span class="badge badge-green">按鈕</span><div class="callout left">1</div></div>
-          <div class="mock-grid">
-            <div class="mock-card">
-              <div class="mock-title">公告列表</div>
-              <div class="mock-row"><span>母親節活動</span><span class="badge badge-green">已發佈</span><div class="callout right">4</div></div>
-              <div class="mock-row"><span>健檢通知</span><span class="badge badge-gold">草稿</span></div>
-              <div class="mock-row"><span>清潔日公告</span><span class="badge badge-blue">置頂</span></div>
-            </div>
-            <div class="mock-card">
-              <div class="mock-title">編輯區</div>
-              <div class="mock-row"><strong>標題</strong><span>活動名稱</span><div class="callout left">2</div></div>
-              <div class="mock-row"><strong>內容</strong><span>詳細說明</span></div>
-              <div class="mock-row"><strong>圖片 / 狀態</strong><span>草稿或發佈</span><div class="callout right">3</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-  if (tab === 'bulletins' && role === 'resident') {
-    return `
-      <div class="mockup">
-        <div class="mock-top">bulletin.html <span>里民前台示意圖</span></div>
-        <div class="mock-body">
-          <div class="mock-card">
-            <div class="mock-row"><strong>置頂公告</strong><span class="badge badge-blue">最上面</span><div class="callout left">1</div></div>
-            <div class="mock-row"><span>母親節活動通知</span><span>點開閱讀</span><div class="callout right">2</div></div>
-            <div class="mock-row"><span>日期與內文預覽</span><span>清楚易讀</span></div>
-          </div>
-          <div class="mock-grid">
-            <div class="mock-card">
-              <div class="mock-title">內容視窗</div>
-              <div class="mock-row"><strong>完整標題</strong><span>活動時間</span><div class="callout left">3</div></div>
-              <div class="mock-row"><strong>完整內文</strong><span>地點與提醒</span></div>
-              <div class="mock-row"><strong>關閉</strong><span>回清單</span><div class="callout right">4</div></div>
-            </div>
-            <div class="mock-note mock-card">
-              <div class="mock-title">閱讀方式</div>
-              <div class="mock-sub">里民只需點卡片閱讀，不需要登入。</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-  if (tab === 'admins' && role === 'mayor') {
-    return `
-      <div class="mockup">
-        <div class="mock-top">admin.html <span>管理後台示意圖</span></div>
-        <div class="mock-body">
-          <div class="mock-strip">
-            <div class="mock-chip active">案件</div>
-            <div class="mock-chip">商店</div>
-            <div class="mock-chip">公告</div>
-            <div class="mock-chip">管理者</div>
-          </div>
-          <div class="mock-grid">
-            <div class="mock-card">
-              <div class="mock-title">登入後先看總覽</div>
-              <div class="mock-row"><span>案件總數</span><span>128</span><div class="callout left">1</div></div>
-              <div class="mock-row"><span>商店總數</span><span>36</span></div>
-              <div class="mock-row"><span>公告總數</span><span>18</span></div>
-            </div>
-            <div class="mock-card">
-              <div class="mock-title">管理者頁籤</div>
-              <div class="mock-row"><strong>新增帳號</strong><span class="badge badge-green">超級管理者</span><div class="callout right">4</div></div>
-              <div class="mock-row"><strong>姓名 / Email</strong><span>必填</span><div class="callout left">2</div></div>
-              <div class="mock-row"><strong>角色 / 啟用</strong><span>可調整</span><div class="callout right">3</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
+  const previewMap = {
+    'cases-mayor': { title: 'list.html', note: '以下直接載入實際的案件管理頁。若您目前已登入後台，這裡會看到真實管理畫面。' },
+    'cases-resident': { title: 'openlist.html', note: '以下直接載入實際的公開案件頁，畫面和里民平常看到的頁面一致。' },
+    'stores-mayor': { title: 'storelist.html', note: '以下直接載入實際的商店管理頁。若已登入，會看到真實審核畫面。' },
+    'stores-resident': { title: 'storeopenlist.html', note: '以下直接載入實際的公開商店頁，和里民端看到的內容一致。' },
+    'bulletins-mayor': { title: 'bulletinlist.html', note: '以下直接載入實際的公告管理頁。若已登入，會看到真實編輯列表。' },
+    'bulletins-resident': { title: 'bulletin.html', note: '以下直接載入實際的公告前台頁，里民看到的就是這個頁面。' },
+    'admins-mayor': { title: 'admin.html', note: '這裡保留為管理後台補充教學，畫面直接載入實際 admin 頁。' },
+    'admins-resident': { title: 'admin.html', note: '里民通常不需要操作這頁；此處僅用來說明看到登入頁面時該怎麼判斷。' }
+  };
+  const key = `${tab}-${role}`;
+  const preview = previewMap[key];
   return `
-    <div class="mockup">
-      <div class="mock-top">管理者頁面 <span>里民端說明</span></div>
-      <div class="mock-body">
-        <div class="mock-card">
-          <div class="mock-row"><strong>Google 登入畫面</strong><span class="badge badge-rose">里長專用</span><div class="callout left">1</div></div>
-          <div class="mock-row"><span>里民看到這裡就不用登入</span><span>直接離開</span><div class="callout right">2</div></div>
-        </div>
-        <div class="mock-grid">
-          <div class="mock-card">
-            <div class="mock-title">改走公開入口</div>
-            <div class="mock-row"><strong>看案件</strong><span>案件公開清單</span><div class="callout left">3</div></div>
-            <div class="mock-row"><strong>看商店</strong><span>特約商店清單</span></div>
-            <div class="mock-row"><strong>看公告</strong><span>公告欄</span><div class="callout right">4</div></div>
-          </div>
-          <div class="mock-note mock-card">
-            <div class="mock-title">重點</div>
-            <div class="mock-sub">里民不需要也不建議登入管理後台。</div>
-          </div>
-        </div>
+    <div class="preview-meta">
+      <div class="preview-label">實際頁面預覽：${preview.title}</div>
+      <div class="preview-actions">
+        <a class="preview-action" href="${preview.title}" target="_blank" rel="noopener">另開完整頁面</a>
       </div>
     </div>
+    <div class="preview-shell">
+      <iframe class="preview-frame" src="${preview.title}" title="${preview.title} 預覽" loading="lazy"></iframe>
+    </div>
+    <div class="preview-note">${preview.note}</div>
   `;
 }
 
@@ -892,7 +651,7 @@ function renderGuide(){
   document.getElementById('pageLinks').innerHTML = data.pages[currentRole].map(item => `
     <a class="page-link" href="${item.href}" target="_blank" rel="noopener">${item.label}：${item.text}</a>
   `).join('');
-  document.getElementById('visualWrap').innerHTML = renderMockup(currentTab, currentRole) + '<div class="visual-caption">藍色數字 1、2、3、4 對應下面的步驟，請照順序看最清楚。</div>';
+  document.getElementById('visualWrap').innerHTML = renderMockup(currentTab, currentRole) + '<div class="visual-caption">上方改為直接顯示實際頁面預覽，下面步驟則解釋該頁面怎麼使用。</div>';
 
   document.getElementById('stepsWrap').innerHTML = data.steps[currentRole].map((item, index) => `
     <article class="step-card">
