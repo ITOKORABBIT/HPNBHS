@@ -133,6 +133,15 @@ body{ font-family: var(--font); background: var(--bg); color: var(--val); font-s
 .card-meta{ display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .cate-badge{ display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 5px; font-size: 11px; font-weight: 700; }
 .meta-tag{ display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--lbl); background: var(--bg); border: 1px solid var(--divider); padding: 2px 8px; border-radius: 5px; }
+.plan-badge{
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: .2px;
+  border: 1px solid transparent;
+}
+.plan-badge-free{ background: #F5F2EE; color: #7A6E66; border-color: #E2D9CF; }
+.plan-badge-std{ background: #F8ECF2; color: #8A4968; border-color: #E8A8C0; }
+.plan-badge-premium{ background: #FFF6DB; color: #9E6A12; border-color: #E8B84B; }
 .card-desc{ font-size: 12px; color: var(--lbl); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
 .card-footer{ margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--divider); display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--muted); }
 
@@ -141,6 +150,16 @@ body{ font-family: var(--font); background: var(--bg); color: var(--val); font-s
 .group-label{ font-size: 12px; font-weight: 700; color: var(--lbl); letter-spacing: .5px; text-transform: uppercase; }
 .group-count{ font-size: 11px; color: var(--muted); background: var(--bg); border: 1px solid var(--divider); padding: 1px 7px; border-radius: 999px; }
 .group-line{ flex: 1; height: 1px; background: var(--divider); }
+
+/* ── Plan tier cards ── */
+.store-card.plan-premium{
+  border-color: #E8B84B;
+  box-shadow: 0 2px 14px rgba(201,146,42,.16), var(--shadow-sm);
+}
+.store-card.plan-std{
+  border-color: #E8A8C0;
+  box-shadow: 0 2px 12px rgba(155,90,122,.12), var(--shadow-sm);
+}
 
 /* ── State wrap ── */
 .state-wrap{ grid-column: 1 / -1; text-align: center; padding: 60px 24px; color: var(--lbl); }
@@ -287,6 +306,12 @@ function cateBadge(cat) {
 function esc(s){ if (!s && s !== 0) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function badgeCls(s){ if (s==='已公開') return 'badge-public'; if (s==='不通過') return 'badge-reject'; return 'badge-pending'; }
 function cardStatusCls(s){ if (s==='已公開') return 'status-public'; if (s==='不通過') return 'status-reject'; return 'status-pending'; }
+function planBadge(planType) {
+  var plan = planType || '免費';
+  if (plan === '優選') return '<span class="plan-badge plan-badge-premium">👑 優選</span>';
+  if (plan === '精選') return '<span class="plan-badge plan-badge-std">⭐ 精選</span>';
+  return '<span class="plan-badge plan-badge-free">🏠 免費</span>';
+}
 function statusGroupLabel(s){ if (s==='申請審核中') return '🟠 申請審核中'; if (s==='已公開') return '🟢 已公開'; if (s==='不通過') return '⚪ 不通過'; return s || '其他'; }
 function statusWeight(s){ if (s==='申請審核中') return 1; if (s==='已公開') return 2; if (s==='不通過') return 3; return 9; }
 function storeIdNum(id){ if (!id) return 0; var m = String(id).match(/(\d+)/); return m ? parseInt(m[1],10) : 0; }
@@ -356,7 +381,7 @@ function applyFilters() {
     if (cf !== 'all' && (d.category || '') !== cf) return false;
     if (sf !== 'all' && d.status !== sf) return false;
     if (q) {
-      var hay = [d.storeId, d.storeName, d.addr, d.category, d.desc, d.offer, d.name, d.phone].join(' ').toLowerCase();
+      var hay = [d.storeId, d.storeName, d.addr, d.category, d.desc, d.offer, d.name, d.phone, d.planType].join(' ').toLowerCase();
       if (hay.indexOf(q) === -1) return false;
     }
     return true;
@@ -414,13 +439,15 @@ function renderCard(d) {
     else { dateStr = String(d.applyTime).slice(0,10); }
   }
 
-  var html = '<div class="store-card ' + cardStatusCls(d.status) + '" onclick="openStore(\'' + esc(d.storeId) + '\')">';
+  var planCls = d.planType === '優選' ? ' plan-premium' : d.planType === '精選' ? ' plan-std' : '';
+  var html = '<div class="store-card ' + cardStatusCls(d.status) + planCls + '" onclick="openStore(\'' + esc(d.storeId) + '\')">';
   html += thumb;
   html += '<div class="card-body">';
   html += '<div class="card-top"><span class="card-id">#' + esc(d.storeId) + '</span><span class="badge ' + badgeCls(d.status) + '">' + esc(d.status) + '</span></div>';
   html += '<div class="card-title">' + esc(d.storeName || '（無名稱）') + '</div>';
   html += '<div class="card-meta">';
   if (d.category) html += cateBadge(d.category);
+  html += planBadge(d.planType);
   if (d.addr) html += '<span class="meta-tag"><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + esc(d.addr.length > 18 ? d.addr.slice(0,18)+'…' : d.addr) + '</span>';
   html += '</div>';
   if (d.offer) html += '<div class="card-desc">' + esc(d.offer) + '</div>';
