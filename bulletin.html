@@ -84,9 +84,26 @@ body{font-family:var(--font);background:var(--bg);color:var(--val);font-size:15p
 .modal-title{flex:1;font-size:16px;font-weight:700;color:var(--heading);line-height:1.4}
 .modal-scroll{overflow-y:auto;flex:1}
 .modal-img{width:100%;max-height:250px;object-fit:cover}
+.modal-gallery{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;
+  padding:16px 16px 0;
+}
+.modal-gallery img{
+  width:100%;
+  height:140px;
+  object-fit:cover;
+  border-radius:12px;
+}
 .modal-body{padding:16px}
 .modal-date{font-size:12px;color:var(--muted);margin-bottom:12px}
-.modal-content{font-size:14px;color:var(--val);line-height:1.75;white-space:pre-wrap;word-break:break-word}
+.modal-content{font-size:14px;color:var(--val);line-height:1.75;word-break:break-word}
+.modal-content h2,.modal-content h3{margin:0 0 .7em;color:var(--heading)}
+.modal-content p{margin:0 0 1em}
+.modal-content ul,.modal-content ol{margin:0 0 1em;padding-left:1.4em}
+.modal-content blockquote{margin:0 0 1em;padding-left:12px;border-left:3px solid var(--divider);color:var(--lbl)}
+.modal-content a{color:var(--primary-dark)}
 
 /* Empty */
 .empty{text-align:center;padding:64px 24px;color:var(--muted)}
@@ -146,6 +163,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--val);font-size:15p
     </div>
     <div class="modal-scroll">
       <img class="modal-img" id="modalImg" src="" alt="" style="display:none">
+      <div class="modal-gallery" id="modalGallery" style="display:none"></div>
       <div class="modal-body">
         <div class="modal-date" id="modalDate"></div>
         <div class="modal-content" id="modalContent"></div>
@@ -161,6 +179,49 @@ document.getElementById('villageLabel').textContent = CONFIG.VILLAGE_NAME;
 const PIN_SVG = '<svg class="pin-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a5 5 0 0 1 5 5c0 4-5 11-5 11S7 11 7 7a5 5 0 0 1 5-5z"/><circle cx="12" cy="7" r="2"/></svg>';
 
 let _bulletins = [];
+
+function splitImageUrls(value) {
+  return String(value || '')
+    .split(/\r?\n|,/)
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function stripHtml(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || div.innerText || '').trim();
+}
+
+function sanitizeHtml(html) {
+  const template = document.createElement('template');
+  template.innerHTML = html || '';
+  const allowed = new Set(['P','BR','STRONG','B','EM','I','U','A','UL','OL','LI','H2','H3','BLOCKQUOTE']);
+  const walker = document.createTreeWalker(template.content, NodeFilter.SHOW_ELEMENT, null);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    if (!allowed.has(node.tagName)) {
+      const frag = document.createDocumentFragment();
+      while (node.firstChild) frag.appendChild(node.firstChild);
+      node.parentNode.replaceChild(frag, node);
+      return;
+    }
+    Array.from(node.attributes).forEach(attr => {
+      if (node.tagName === 'A' && attr.name === 'href') {
+        const href = attr.value || '';
+        if (!/^https?:|^mailto:|^tel:/i.test(href)) node.removeAttribute('href');
+      } else {
+        node.removeAttribute(attr.name);
+      }
+    });
+    if (node.tagName === 'A') {
+      node.setAttribute('target', '_blank');
+      node.setAttribute('rel', 'noopener');
+    }
+  });
+  return template.innerHTML;
+}
 
 function fmtDate(s) {
   if (!s) return '';
@@ -202,14 +263,15 @@ function render(list) {
     card.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') openModal(idx); });
 
     let html = '';
-    if (b.imageUrl) {
-      html += '<div class="card-img"><img src="' + esc(b.imageUrl) + '" alt="" loading="lazy"></div>';
+    const images = splitImageUrls(b.imageUrl);
+    if (images.length) {
+      html += '<div class="card-img"><img src="' + esc(images[0]) + '" alt="" loading="lazy"></div>';
     }
     html += '<div class="card-body"><div class="card-meta">';
     if (b.pinned) html += '<span class="pin-badge">' + PIN_SVG + ' 置頂</span>';
     html += '<span class="date-lbl">' + esc(fmtDate(b.createdAt)) + '</span>';
     html += '</div><div class="card-title">' + esc(b.title) + '</div>';
-    html += '<div class="card-preview">' + esc(b.content) + '</div></div>';
+    html += '<div class="card-preview">' + esc(stripHtml(b.content)) + '</div></div>';
     card.innerHTML = html;
     el.appendChild(card);
   });
@@ -222,12 +284,29 @@ function esc(s) {
 function openModal(idx) {
   const b = _bulletins[idx];
   if (!b) return;
+  const images = splitImageUrls(b.imageUrl);
   document.getElementById('modalTitle').textContent   = b.title;
   document.getElementById('modalDate').textContent    = fmtDate(b.createdAt);
-  document.getElementById('modalContent').textContent = b.content;
+  document.getElementById('modalContent').innerHTML = sanitizeHtml(b.content);
   const img = document.getElementById('modalImg');
-  if (b.imageUrl) { img.src = b.imageUrl; img.alt = b.title; img.style.display = 'block'; }
-  else { img.style.display = 'none'; img.src = ''; }
+  const gallery = document.getElementById('modalGallery');
+  if (images.length) {
+    img.src = images[0];
+    img.alt = b.title;
+    img.style.display = 'block';
+    if (images.length > 1) {
+      gallery.innerHTML = images.slice(1).map(url => '<img src="' + esc(url) + '" alt="">').join('');
+      gallery.style.display = 'grid';
+    } else {
+      gallery.innerHTML = '';
+      gallery.style.display = 'none';
+    }
+  } else {
+    img.style.display = 'none';
+    img.src = '';
+    gallery.innerHTML = '';
+    gallery.style.display = 'none';
+  }
   document.getElementById('modalBackdrop').classList.add('open');
   document.body.style.overflow = 'hidden';
   document.querySelector('.modal-close').focus();

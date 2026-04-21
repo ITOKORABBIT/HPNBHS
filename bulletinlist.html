@@ -226,11 +226,58 @@ tbody tr:last-child td{border-bottom:none}
   background:#fff;
 }
 .textarea{min-height:160px;resize:vertical;line-height:1.8}
+.hidden-field{display:none}
 .grid-2{
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:12px;
 }
+.editor-toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:10px;
+}
+.editor-btn{
+  padding:8px 10px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#fff;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+}
+.editor-btn:hover{
+  background:#faf6f1;
+  color:var(--heading);
+}
+.rich-editor{
+  min-height:180px;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#fff;
+  line-height:1.8;
+  color:var(--text);
+  outline:none;
+}
+.rich-editor:empty:before{
+  content:attr(data-placeholder);
+  color:var(--muted);
+}
+.rich-editor h2,.rich-editor h3{
+  color:var(--heading);
+  margin:0 0 .6em;
+}
+.rich-editor p{margin:0 0 .9em}
+.rich-editor ul,.rich-editor ol{padding-left:1.4em;margin:0 0 .9em}
+.rich-editor blockquote{
+  margin:0 0 .9em;
+  padding-left:12px;
+  border-left:3px solid var(--border);
+  color:var(--muted);
+}
+.rich-editor a{color:var(--accent)}
 .upload-row{
   display:flex;
   flex-wrap:wrap;
@@ -250,9 +297,23 @@ tbody tr:last-child td{border-bottom:none}
   color:var(--muted);
   font-size:13px;
   line-height:1.6;
+  overflow:hidden;
 }
 .upload-meta strong{
   color:var(--heading);
+}
+.upload-list{
+  margin-top:6px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.upload-item{
+  display:block;
+  max-width:100%;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
 }
 .upload-actions{
   display:flex;
@@ -288,6 +349,19 @@ tbody tr:last-child td{border-bottom:none}
   object-fit:cover;
   border-radius:12px;
   margin-top:12px;
+}
+.preview-gallery{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:10px;
+  margin-top:12px;
+}
+.preview-gallery img{
+  width:100%;
+  height:120px;
+  object-fit:cover;
+  border-radius:12px;
+  display:block;
 }
 .form-actions{
   display:flex;
@@ -385,12 +459,22 @@ tbody tr:last-child td{border-bottom:none}
 
       <div class="form-section">
         <label class="label" for="contentInput">公告內容</label>
-        <textarea class="textarea" id="contentInput" placeholder="請輸入公告內容，支援多行文字。"></textarea>
+        <div class="editor-toolbar">
+          <button class="editor-btn" type="button" onclick="applyEditorCommand('bold')">粗體</button>
+          <button class="editor-btn" type="button" onclick="applyEditorCommand('formatBlock','<h2>')">標題</button>
+          <button class="editor-btn" type="button" onclick="applyEditorCommand('insertUnorderedList')">項目</button>
+          <button class="editor-btn" type="button" onclick="applyEditorCommand('insertOrderedList')">編號</button>
+          <button class="editor-btn" type="button" onclick="applyEditorCommand('formatBlock','<blockquote>')">引用</button>
+          <button class="editor-btn" type="button" onclick="insertEditorLink()">連結</button>
+          <button class="editor-btn" type="button" onclick="applyEditorCommand('removeFormat')">清除格式</button>
+        </div>
+        <div class="rich-editor" id="contentEditor" contenteditable="true" data-placeholder="請輸入公告內容，可簡單排版。"></div>
+        <textarea class="hidden-field" id="contentInput"></textarea>
       </div>
 
       <div class="form-section">
         <label class="label" for="imageFileInput">公告圖片</label>
-        <input class="upload-input" id="imageFileInput" type="file" accept="image/png,image/jpeg,image/gif,image/webp" onchange="uploadBulletinImage(this.files && this.files[0])">
+        <input class="upload-input" id="imageFileInput" type="file" accept="image/png,image/jpeg,image/gif,image/webp" multiple onchange="uploadBulletinImages(this.files)">
         <input id="imageInput" type="hidden">
         <div class="upload-row">
           <button class="btn" type="button" onclick="document.getElementById('imageFileInput').click()">選擇圖片</button>
@@ -399,7 +483,7 @@ tbody tr:last-child td{border-bottom:none}
         <div class="upload-actions">
           <button class="btn" type="button" id="removeImageBtn" onclick="clearBulletinImage()" style="display:none">移除圖片</button>
         </div>
-        <div class="upload-note">圖片會自動上傳到指定雲端資料夾，支援 JPG、PNG、GIF、WEBP，單檔上限 5MB。</div>
+        <div class="upload-note">圖片會自動上傳到指定雲端資料夾，可一次上傳多張，支援 JPG、PNG、GIF、WEBP，單檔上限 5MB。</div>
       </div>
 
       <label class="toggle-row">
@@ -412,7 +496,7 @@ tbody tr:last-child td{border-bottom:none}
         <div id="previewTitle" style="margin-top:10px;font-weight:800;color:var(--heading)">尚未輸入標題</div>
         <div id="previewMeta" style="margin-top:8px;color:var(--muted)">狀態：草稿</div>
         <div id="previewContent" style="margin-top:10px;color:var(--muted);line-height:1.8">尚未輸入內容</div>
-        <img id="previewImage" alt="" style="display:none">
+        <div class="preview-gallery" id="previewGallery" style="display:none"></div>
       </div>
 
       <div class="form-actions">
@@ -432,6 +516,44 @@ let allBulletins = [];
 let filterStatus = 'all';
 let editingBulletinId = null;
 let uploadingBulletinImage = false;
+
+function splitImageUrls(value) {
+  return String(value || '')
+    .split(/\r?\n|,/)
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
+function setImageUrls(urls) {
+  document.getElementById('imageInput').value = (urls || []).join('\n');
+}
+
+function getImageUrls() {
+  return splitImageUrls(document.getElementById('imageInput').value);
+}
+
+function syncEditorContent() {
+  document.getElementById('contentInput').value = document.getElementById('contentEditor').innerHTML.trim();
+}
+
+function applyEditorCommand(command, value) {
+  document.getElementById('contentEditor').focus();
+  document.execCommand(command, false, value || null);
+  syncEditorContent();
+  refreshPreview();
+}
+
+function insertEditorLink() {
+  const url = prompt('請輸入連結網址');
+  if (!url) return;
+  applyEditorCommand('createLink', url);
+}
+
+function stripHtml(html) {
+  const div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || div.innerText || '').trim();
+}
 
 function getSession() {
   try {
@@ -579,10 +701,11 @@ function createBulletin() {
   document.getElementById('imageInput').value = '';
   document.getElementById('imageFileInput').value = '';
   document.getElementById('contentInput').value = '';
+  document.getElementById('contentEditor').innerHTML = '';
   document.getElementById('pinnedInput').checked = false;
   document.getElementById('deleteBtn').style.display = 'none';
   hideMessage();
-  updateImageMeta('');
+  updateImageMeta([]);
   refreshPreview();
 }
 
@@ -599,14 +722,15 @@ function fillEditor(item) {
   document.getElementById('imageInput').value = item.imageUrl || '';
   document.getElementById('imageFileInput').value = '';
   document.getElementById('contentInput').value = item.content || '';
+  document.getElementById('contentEditor').innerHTML = item.content || '';
   document.getElementById('pinnedInput').checked = !!item.pinned;
   document.getElementById('deleteBtn').style.display = 'inline-flex';
   hideMessage();
-  updateImageMeta(item.imageUrl || '');
+  updateImageMeta(splitImageUrls(item.imageUrl || ''));
   refreshPreview();
 }
 
-function updateImageMeta(url) {
+function updateImageMeta(urls) {
   const meta = document.getElementById('imageUploadMeta');
   const removeBtn = document.getElementById('removeImageBtn');
   if (uploadingBulletinImage) {
@@ -614,8 +738,10 @@ function updateImageMeta(url) {
     removeBtn.style.display = 'none';
     return;
   }
-  if (url) {
-    meta.innerHTML = '<strong>已上傳圖片</strong><br><a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a>';
+  if (urls && urls.length) {
+    meta.innerHTML = '<strong>已上傳圖片 ' + urls.length + ' 張</strong><div class="upload-list">' + urls.map(url => (
+      '<a class="upload-item" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a>'
+    )).join('') + '</div>';
     removeBtn.style.display = 'inline-flex';
     return;
   }
@@ -624,59 +750,63 @@ function updateImageMeta(url) {
 }
 
 function clearBulletinImage() {
-  document.getElementById('imageInput').value = '';
+  setImageUrls([]);
   document.getElementById('imageFileInput').value = '';
-  updateImageMeta('');
+  updateImageMeta([]);
   refreshPreview();
 }
 
-function uploadBulletinImage(file) {
-  if (!file) return;
+async function uploadBulletinImages(fileList) {
+  const files = Array.from(fileList || []);
+  if (!files.length) return;
   if (uploadingBulletinImage) return;
-  if (!/^image\/(jpeg|png|gif|webp)$/i.test(file.type)) {
-    showMessage('僅支援 JPG、PNG、GIF、WEBP 圖片。', false);
-    return;
-  }
-  if (file.size > 5 * 1024 * 1024) {
-    showMessage('圖片檔案太大，請控制在 5MB 以內。', false);
-    return;
-  }
   uploadingBulletinImage = true;
-  updateImageMeta('');
+  updateImageMeta(getImageUrls());
   hideMessage();
-  const reader = new FileReader();
-  reader.onload = function() {
-    apiCall('uploadBulletinImage', {
-      base64: String(reader.result || ''),
-      mimeType: file.type || 'image/jpeg'
-    }).then(json => {
-      uploadingBulletinImage = false;
+  try {
+    const existing = getImageUrls();
+    for (const file of files) {
+      if (!/^image\/(jpeg|png|gif|webp)$/i.test(file.type)) {
+        throw new Error('僅支援 JPG、PNG、GIF、WEBP 圖片。');
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('圖片檔案太大，請控制在 5MB 以內。');
+      }
+      const base64 = await readFileAsDataUrl(file);
+      const json = await apiCall('uploadBulletinImage', {
+        base64: String(base64 || ''),
+        mimeType: file.type || 'image/jpeg'
+      });
       if (json.code === 401) {
         clearSession();
         location.reload();
         return;
       }
       if (!json.success || !json.url) {
-        updateImageMeta(document.getElementById('imageInput').value.trim());
-        showMessage(json.error || '圖片上傳失敗。', false);
-        return;
+        throw new Error(json.error || '圖片上傳失敗。');
       }
-      document.getElementById('imageInput').value = json.url;
-      updateImageMeta(json.url);
+      existing.push(json.url);
+      setImageUrls(existing);
+      updateImageMeta(existing);
       refreshPreview();
-      showMessage('圖片已上傳。', true);
-    }).catch(() => {
-      uploadingBulletinImage = false;
-      updateImageMeta(document.getElementById('imageInput').value.trim());
-      showMessage('圖片上傳失敗，請稍後再試。', false);
-    });
-  };
-  reader.onerror = function() {
+    }
+    showMessage('圖片已上傳。', true);
+  } catch (error) {
+    showMessage(error.message || '圖片上傳失敗，請稍後再試。', false);
+  } finally {
     uploadingBulletinImage = false;
-    updateImageMeta(document.getElementById('imageInput').value.trim());
-    showMessage('讀取圖片失敗，請重新選擇。', false);
-  };
-  reader.readAsDataURL(file);
+    updateImageMeta(getImageUrls());
+    document.getElementById('imageFileInput').value = '';
+  }
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = function() { resolve(reader.result); };
+    reader.onerror = function() { reject(new Error('讀取圖片失敗，請重新選擇。')); };
+    reader.readAsDataURL(file);
+  });
 }
 
 function buildPills() {
@@ -717,7 +847,7 @@ function renderBulletins() {
   const rows = list.map(item => (
     '<tr>' +
     '<td>' + escapeHtml(item.bulletinId) + '</td>' +
-    '<td><div class="title-cell">' + escapeHtml(item.title || '（無標題）') + '</div><span class="preview">' + escapeHtml((item.content || '').slice(0, 60)) + '</span></td>' +
+    '<td><div class="title-cell">' + escapeHtml(item.title || '（無標題）') + '</div><span class="preview">' + escapeHtml(stripHtml(item.content || '').slice(0, 60)) + '</span></td>' +
     '<td><span class="badge ' + (item.status === '已發布' ? 'badge-published' : 'badge-draft') + '">' + escapeHtml(item.status || '草稿') + '</span>' + (item.pinned ? ' <span class="badge badge-pinned">置頂</span>' : '') + '</td>' +
     '<td>' + escapeHtml(fmtDate(item.createdAt)) + '</td>' +
     '<td><div class="inline-actions"><button class="inline-btn" onclick="editBulletin(\'' + escapeHtml(item.bulletinId) + '\')">編輯</button><button class="inline-btn" onclick="quickToggleStatus(\'' + escapeHtml(item.bulletinId) + '\')">' + (item.status === '已發布' ? '改草稿' : '發布') + '</button></div></td>' +
@@ -773,9 +903,10 @@ function loadBulletins() {
 }
 
 function saveBulletin() {
+  syncEditorContent();
   const title = document.getElementById('titleInput').value.trim();
   const content = document.getElementById('contentInput').value.trim();
-  const imageUrl = document.getElementById('imageInput').value.trim();
+  const imageUrl = getImageUrls().join('\n');
   const status = document.getElementById('statusInput').value;
   const pinned = document.getElementById('pinnedInput').checked;
 
@@ -838,20 +969,22 @@ function removeBulletin() {
 
 function refreshPreview() {
   const title = document.getElementById('titleInput').value.trim();
+  syncEditorContent();
   const content = document.getElementById('contentInput').value.trim();
-  const image = document.getElementById('imageInput').value.trim();
+  const images = getImageUrls();
   const status = document.getElementById('statusInput').value;
   const pinned = document.getElementById('pinnedInput').checked;
   document.getElementById('previewTitle').textContent = title || '尚未輸入標題';
   document.getElementById('previewMeta').textContent = '狀態：' + status + (pinned ? ' ・ 置頂' : '');
-  document.getElementById('previewContent').textContent = content || '尚未輸入內容';
-  const img = document.getElementById('previewImage');
-  if (image) {
-    img.src = image;
-    img.style.display = 'block';
+  const previewContent = document.getElementById('previewContent');
+  previewContent.innerHTML = content || '尚未輸入內容';
+  const gallery = document.getElementById('previewGallery');
+  if (images.length) {
+    gallery.innerHTML = images.map(url => '<img src="' + escapeHtml(url) + '" alt="">').join('');
+    gallery.style.display = 'grid';
   } else {
-    img.style.display = 'none';
-    img.src = '';
+    gallery.style.display = 'none';
+    gallery.innerHTML = '';
   }
 }
 
@@ -862,6 +995,10 @@ function refreshPreview() {
   document.addEventListener('change', event => {
     if (event.target && event.target.id === id) refreshPreview();
   });
+});
+document.getElementById('contentEditor').addEventListener('input', function() {
+  syncEditorContent();
+  refreshPreview();
 });
 
 window.addEventListener('load', function() {
