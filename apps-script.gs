@@ -18,6 +18,7 @@ var DETAIL_BASE_URL   = 'https://itokorabbit.github.io/HPNBHS/detail.html?id=';
 var DEFAULT_REPORT_IMAGE_URL = 'https://itokorabbit.github.io/HPNBHS/assets/no-photo.svg';
 var NBH_FOLDER_ID    = '10M_y9gRB3FIGILLi4Dq-wxTqjHqNSC_o'; // Photos/NBH — 里民通報照片
 var STOR_FOLDER_ID   = '1QQh4QOfxCIag46YhiW8riUgjwp7tj_6Z';  // Photos/STOR — 特約商店照片
+var BULLETIN_FOLDER_ID = '1rvGsrZt6WYh1DpkU5BMUH_XdwJt2_jOX'; // Photos/BULLETIN — 公佈欄公告圖片
 var SESSION_TTL      = 2592000;
 var PUBLIC_FORM_MIN_MS      = 3000;
 var PUBLIC_FORM_MAX_MS      = 2 * 60 * 60 * 1000;
@@ -40,6 +41,7 @@ function doPost(e) {
       case 'getCase':           return requireAdmin(data, handleGetCase);
       case 'updateReply':       return requireAdmin(data, handleUpdateReply);
       case 'uploadAdminPhoto':  return requireAdmin(data, handleUploadPhoto);
+      case 'uploadBulletinImage': return requireAdmin(data, handleUploadBulletinImage);
       case 'uploadPublicPhoto': return jsonOut({ success: false, error: 'uploadPublicPhoto 已停用，請改用 submitReport' });
       case 'uploadStorePhoto':  return handleStorePublicUpload(data, e);
       case 'getPublicCases':    return handleGetPublicCases(data);
@@ -540,6 +542,7 @@ function handleUpdateReply(data) {
 // ══════════════════════════════════════════════
 
 function handleUploadPhoto(data) { return doUpload(data, NBH_FOLDER_ID); }
+function handleUploadBulletinImage(data) { return doUpload(data, BULLETIN_FOLDER_ID, 'bulletin'); }
 
 var ALLOWED_MIME = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp' };
 var ALLOWED_REFERERS = ['https://itokorabbit.github.io', 'https://ommichi.github.io'];
@@ -578,14 +581,15 @@ function handleStorePublicUpload(data, e) {
   return doUpload(data, STOR_FOLDER_ID);
 }
 
-function doUpload(data, folderId) {
+function doUpload(data, folderId, fileNamePrefix) {
   if (!folderId) return jsonOut({ success: false, error: 'Folder ID not configured' });
   var base64   = data.base64 || '';
   // MIME 類型白名單驗證（伺服器端，不信任客戶端傳入）
   var mimeType = String(data.mimeType || 'image/jpeg').toLowerCase().split(';')[0].trim();
   if (!ALLOWED_MIME[mimeType]) return jsonOut({ success: false, error: '不支援的檔案類型' });
   var ext      = ALLOWED_MIME[mimeType];
-  var fileName = ('photo_' + new Date().getTime() + '.' + ext);
+  var prefix = String(fileNamePrefix || 'photo').replace(/[^a-zA-Z0-9_-]/g, '_');
+  var fileName = (prefix + '_' + new Date().getTime() + '.' + ext);
   var b64  = base64.replace(/^data:image\/\w+;base64,/, '');
   var blob = Utilities.newBlob(Utilities.base64Decode(b64), mimeType, fileName);
   if (blob.getBytes().length > 5 * 1024 * 1024) {

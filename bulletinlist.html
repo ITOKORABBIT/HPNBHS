@@ -231,6 +231,40 @@ tbody tr:last-child td{border-bottom:none}
   grid-template-columns:1fr 1fr;
   gap:12px;
 }
+.upload-row{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:10px;
+}
+.upload-input{
+  display:none;
+}
+.upload-meta{
+  flex:1;
+  min-width:220px;
+  padding:12px 14px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#fcfaf7;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+}
+.upload-meta strong{
+  color:var(--heading);
+}
+.upload-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:10px;
+}
+.upload-note{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:12px;
+}
 .toggle-row{
   display:flex;
   align-items:center;
@@ -306,7 +340,7 @@ tbody tr:last-child td{border-bottom:none}
   <div class="topbar">
     <div class="title-wrap">
       <h1>公告管理</h1>
-      <p>這裡負責新增、編輯、發布與刪除活動公告。前台 `bulletin.html` 只會顯示狀態為「已發布」的公告。</p>
+      <p>這裡負責新增、編輯、發布與刪除活動公告。「公佈欄公開頁」只會顯示狀態為「已發布」的公告。</p>
     </div>
     <div class="top-actions">
       <a class="btn" href="admin.html?tab=bulletins">回管理後台</a>
@@ -347,15 +381,25 @@ tbody tr:last-child td{border-bottom:none}
             <option value="已發布">已發布</option>
           </select>
         </div>
-        <div class="form-section">
-          <label class="label" for="imageInput">圖片網址</label>
-          <input class="input" id="imageInput" type="text" placeholder="https://...">
-        </div>
       </div>
 
       <div class="form-section">
         <label class="label" for="contentInput">公告內容</label>
         <textarea class="textarea" id="contentInput" placeholder="請輸入公告內容，支援多行文字。"></textarea>
+      </div>
+
+      <div class="form-section">
+        <label class="label" for="imageFileInput">公告圖片</label>
+        <input class="upload-input" id="imageFileInput" type="file" accept="image/png,image/jpeg,image/gif,image/webp" onchange="uploadBulletinImage(this.files && this.files[0])">
+        <input id="imageInput" type="hidden">
+        <div class="upload-row">
+          <button class="btn" type="button" onclick="document.getElementById('imageFileInput').click()">選擇圖片</button>
+          <div class="upload-meta" id="imageUploadMeta">尚未上傳圖片</div>
+        </div>
+        <div class="upload-actions">
+          <button class="btn" type="button" id="removeImageBtn" onclick="clearBulletinImage()" style="display:none">移除圖片</button>
+        </div>
+        <div class="upload-note">圖片會自動上傳到指定雲端資料夾，支援 JPG、PNG、GIF、WEBP，單檔上限 5MB。</div>
       </div>
 
       <label class="toggle-row">
@@ -387,6 +431,7 @@ const SESSION_TTL = 2 * 3600 * 1000;
 let allBulletins = [];
 let filterStatus = 'all';
 let editingBulletinId = null;
+let uploadingBulletinImage = false;
 
 function getSession() {
   try {
@@ -532,10 +577,12 @@ function createBulletin() {
   document.getElementById('titleInput').value = '';
   document.getElementById('statusInput').value = '草稿';
   document.getElementById('imageInput').value = '';
+  document.getElementById('imageFileInput').value = '';
   document.getElementById('contentInput').value = '';
   document.getElementById('pinnedInput').checked = false;
   document.getElementById('deleteBtn').style.display = 'none';
   hideMessage();
+  updateImageMeta('');
   refreshPreview();
 }
 
@@ -550,11 +597,86 @@ function fillEditor(item) {
   document.getElementById('titleInput').value = item.title || '';
   document.getElementById('statusInput').value = item.status || '草稿';
   document.getElementById('imageInput').value = item.imageUrl || '';
+  document.getElementById('imageFileInput').value = '';
   document.getElementById('contentInput').value = item.content || '';
   document.getElementById('pinnedInput').checked = !!item.pinned;
   document.getElementById('deleteBtn').style.display = 'inline-flex';
   hideMessage();
+  updateImageMeta(item.imageUrl || '');
   refreshPreview();
+}
+
+function updateImageMeta(url) {
+  const meta = document.getElementById('imageUploadMeta');
+  const removeBtn = document.getElementById('removeImageBtn');
+  if (uploadingBulletinImage) {
+    meta.innerHTML = '<strong>圖片上傳中…</strong><br>請稍候，完成後會自動套用到公告。';
+    removeBtn.style.display = 'none';
+    return;
+  }
+  if (url) {
+    meta.innerHTML = '<strong>已上傳圖片</strong><br><a href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' + escapeHtml(url) + '</a>';
+    removeBtn.style.display = 'inline-flex';
+    return;
+  }
+  meta.textContent = '尚未上傳圖片';
+  removeBtn.style.display = 'none';
+}
+
+function clearBulletinImage() {
+  document.getElementById('imageInput').value = '';
+  document.getElementById('imageFileInput').value = '';
+  updateImageMeta('');
+  refreshPreview();
+}
+
+function uploadBulletinImage(file) {
+  if (!file) return;
+  if (uploadingBulletinImage) return;
+  if (!/^image\/(jpeg|png|gif|webp)$/i.test(file.type)) {
+    showMessage('僅支援 JPG、PNG、GIF、WEBP 圖片。', false);
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    showMessage('圖片檔案太大，請控制在 5MB 以內。', false);
+    return;
+  }
+  uploadingBulletinImage = true;
+  updateImageMeta('');
+  hideMessage();
+  const reader = new FileReader();
+  reader.onload = function() {
+    apiCall('uploadBulletinImage', {
+      base64: String(reader.result || ''),
+      mimeType: file.type || 'image/jpeg'
+    }).then(json => {
+      uploadingBulletinImage = false;
+      if (json.code === 401) {
+        clearSession();
+        location.reload();
+        return;
+      }
+      if (!json.success || !json.url) {
+        updateImageMeta(document.getElementById('imageInput').value.trim());
+        showMessage(json.error || '圖片上傳失敗。', false);
+        return;
+      }
+      document.getElementById('imageInput').value = json.url;
+      updateImageMeta(json.url);
+      refreshPreview();
+      showMessage('圖片已上傳。', true);
+    }).catch(() => {
+      uploadingBulletinImage = false;
+      updateImageMeta(document.getElementById('imageInput').value.trim());
+      showMessage('圖片上傳失敗，請稍後再試。', false);
+    });
+  };
+  reader.onerror = function() {
+    uploadingBulletinImage = false;
+    updateImageMeta(document.getElementById('imageInput').value.trim());
+    showMessage('讀取圖片失敗，請重新選擇。', false);
+  };
+  reader.readAsDataURL(file);
 }
 
 function buildPills() {
