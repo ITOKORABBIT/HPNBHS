@@ -289,13 +289,17 @@ function handleSubmitStore(data) {
   ]);
 
   notifyNewStore_({
-    storeId: storeId, applyTime: nowText, planType: planType,
-    cate:       String(data.cate      || '').trim(),
-    name:       String(data.name      || '').trim(),
-    phone:      String(data.phone     || '').trim(),
-    storeName:  String(data.title     || '').trim(),
-    addr:       String(data.addr      || '').trim(),
-    offer:      String(data.offer     || '').trim(),
+    storeId:  storeId,
+    planType: planType,
+    cate:     String(data.cate      || '').trim(),
+    name:     String(data.name      || '').trim(),
+    phone:    String(data.phone     || '').trim(),
+    title:    String(data.title     || '').trim(),
+    addr:     String(data.addr      || '').trim(),
+    offer:    String(data.offer     || '').trim(),
+    photo1:   String(data.photo1    || ''),
+    photo2:   String(data.photo2    || ''),
+    photo3:   String(data.photo3    || ''),
   });
 
   return jsonOut({ success: true, storeId: storeId });
