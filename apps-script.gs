@@ -13,6 +13,8 @@ var SHEET_BULLETIN = '公佈欄';
 var GOOGLE_CLIENT_ID = '998009736888-v0hng93jchshicessbc6pjf4e6eiolju.apps.googleusercontent.com';
 var API_KEY          = 'hpnbhs_sk_Qm7Kp2Xa9Wv8Ld5Rn6Yf4Jb';
 var REPORT_WEBHOOK_URL = 'https://hook.us2.make.com/wa9jtsqq171jf7yoycpb7upnpii30m5g';
+var DETAIL_BASE_URL   = 'https://itokorabbit.github.io/HPNBHS/detail.html?id=';
+var DEFAULT_REPORT_IMAGE_URL = 'https://itokorabbit.github.io/HPNBHS/assets/no-photo.svg';
 var NBH_FOLDER_ID    = '10M_y9gRB3FIGILLi4Dq-wxTqjHqNSC_o'; // Photos/NBH — 里民通報照片
 var STOR_FOLDER_ID   = '';                                     // Photos/STOR — 特約商店照片（待填入）
 var SESSION_TTL      = 21600;
@@ -181,25 +183,28 @@ function handleSubmitReport(data) {
   var now = new Date();
   var nowText = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd HH:mm');
   var caseId = nextCaseId_(sheet, 'HP');
+  var replyUrl = buildDetailUrl_(caseId);
   var photos = uploadPublicReportPhotos_(data.photos, caseId);
+  var phoneText = toSheetText_(data.phone);
+  var lineIdText = toSheetText_(data.lineId);
 
   sheet.appendRow([
-    caseId, nowText, 'NEW',
+    caseId, nowText, '新案件',
     String(data.cate    || '').trim(),
     String(data.name    || '').trim(),
-    String(data.phone   || '').trim(),
-    String(data.lineId  || '').trim(),
+    phoneText,
+    lineIdText,
     String(data.title   || '').trim(),
     String(data.desc    || '').trim(),
     String(data.addr    || '').trim(),
     String(data.map     || '').trim(),
     String(data.case1999 || data['1999'] || '').trim(),
     photos[0], photos[1], photos[2],
-    '', nowText, '', '', '', '', '', '', 'FALSE', '', '', '', '', '', 0
+    '', nowText, '', '', '', '', '', '', 'FALSE', '', '', '', '', replyUrl, 0
   ]);
 
   notifyNewReport_({
-    caseId: caseId, reportTime: nowText, status: 'NEW',
+    caseId: caseId, reportTime: nowText, status: '新案件',
     cate:  String(data.cate  || '').trim(),
     name:  String(data.name  || '').trim(),
     phone: String(data.phone || '').trim(),
@@ -209,7 +214,8 @@ function handleSubmitReport(data) {
     addr:  String(data.addr  || '').trim(),
     map:   String(data.map   || '').trim(),
     case1999: String(data.case1999 || data['1999'] || '').trim(),
-    photo1: photos[0], photo2: photos[1], photo3: photos[2]
+    photo1: photos[0] || DEFAULT_REPORT_IMAGE_URL, photo2: photos[1], photo3: photos[2],
+    replyUrl: replyUrl, detailUrl: replyUrl
   });
 
   return jsonOut({ success: true, caseId: caseId });
@@ -247,14 +253,29 @@ function normalizePhone_(phone) {
   return String(phone || '').replace(/[^\d]/g, '');
 }
 
+function toSheetText_(value) {
+  var text = String(value || '').trim();
+  return text ? ("'" + text) : '';
+}
+
 function nextCaseId_(sheet, prefix) {
   var all = sheet.getDataRange().getValues();
+  var datePart = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyMMdd');
+  var monthPart = datePart.substring(0, 4);
   var maxNum = 0;
+  var idPattern = new RegExp('^' + String(prefix || 'HP') + '-?' + monthPart + '\\d{2}(\\d{3})$');
   for (var i = 1; i < all.length; i++) {
-    var match = String(all[i][0] || '').match(/(\d+)/);
-    if (match) maxNum = Math.max(maxNum, parseInt(match[1], 10) || 0);
+    var candidates = [all[i][0], all[i][28]];
+    for (var j = 0; j < candidates.length; j++) {
+      var match = String(candidates[j] || '').match(idPattern);
+      if (match) maxNum = Math.max(maxNum, parseInt(match[1], 10) || 0);
+    }
   }
-  return String(prefix || 'HP') + '-' + Utilities.formatString('%05d', maxNum + 1);
+  return String(prefix || 'HP') + datePart + Utilities.formatString('%03d', maxNum + 1);
+}
+
+function buildDetailUrl_(caseId) {
+  return DETAIL_BASE_URL + encodeURIComponent(String(caseId || ''));
 }
 
 function uploadPublicReportPhotos_(photos, caseId) {
