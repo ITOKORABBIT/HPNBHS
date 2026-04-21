@@ -408,19 +408,19 @@
     <section class="hero">
       <div class="hero-badge">大字版圖文教學</div>
       <h1>和平里小幫手使用者手冊</h1>
-      <p>這份手冊改成「實際頁面預覽 + 藍色編號定位 + 下面步驟對照」的方式整理。請先選擇里長端或里民端，再切換想看的功能頁面，畫面上的 1、2、3、4 會直接對照下面的解說。</p>
+      <p>請先選擇您要看的身分，再點選想看的頁面。畫面上的藍色 1、2、3、4，會對照下面的說明，照著看就比較不容易搞混。</p>
       <div class="hero-grid">
         <div class="hero-note">
           <strong>先選角色</strong>
-          <span>里長端看管理操作，里民端看查詢與送出表單。</span>
+          <span>如果您是里長或工作人員，請看里長端；如果您是一般里民，請看里民端。</span>
         </div>
         <div class="hero-note">
           <strong>再選頁面</strong>
-          <span>案件、商店、公告、管理後台分別教學。</span>
+          <span>案件、商店、公告都分開說明，找起來比較清楚。</span>
         </div>
         <div class="hero-note">
           <strong>上下對照看</strong>
-          <span>藍色 1、2、3、4 對照下面的 1、2、3、4 步驟卡。</span>
+          <span>先看畫面上的數字，再看下面同樣數字的說明，就知道是在教哪一塊。</span>
         </div>
       </div>
     </section>
@@ -711,8 +711,8 @@ function renderPreview(tab, role){
   const preview = PREVIEW_MAP[`${tab}-${role}`];
   return `
     <div class="preview-meta">
-      <div class="preview-label">實際頁面預覽：${preview.title}</div>
-      <a class="preview-action" href="${preview.title}" target="_blank" rel="noopener">另開完整頁面</a>
+      <div class="preview-label">畫面參考：${preview.title}</div>
+      <a class="preview-action" href="${preview.title}" target="_blank" rel="noopener">放大開啟這一頁</a>
     </div>
     <div class="preview-shell">
       <iframe class="preview-frame" src="${preview.title}" title="${preview.title} 預覽" loading="lazy"></iframe>
@@ -729,7 +729,7 @@ function renderPreview(tab, role){
         </div>
       `).join('')}
     </div>
-    <div class="visual-caption">上方藍色 1、2、3、4 會直接對照下面步驟卡的 1、2、3、4，請上下對照一起看。</div>
+    <div class="visual-caption">上面的藍色數字，和下面的數字說明是對在一起的，請一起看。</div>
     <div class="notice" style="margin-top:14px">${preview.note}</div>
   `;
 }
@@ -738,7 +738,7 @@ function renderGuide(){
   const data = GUIDE_DATA[currentTab];
   document.getElementById('guideTitle').textContent = data.title;
   document.getElementById('guideDesc').textContent = data.desc[currentRole];
-  document.getElementById('roleBadge').textContent = currentRole === 'mayor' ? '目前顯示：里長端教學' : '目前顯示：里民端教學';
+  document.getElementById('roleBadge').textContent = currentRole === 'mayor' ? '現在看到的是：里長端教學' : '現在看到的是：里民端教學';
   document.getElementById('pageLinks').innerHTML = data.pages[currentRole].map(item => `
     <a class="page-link" href="${item.href}" target="_blank" rel="noopener">${item.label}：${item.text}</a>
   `).join('');
@@ -759,11 +759,11 @@ function renderGuide(){
       <ul>${tipData.items.map(item => `<li>${item}</li>`).join('')}</ul>
     </article>
     <article class="tip-card">
-      <h3>切換另一邊也很重要</h3>
+      <h3>如果還是不清楚</h3>
       <ul>
-        <li>同一個頁面也有 ${otherRole === 'mayor' ? '里長端' : '里民端'} 的說明。</li>
-        <li>如果您要教別人操作，建議兩邊都看一次。</li>
-        <li>這次的畫面不是假示意，而是直接讀取實際頁面。</li>
+        <li>同一個頁面，也可以切換看看 ${otherRole === 'mayor' ? '里長端' : '里民端'} 的說明。</li>
+        <li>如果是要幫家人或里民看，也可以兩邊都看一次。</li>
+        <li>看不清楚時，可以按上面的「放大開啟這一頁」。</li>
       </ul>
     </article>
   `;
