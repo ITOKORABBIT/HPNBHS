@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>特約商店申請 - 北屯區和平里 里民小幫手</title>
+<title>特約商店申請 - 和平里小幫手</title>
 <link rel="icon" type="image/png" href="./web_logo.png">
 <link rel="shortcut icon" href="./web_logo.png">
 <link rel="apple-touch-icon" href="./web_logo.png">
@@ -182,6 +182,40 @@ select {
 .photo-upload .upload-icon { width: 28px; height: 28px; color: var(--blue-400); margin-bottom: 6px; stroke-width: 1.8; }
 .photo-upload .upload-text { font-size: 13px; color: var(--ink-500); font-weight: 500; }
 .photo-upload .preview { max-width: 100%; max-height: 200px; border-radius: 10px; display: none; }
+.photo-upload.has-img .upload-icon,
+.photo-upload.has-img .upload-text { display: none; }
+.photo-remove-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  min-width: 54px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--blue-700);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  box-shadow: 0 6px 14px rgba(30, 64, 100, 0.08);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  display: none;
+  transition: all 0.2s ease;
+}
+.photo-remove-btn:hover {
+  background: #fff;
+  border-color: rgba(59, 130, 246, 0.34);
+  color: var(--blue-800);
+  transform: translateY(-1px);
+}
+.photo-upload.has-img .photo-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 
 .photo-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 
@@ -235,7 +269,7 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
 
 .footer { text-align: center; padding: 18px; font-size: 12px; color: var(--ink-300); letter-spacing: 0.5px; }
 
-/* ── 方案選擇 ── */
+/* ?? ?寞??豢? ?? */
 .plan-options { display: flex; flex-direction: column; gap: 10px; }
 .plan-option { position: relative; cursor: pointer; display: block; }
 .plan-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
@@ -294,7 +328,7 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
   display: flex; align-items: flex-start; gap: 8px; line-height: 1.6;
 }
 
-/* ── 方案確認 Overlay ── */
+/* ?? ?寞?蝣箄? Overlay ?? */
 .plan-overlay {
   position: fixed; inset: 0; z-index: 500;
   background: rgba(15,30,50,.72);
@@ -344,7 +378,7 @@ input.invalid, textarea.invalid, select.invalid { border-color: var(--warn); bac
 }
 .poc-back-btn:hover { background: var(--blue-50); }
 
-/* ── 送出進度 Overlay ── */
+/* ?? ??脣漲 Overlay ?? */
 .submit-progress-overlay {
   position: fixed; inset: 0; z-index: 650;
   background: rgba(15,30,50,.56);
@@ -427,25 +461,25 @@ body.loading-submit { overflow: hidden; }
 
 <div class="header">
   <svg class="header-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-store"/></svg>
-  <h1>和平里特約商店申請</h1>
-  <div class="subtitle">請填寫以下資料，我們將儘快進行資料審核</div>
+  <h1>特約商店申請</h1>
+  <div class="subtitle">填寫店家資訊與優惠內容，送出後將由里辦公處進行審核。</div>
 </div>
 
-<!-- ── 方案確認 Overlay ── -->
+<!-- ?? ?寞?蝣箄? Overlay ?? -->
 <div class="plan-overlay" id="planOverlay">
   <div class="poc">
     <div class="poc-head">
-      <div class="poc-emoji" id="pocEmoji">⭐</div>
-      <div class="poc-title" id="pocTitle">確認特約方案</div>
-      <div class="poc-sub">選擇後即完成申請，里辦公室審核通過後正式上線</div>
+      <div class="poc-emoji" id="pocEmoji">◎</div>
+      <div class="poc-title" id="pocTitle">確認方案內容</div>
+      <div class="poc-sub">送出前請再確認一次方案與店家資料。</div>
     </div>
     <div class="poc-body">
       <div class="poc-plan-label" id="pocPlanLabel">精選方案</div>
-      <div class="poc-free-banner">🎉 試用期間完全免費！享有完整功能，無需付費</div>
+      <div class="poc-free-banner">目前方案以店家實際審核結果與合作內容為準。</div>
       <div class="poc-features" id="pocFeatures"></div>
     </div>
     <div class="poc-foot">
-      <button type="button" class="poc-confirm-btn" id="pocConfirmBtn">確認方案，送出申請</button>
+      <button type="button" class="poc-confirm-btn" id="pocConfirmBtn">確認方案並送出申請</button>
       <button type="button" class="poc-back-btn" onclick="closePlanOverlay()">返回修改</button>
     </div>
   </div>
@@ -455,7 +489,7 @@ body.loading-submit { overflow: hidden; }
   <div class="submit-progress-card">
     <div class="submit-progress-spinner"></div>
     <div class="submit-progress-title">正在送出申請</div>
-    <div class="submit-progress-desc">照片需要先壓縮並上傳，過程可能需要 10 到 30 秒，請先不要關閉頁面。</div>
+    <div class="submit-progress-desc">若有附上照片，系統會先完成上傳後再送出申請，通常約需 10 到 30 秒。</div>
     <div class="submit-progress-step" id="submitProgressStep">準備處理資料…</div>
     <div class="submit-progress-bar">
       <div class="submit-progress-fill" id="submitProgressFill"></div>
@@ -466,10 +500,10 @@ body.loading-submit { overflow: hidden; }
 
 <div class="form-container">
   <form id="reportForm" novalidate>
-    <!-- 蜜罐：機器人才會填這個欄位 -->
+    <!-- ??嚗??其犖??憛恍?雿?-->
     <input type="text" name="website" id="f_website" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0;pointer-events:none">
 
-    <!-- 卡片 1：申請人資訊 -->
+    <!-- ?∠? 1嚗隢犖鞈? -->
     <div class="card">
       <div class="section-title"><span class="title-bar"></span>申請人資訊</div>
 
@@ -477,87 +511,87 @@ body.loading-submit { overflow: hidden; }
         <label class="field-label">
           <svg class="icon"><use href="#i-user"/></svg> 姓名 <span class="required">*</span>
         </label>
-        <input type="text" id="f_name" placeholder="真實姓名" required>
-        <div class="error-text">請輸入姓名</div>
+        <input type="text" id="f_name" placeholder="請填寫申請人姓名" required>
+        <div class="error-text">請填寫申請人姓名</div>
       </div>
 
       <div class="field-group">
         <label class="field-label">
           <svg class="icon"><use href="#i-phone"/></svg> 電話 <span class="required">*</span>
         </label>
-        <input type="text" inputmode="tel" id="f_phone" placeholder="務必留下手機或住家電話以利聯絡" required>
-        <div class="error-text">請輸入電話</div>
+        <input type="text" inputmode="tel" id="f_phone" placeholder="請填寫申請人電話" required>
+        <div class="error-text">請填寫申請人電話</div>
       </div>
 
       <div class="field-group" style="margin-bottom:0">
         <label class="field-label">
           <svg class="icon"><use href="#i-message"/></svg> Line ID
         </label>
-        <input type="text" id="f_line" placeholder="請留下 LINE ID 以利聯絡">
+        <input type="text" id="f_line" placeholder="選填：方便聯繫的 LINE ID">
       </div>
     </div>
 
-    <!-- 卡片 2：特約方案 -->
+    <!-- ?∠? 2嚗蝝獢?-->
     <div class="card">
-      <div class="section-title"><span class="title-bar"></span>選擇特約方案</div>
+      <div class="section-title"><span class="title-bar"></span>方案選擇</div>
 
       <div class="plan-options">
 
-        <!-- 免費方案 -->
+        <!-- ?祥?寞? -->
         <label class="plan-option plan-option--free">
           <input type="radio" name="plan" value="免費" checked onchange="onPlanChange()">
           <div class="plan-card">
             <div class="plan-card-top">
-              <span class="plan-icon">🏠</span>
+              <span class="plan-icon">○</span>
               <span class="plan-name">免費方案</span>
               <span class="plan-price plan-price-free">免費</span>
             </div>
             <div class="plan-benefits">
-              <div class="plan-benefit"><span class="pbc pbc-free">✓</span>刊登於特約商店頁面</div>
-              <div class="plan-benefit"><span class="pbc pbc-free">✓</span>顯示店家介紹、聯絡資訊</div>
-              <div class="plan-benefit"><span class="pbc pbc-free">✓</span>里民可直接查看店家詳情</div>
+              <div class="plan-benefit"><span class="pbc pbc-free">•</span>建立基本店家資料</div>
+              <div class="plan-benefit"><span class="pbc pbc-free">•</span>公開頁面顯示基本資訊</div>
+              <div class="plan-benefit"><span class="pbc pbc-free">•</span>適合一般合作店家申請</div>
             </div>
           </div>
         </label>
 
-        <!-- 精選方案 -->
+        <!-- 蝎暸?寞? -->
         <label class="plan-option plan-option--std">
           <input type="radio" name="plan" value="精選" onchange="onPlanChange()">
           <div class="plan-card">
             <div class="plan-card-top">
-              <span class="plan-icon">⭐</span>
+              <span class="plan-icon">◎</span>
               <span class="plan-name">精選方案</span>
               <span class="plan-price plan-price-std">
-                <span class="plan-price-current">限時免費</span>
+                <span class="plan-price-current">依審核結果</span>
                 <span class="plan-price-old">$300 / 月</span>
               </span>
             </div>
             <div class="plan-benefits">
-              <div class="plan-benefit"><span class="pbc pbc-std">✓</span>包含所有免費方案權益</div>
-              <div class="plan-benefit"><span class="pbc pbc-std">✓</span>顯示 <strong>⭐ 精選商家</strong> 藍色標章</div>
-              <div class="plan-benefit"><span class="pbc pbc-std">✓</span>提升里民搜尋能見度</div>
+              <div class="plan-benefit"><span class="pbc pbc-std">•</span>提供較高的曝光效果</div>
+              <div class="plan-benefit"><span class="pbc pbc-std">•</span>公開頁面可呈現更完整內容</div>
+              <div class="plan-benefit"><span class="pbc pbc-std">•</span>適合想提升曝光的店家</div>
             </div>
           </div>
         </label>
 
-        <!-- 優選方案 -->
+        <!-- ?芷?寞? -->
         <label class="plan-option plan-option--premium">
           <input type="radio" name="plan" value="優選" onchange="onPlanChange()">
           <div class="plan-card">
             <div class="plan-card-top">
-              <span class="plan-icon">👑</span>
+              <span class="plan-icon">★</span>
               <span class="plan-name">優選方案</span>
               <span class="plan-recommended">推薦</span>
               <span class="plan-price plan-price-premium">
-                <span class="plan-price-current">限時免費</span>
+                <span class="plan-price-current">依審核結果</span>
                 <span class="plan-price-old">$500 / 月</span>
               </span>
             </div>
             <div class="plan-benefits">
-              <div class="plan-benefit"><span class="pbc pbc-premium">✓</span>包含所有精選方案權益</div>
-              <div class="plan-benefit"><span class="pbc pbc-premium">✓</span><strong>置頂顯示</strong>，優先出現在商店列表最上方</div>
-              <div class="plan-benefit"><span class="pbc pbc-premium">✓</span>專屬 <strong>👑 優選推薦</strong> 金色標章</div>
-              <div class="plan-benefit"><span class="pbc pbc-premium">✓</span>搶先觸及每一位瀏覽的里民</div>
+              <div class="plan-benefit"><span class="pbc pbc-premium">•</span>提供最高等級曝光</div>
+              <div class="plan-benefit"><span class="pbc pbc-premium">•</span><strong>優先顯示</strong>於公開頁面重點區塊</div>
+              <div class="plan-benefit"><span class="pbc pbc-premium">•</span>可搭配更完整的店家呈現</div>
+              <div class="plan-benefit"><span class="pbc pbc-premium">•</span>適合重點合作店家</div>
             </div>
           </div>
         </label>
@@ -566,84 +600,84 @@ body.loading-submit { overflow: hidden; }
 
       <div class="plan-trial-note" id="planTrialNote" style="display:none">
         <svg class="icon" style="flex-shrink:0;color:#3B82F6"><use href="#i-info"/></svg>
-        <span>🎉 <strong>試用期間完全免費！</strong> 現在申請即可享有所選方案的完整功能，無需任何費用，後續收費方式將另行公告。</span>
+        <span>提醒：方案內容仍需依實際合作與審核結果確認，送出後可再由管理端調整。</span>
       </div>
 
     </div>
 
-    <!-- 卡片 3：申請商家 -->
+    <!-- ?∠? 3嚗隢?摰?-->
     <div class="card">
-      <div class="section-title"><span class="title-bar"></span>申請商家</div>
+      <div class="section-title"><span class="title-bar"></span>商店資訊</div>
 
       <div class="field-group">
         <label class="field-label">
-          <svg class="icon"><use href="#i-tag"/></svg> 商家類別 <span class="required">*</span>
+          <svg class="icon"><use href="#i-tag"/></svg> 店家類別 <span class="required">*</span>
         </label>
         <select id="f_cate" required>
-          <option value="">請選擇類別</option>
-          <option value="食">食</option>
-          <option value="衣">衣</option>
-          <option value="住">住</option>
-          <option value="行">行</option>
-          <option value="育">育</option>
-          <option value="樂">樂</option>
+          <option value="">請選擇商店類別</option>
+          <option value="美食餐飲">美食餐飲</option>
+          <option value="生活服務">生活服務</option>
+          <option value="零售購物">零售購物</option>
+          <option value="醫療保健">醫療保健</option>
+          <option value="教育藝文">教育藝文</option>
+          <option value="休閒娛樂">休閒娛樂</option>
           <option value="其他">其他</option>
         </select>
-        <div class="error-text">請選擇商家類別</div>
+        <div class="error-text">請選擇商店類別</div>
       </div>
 
       <div class="field-group">
         <label class="field-label">
           <svg class="icon"><use href="#i-clipboard"/></svg> 店家名稱 <span class="required">*</span>
         </label>
-        <input type="text" id="f_title" placeholder="請輸入店家名稱" required>
-        <div class="error-text">請輸入店家名稱</div>
+        <input type="text" id="f_title" placeholder="請填寫店家名稱" required>
+        <div class="error-text">請填寫店家名稱</div>
       </div>
 
       <div class="field-group">
         <label class="field-label">
-          <svg class="icon"><use href="#i-phone"/></svg> 店家電話
+          <svg class="icon"><use href="#i-phone"/></svg> 摨振電話
         </label>
-        <input type="text" inputmode="tel" id="f_store_phone" placeholder="請輸入店家電話（選填）">
+        <input type="text" inputmode="tel" id="f_store_phone" placeholder="選填：店家對外聯絡電話">
       </div>
 
       <div class="field-group">
         <label class="field-label">
-          <svg class="icon"><use href="#i-hash"/></svg> 店家統編
+          <svg class="icon"><use href="#i-hash"/></svg> 摨振蝯梁楊
         </label>
-        <input type="text" id="f_num" placeholder="如有店家統編可提供">
+        <input type="text" id="f_num" placeholder="選填：統一編號">
       </div>
 
       <div class="field-group">
         <label class="field-label">
-          <svg class="icon"><use href="#i-bag"/></svg> 經營項目 / 服務內容 <span class="required">*</span>
+          <svg class="icon"><use href="#i-bag"/></svg> 經營內容 / 商店介紹 <span class="required">*</span>
         </label>
-        <textarea id="f_desc" placeholder="請簡短敘述店家經營項目或服務內容。" rows="4" required></textarea>
-        <div class="error-text">請輸入經營內容</div>
+        <textarea id="f_desc" placeholder="請說明店家主要經營內容與服務項目" rows="4" required></textarea>
+        <div class="error-text">請填寫經營內容</div>
       </div>
 
       <div class="field-group">
         <label class="field-label">
-          <svg class="icon"><use href="#i-file-text"/></svg> 優惠方案 <span class="required">*</span>
+          <svg class="icon"><use href="#i-file-text"/></svg> 優惠內容 <span class="required">*</span>
         </label>
-        <textarea id="f_offer" placeholder="請簡短敘述可提供的服務及優惠方案。" rows="4" required></textarea>
-        <div class="error-text">請輸入優惠方案</div>
+        <textarea id="f_offer" placeholder="請填寫要提供給里民的優惠內容" rows="4" required></textarea>
+        <div class="error-text">請填寫優惠內容</div>
       </div>
 
       <div class="field-group">
         <label class="field-label">
           <svg class="icon"><use href="#i-clock"/></svg> 營業時間 <span class="required">*</span>
         </label>
-        <textarea id="f_clock" placeholder="填寫範例：周一至周五 08:00–12:00、12:30–18:00。" rows="3" required></textarea>
-        <div class="error-text">請輸入營業時間</div>
+        <textarea id="f_clock" placeholder="例如：週一至週五 09:00-18:00，週六 10:00-17:00" rows="3" required></textarea>
+        <div class="error-text">請填寫營業時間</div>
       </div>
 
       <div class="field-group">
         <label class="field-label">
           <svg class="icon"><use href="#i-pin"/></svg> 店家地址 <span class="required">*</span>
         </label>
-        <input type="text" id="f_addr" placeholder="請輸入完整地址" required>
-        <div class="error-text">請輸入完整地址</div>
+        <input type="text" id="f_addr" placeholder="請填寫店家地址" required>
+        <div class="error-text">請填寫店家地址</div>
       </div>
 
       <div class="field-group" style="margin-bottom:0">
@@ -653,12 +687,12 @@ body.loading-submit { overflow: hidden; }
         <input type="url" id="f_map" placeholder="https://maps.app.goo.gl/xxxxxxxxxxxxxxxxxx">
         <div class="field-hint hint-box">
           <svg class="icon"><use href="#i-info"/></svg>
-          打開 Google Map → 搜尋店家 → 分享 → 複製連結 → 貼回來
+          若方便，可附上 Google 地圖連結，幫助我們快速確認位置。
         </div>
       </div>
     </div>
 
-    <!-- 卡片 4：照片附件 -->
+    <!-- ?∠? 4嚗??隞?-->
     <div class="card">
       <div class="section-title"><span class="title-bar"></span>店家照片附件</div>
 
@@ -666,18 +700,21 @@ body.loading-submit { overflow: hidden; }
         <div class="photo-row">
           <div class="photo-upload" id="photo1_area">
             <input type="file" accept="image/*" id="f_photo1" onchange="previewPhoto(this, 'preview1')">
+            <button type="button" class="photo-remove-btn" onclick="clearPhoto(1, event)">移除</button>
             <svg class="icon upload-icon"><use href="#i-camera"/></svg>
             <div class="upload-text">活動或商家照片 1</div>
             <img class="preview" id="preview1">
           </div>
           <div class="photo-upload" id="photo2_area">
             <input type="file" accept="image/*" id="f_photo2" onchange="previewPhoto(this, 'preview2')">
+            <button type="button" class="photo-remove-btn" onclick="clearPhoto(2, event)">移除</button>
             <svg class="icon upload-icon"><use href="#i-camera"/></svg>
             <div class="upload-text">活動或商家照片 2</div>
             <img class="preview" id="preview2">
           </div>
           <div class="photo-upload" id="photo3_area">
             <input type="file" accept="image/*" id="f_photo3" onchange="previewPhoto(this, 'preview3')">
+            <button type="button" class="photo-remove-btn" onclick="clearPhoto(3, event)">移除</button>
             <svg class="icon upload-icon"><use href="#i-camera"/></svg>
             <div class="upload-text">活動或商家照片 3</div>
             <img class="preview" id="preview3">
@@ -692,30 +729,30 @@ body.loading-submit { overflow: hidden; }
 
   </form>
 
-  <!-- 成功畫面 -->
+  <!-- ???恍 -->
   <div class="success-msg" id="successMsg">
     <div class="card">
       <div class="check-wrap">
         <svg class="icon"><use href="#i-check"/></svg>
       </div>
-      <h2>特約商家申請已完成！</h2>
-      <p>我們將儘快審核並公告，感謝您的申請！</p>
-      <button onclick="location.reload()">繼續申請</button>
+      <h2>特約商店申請已送出</h2>
+      <p>里辦公處收到後會進行審核，結果會再通知您。</p>
+      <button onclick="location.reload()">重新填寫</button>
     </div>
   </div>
 </div>
 
-<div class="footer">北屯區和平里 里民小幫手</div>
+<div class="footer">和平里小幫手</div>
 
 <script src="storeconfig.js"></script>
 <script>
-// 記錄頁面開啟時間，用於防機器人驗證
+// 閮??????嚗?潮璈鈭粹?霅?
 window._storeFormTs = Date.now();
 
-// ── 方案選擇邏輯 ──
+// ?? ?寞??豢??摩 ??
 var PLAN_FEATURES = {
-  '精選': ['刊登於特約商店頁面', '顯示 ⭐ 精選商家 藍色標章', '提升里民搜尋能見度'],
-  '優選': ['置頂顯示，出現在商店列表最上方', '顯示 👑 優選推薦 金色標章', '搶先觸及每一位瀏覽的里民'],
+  '精選': ['較高曝光效果', '公開頁面可呈現更完整資訊', '適合希望提升能見度的店家'],
+  '優選': ['最高等級曝光', '可優先顯示於重點區塊', '適合重點合作或主打店家'],
 };
 
 function getSelectedPlan() {
@@ -734,16 +771,16 @@ function onPlanChange() {
 
 function openPlanOverlay() {
   var plan = getSelectedPlan();
-  var emoji = plan === '優選' ? '👑' : '⭐';
-  var cls   = plan === '優選' ? 'premium' : 'std';
+  var emoji = plan === '優選' ? '★' : '◎';
+  var cls = plan === '優選' ? 'premium' : 'std';
   document.getElementById('pocEmoji').textContent = emoji;
-  document.getElementById('pocTitle').textContent = '確認' + plan + '方案';
+  document.getElementById('pocTitle').textContent = '確認 ' + plan + ' 方案';
   var label = document.getElementById('pocPlanLabel');
-  label.textContent = emoji + '  ' + plan + '方案';
+  label.textContent = emoji + ' ' + plan + ' 方案';
   label.className = 'poc-plan-label ' + cls;
   var feats = PLAN_FEATURES[plan] || [];
   document.getElementById('pocFeatures').innerHTML = feats.map(function(f) {
-    return '<div class="poc-feature"><span style="font-size:14px">✅</span>' + f + '</div>';
+    return '<div class="poc-feature"><span style="font-size:14px">•</span>' + f + '</div>';
   }).join('');
   document.getElementById('planOverlay').classList.add('open');
 }
@@ -777,26 +814,44 @@ function resetSubmitActions() {
   btn.disabled = false;
   btn.innerHTML = '<svg class="icon"><use href="#i-send"/></svg> 送出申請';
   confirmBtn.disabled = false;
-  confirmBtn.textContent = '確認方案，送出申請';
+  confirmBtn.textContent = '確認方案並送出申請';
 }
 
-// 照片預覽
 function previewPhoto(input, previewId) {
   var preview = document.getElementById(previewId);
-  var area    = input.closest('.photo-upload');
+  var area = input.closest('.photo-upload');
+  var textEl = area.querySelector('.upload-text');
+  var defaultText = area.getAttribute('data-default-text');
+  if (!defaultText) {
+    defaultText = textEl.textContent;
+    area.setAttribute('data-default-text', defaultText);
+  }
   if (input.files && input.files[0]) {
     var reader = new FileReader();
     reader.onload = function(e) {
       preview.src = e.target.result;
       preview.style.display = 'block';
-      area.querySelector('.upload-icon').style.display = 'none';
-      area.querySelector('.upload-text').textContent = input.files[0].name;
+      textEl.textContent = input.files[0].name;
+      area.classList.add('has-img');
     };
     reader.readAsDataURL(input.files[0]);
   }
 }
 
-// 壓縮圖片（縮小到 1600px 以內，JPEG 80% 品質）
+function clearPhoto(index, event) {
+  if (event) event.preventDefault();
+  if (event) event.stopPropagation();
+  var input = document.getElementById('f_photo' + index);
+  var preview = document.getElementById('preview' + index);
+  var area = document.getElementById('photo' + index + '_area');
+  var defaultText = area.getAttribute('data-default-text') || ('活動或商家照片 ' + index);
+  input.value = '';
+  preview.removeAttribute('src');
+  preview.style.display = 'none';
+  area.querySelector('.upload-text').textContent = defaultText;
+  area.classList.remove('has-img');
+}
+
 function compressImage(file) {
   return new Promise(function(resolve) {
     var reader = new FileReader();
@@ -820,7 +875,6 @@ function compressImage(file) {
   });
 }
 
-// 上傳單張照片（循序，避免並發衝突）
 async function uploadPhoto(fileInput) {
   if (!fileInput.files || !fileInput.files[0]) return '';
   var file = fileInput.files[0];
@@ -845,7 +899,6 @@ async function uploadPhoto(fileInput) {
   }
 }
 
-// 循序上傳三張照片（避免 Apps Script 並發衝突）
 async function uploadAllPhotos(btn) {
   var inputs = [
     document.getElementById('f_photo1'),
@@ -861,8 +914,8 @@ async function uploadAllPhotos(btn) {
   for (var i = 0; i < inputs.length; i++) {
     if (inputs[i].files && inputs[i].files.length > 0) {
       done += 1;
-      btn.innerHTML = '<span class="spinner"></span> 上傳照片 ' + done + '/' + total + '…';
-      setSubmitProgress('正在上傳照片 ' + done + '/' + total + '…', Math.round((done / (total + 1)) * 75), '大圖會需要多幾秒，這是正常的');
+      btn.innerHTML = '<span class="spinner"></span> 上傳照片 ' + done + '/' + total + '...';
+      setSubmitProgress('正在上傳照片 ' + done + '/' + total + '...', Math.round((done / (total + 1)) * 75), '照片會先上傳完成，再送出商店申請資料。');
       results.push(await uploadPhoto(inputs[i]));
     } else {
       results.push('');
@@ -871,21 +924,20 @@ async function uploadAllPhotos(btn) {
   return results;
 }
 
-// 表單驗證
 function validateForm() {
   var valid = true;
   var requiredFields = [
-    { id: 'f_name',  msg: '請輸入姓名' },
-    { id: 'f_phone', msg: '請輸入電話' },
-    { id: 'f_cate',  msg: '請選擇商家類別' },
-    { id: 'f_title', msg: '請輸入店家名稱' },
-    { id: 'f_desc',  msg: '請輸入經營內容' },
-    { id: 'f_offer', msg: '請輸入優惠方案' },
-    { id: 'f_clock', msg: '請輸入營業時間' },
-    { id: 'f_addr',  msg: '請輸入完整地址' },
+    { id: 'f_name',  msg: '請填寫申請人姓名' },
+    { id: 'f_phone', msg: '請填寫申請人電話' },
+    { id: 'f_cate',  msg: '請選擇商店類別' },
+    { id: 'f_title', msg: '請填寫商店名稱' },
+    { id: 'f_desc',  msg: '請填寫經營內容' },
+    { id: 'f_offer', msg: '請填寫優惠內容' },
+    { id: 'f_clock', msg: '請填寫營業時間' },
+    { id: 'f_addr',  msg: '請填寫店家地址' }
   ];
   requiredFields.forEach(function(f) {
-    var el  = document.getElementById(f.id);
+    var el = document.getElementById(f.id);
     var err = el.parentElement.querySelector('.error-text');
     if (!el.value.trim()) {
       el.classList.add('invalid');
@@ -899,7 +951,6 @@ function validateForm() {
   return valid;
 }
 
-// 清除驗證狀態
 document.querySelectorAll('input, textarea, select').forEach(function(el) {
   el.addEventListener('input', function() {
     this.classList.remove('invalid');
@@ -908,41 +959,40 @@ document.querySelectorAll('input, textarea, select').forEach(function(el) {
   });
 });
 
-// 實際送出（不論有無 overlay）
 async function doSubmit() {
   var btn = document.getElementById('submitBtn');
   var confirmBtn = document.getElementById('pocConfirmBtn');
   btn.disabled = true;
   confirmBtn.disabled = true;
-  confirmBtn.textContent = '處理中，請稍候…';
-  btn.innerHTML = '<span class="spinner"></span> 準備上傳…';
-  openSubmitProgress('正在整理申請資料…', 10, '若有照片，系統會先壓縮再上傳');
+  confirmBtn.textContent = '確認送出中...';
+  btn.innerHTML = '<span class="spinner"></span> 準備上傳...';
+  openSubmitProgress('正在整理申請資料…', 10, '若有附上照片，會先完成上傳後再送出。');
 
   try {
     var photoUrls = await uploadAllPhotos(btn);
-    btn.innerHTML = '<span class="spinner"></span> 送出申請中…';
-    setSubmitProgress('正在送出申請資料…', 88, '資料送出後會自動進入完成畫面');
+    btn.innerHTML = '<span class="spinner"></span> 送出申請中...';
+    setSubmitProgress('正在送出申請資料…', 88, '申請送出完成後，會自動顯示成功畫面。');
 
     var payload = {
-      action:      'submitStore',
-      website:     document.getElementById('f_website').value,
-      formTs:      window._storeFormTs || 0,
-      name:        document.getElementById('f_name').value.trim(),
-      phone:       document.getElementById('f_phone').value.trim(),
-      lineId:      document.getElementById('f_line').value.trim(),
-      cate:        document.getElementById('f_cate').value,
-      title:       document.getElementById('f_title').value.trim(),
-      storephone:  document.getElementById('f_store_phone').value.trim(),
-      taxid:       document.getElementById('f_num').value.trim(),
-      desc:        document.getElementById('f_desc').value.trim(),
-      offer:       document.getElementById('f_offer').value.trim(),
-      opentime:    document.getElementById('f_clock').value.trim(),
-      addr:        document.getElementById('f_addr').value.trim(),
-      map:         document.getElementById('f_map').value.trim(),
-      photo1:      photoUrls[0],
-      photo2:      photoUrls[1],
-      photo3:      photoUrls[2],
-      planType:    getSelectedPlan(),
+      action: 'submitStore',
+      website: document.getElementById('f_website').value,
+      formTs: window._storeFormTs || 0,
+      name: document.getElementById('f_name').value.trim(),
+      phone: document.getElementById('f_phone').value.trim(),
+      lineId: document.getElementById('f_line').value.trim(),
+      cate: document.getElementById('f_cate').value,
+      title: document.getElementById('f_title').value.trim(),
+      storephone: document.getElementById('f_store_phone').value.trim(),
+      taxid: document.getElementById('f_num').value.trim(),
+      desc: document.getElementById('f_desc').value.trim(),
+      offer: document.getElementById('f_offer').value.trim(),
+      opentime: document.getElementById('f_clock').value.trim(),
+      addr: document.getElementById('f_addr').value.trim(),
+      map: document.getElementById('f_map').value.trim(),
+      photo1: photoUrls[0],
+      photo2: photoUrls[1],
+      photo3: photoUrls[2],
+      planType: getSelectedPlan()
     };
 
     var res = await fetch(CONFIG.SCRIPT_URL, {
@@ -953,9 +1003,9 @@ async function doSubmit() {
 
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var result = await res.json();
-    if (!result.success) throw new Error(result.error || '送出失敗');
+    if (!result.success) throw new Error(result.error || '送出申請失敗');
 
-    setSubmitProgress('申請已送出，正在完成畫面…', 100, '完成後會自動顯示成功訊息');
+    setSubmitProgress('申請已成功送出', 100, '系統已完成送件，正在切換到成功畫面。');
     closePlanOverlay();
     closeSubmitProgress();
     document.getElementById('reportForm').style.display = 'none';
@@ -965,15 +1015,13 @@ async function doSubmit() {
   } catch (err) {
     closePlanOverlay();
     closeSubmitProgress();
-    alert('送出失敗，請稍後再試。\n錯誤：' + err.message);
+    alert('送出失敗，請稍後再試。\n' + err.message);
     resetSubmitActions();
   }
 }
 
-// overlay 確認按鈕觸發真正送出
 document.getElementById('pocConfirmBtn').addEventListener('click', doSubmit);
 
-// 送出表單：免費直送、精選/優選先開 overlay
 document.getElementById('reportForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 

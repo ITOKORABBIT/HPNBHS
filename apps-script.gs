@@ -773,6 +773,9 @@ function handleUpdateStore(data) {
   sheet.getRange(rowIndex, 19).setValue(data.note     || '');
   sheet.getRange(rowIndex, 20).setValue(now);
   sheet.getRange(rowIndex, 21).setValue(data.reviewer || '');
+  if (data.photo1 !== undefined) sheet.getRange(rowIndex, 16).setValue(data.photo1 || '');
+  if (data.photo2 !== undefined) sheet.getRange(rowIndex, 17).setValue(data.photo2 || '');
+  if (data.photo3 !== undefined) sheet.getRange(rowIndex, 18).setValue(data.photo3 || '');
 
   if (data.status === '已公開') {
     sheet.getRange(rowIndex, 22).setValue(data.pubName   || '');
