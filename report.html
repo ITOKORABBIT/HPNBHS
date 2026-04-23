@@ -303,31 +303,36 @@ select {
   border-radius: 10px;
   display: none;
 }
-.photo-upload .photo-remove {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 999px;
-  background: rgba(44, 62, 54, 0.88);
-  color: #fff;
+.photo-upload.has-img .upload-icon,
+.photo-upload.has-img .upload-text {
   display: none;
+}
+.photo-remove-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  min-width: 54px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid rgba(91, 155, 123, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--green-700);
+  font-size: 12px;
+  display: none;
+  transition: all 0.2s ease;
+}
+.photo-remove-btn:hover {
+  background: #fff;
+  border-color: rgba(91, 155, 123, 0.36);
+  color: var(--green-800);
+  transform: translateY(-1px);
+}
+.photo-upload.has-img .photo-remove-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  z-index: 3;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
-}
-.photo-upload .photo-remove .icon {
-  width: 14px;
-  height: 14px;
-  margin: 0;
-  color: currentColor;
-}
-.photo-upload.has-photo .photo-remove {
-  display: inline-flex;
 }
 
 /* 照片群組橫排 */
@@ -677,32 +682,26 @@ body.loading-submit { overflow: hidden; }
 
       <div class="field-group">
         <div class="photo-row">
-          <div class="photo-upload" id="photo1_area">
+          <div class="photo-upload" id="photo1_area" data-default-text="照片 1">
             <input type="file" accept="image/*" id="f_photo1" onchange="previewPhoto(this, 'preview1')">
+            <button type="button" class="photo-remove-btn" onclick="clearPhoto(1, event)">移除</button>
             <svg class="icon upload-icon"><use href="#i-camera"/></svg>
             <div class="upload-text">照片 1</div>
             <img class="preview" id="preview1">
-            <button type="button" class="photo-remove" aria-label="移除照片 1" onclick="removePhoto(event, 'f_photo1', 'preview1', '照片 1')">
-              <svg class="icon" aria-hidden="true"><use href="#i-x"/></svg>
-            </button>
           </div>
-          <div class="photo-upload" id="photo2_area">
+          <div class="photo-upload" id="photo2_area" data-default-text="照片 2">
             <input type="file" accept="image/*" id="f_photo2" onchange="previewPhoto(this, 'preview2')">
+            <button type="button" class="photo-remove-btn" onclick="clearPhoto(2, event)">移除</button>
             <svg class="icon upload-icon"><use href="#i-camera"/></svg>
             <div class="upload-text">照片 2</div>
             <img class="preview" id="preview2">
-            <button type="button" class="photo-remove" aria-label="移除照片 2" onclick="removePhoto(event, 'f_photo2', 'preview2', '照片 2')">
-              <svg class="icon" aria-hidden="true"><use href="#i-x"/></svg>
-            </button>
           </div>
-          <div class="photo-upload" id="photo3_area">
+          <div class="photo-upload" id="photo3_area" data-default-text="照片 3">
             <input type="file" accept="image/*" id="f_photo3" onchange="previewPhoto(this, 'preview3')">
+            <button type="button" class="photo-remove-btn" onclick="clearPhoto(3, event)">移除</button>
             <svg class="icon upload-icon"><use href="#i-camera"/></svg>
             <div class="upload-text">照片 3</div>
             <img class="preview" id="preview3">
-            <button type="button" class="photo-remove" aria-label="移除照片 3" onclick="removePhoto(event, 'f_photo3', 'preview3', '照片 3')">
-              <svg class="icon" aria-hidden="true"><use href="#i-x"/></svg>
-            </button>
           </div>
         </div>
       </div>
@@ -791,28 +790,25 @@ function previewPhoto(input, previewId) {
     reader.onload = function(e) {
       preview.src = e.target.result;
       preview.style.display = 'block';
-      area.querySelector('.upload-icon').style.display = 'none';
       area.querySelector('.upload-text').textContent = input.files[0].name;
-      area.classList.add('has-photo');
+      area.classList.add('has-img');
     };
     reader.readAsDataURL(input.files[0]);
   }
 }
 
-function removePhoto(event, inputId, previewId, defaultText) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-  var input = document.getElementById(inputId);
-  var preview = document.getElementById(previewId);
-  var area = input.closest('.photo-upload');
+function clearPhoto(index, event) {
+  if (event) event.preventDefault();
+  if (event) event.stopPropagation();
+  var input = document.getElementById('f_photo' + index);
+  var preview = document.getElementById('preview' + index);
+  var area = document.getElementById('photo' + index + '_area');
+  var defaultText = area.getAttribute('data-default-text') || ('照片 ' + index);
   input.value = '';
   preview.removeAttribute('src');
   preview.style.display = 'none';
-  area.querySelector('.upload-icon').style.display = '';
   area.querySelector('.upload-text').textContent = defaultText;
-  area.classList.remove('has-photo');
+  area.classList.remove('has-img');
 }
 
 // 壓縮圖片（縮小到 1600px 以內，JPEG 80% 品質）

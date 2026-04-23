@@ -177,6 +177,9 @@ body{
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
+.photo-item{
+  position: relative;
+}
 .photo-grid img{
   width: 100%; aspect-ratio: 4/3;
   object-fit: cover;
@@ -186,6 +189,37 @@ body{
   transition: transform .18s;
 }
 .photo-grid img:hover{ transform: scale(1.03); }
+.photo-actions{
+  position:absolute;
+  top:10px;
+  right:10px;
+  display:flex;
+  gap:8px;
+}
+.photo-action-btn{
+  min-width:54px;
+  height:30px;
+  padding:0 12px;
+  border:1px solid rgba(75, 122, 82, 0.2);
+  border-radius:999px;
+  background:rgba(255,255,255,.94);
+  color:var(--primary-dark);
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.2px;
+  box-shadow:0 6px 14px rgba(30,22,14,.08);
+  backdrop-filter:blur(6px);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .2s ease;
+}
+.photo-action-btn:hover{
+  background:#fff;
+  border-color:rgba(75, 122, 82, .34);
+  transform:translateY(-1px);
+}
 
 /* ────────── No reply placeholder ────────── */
 .no-reply{
@@ -397,6 +431,37 @@ body{
   transform:translateY(-1px);
 }
 .photo-slot.has-img .slot-remove{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.slot-download{
+  position:absolute;
+  top:10px;
+  left:10px;
+  z-index:3;
+  min-width:54px;
+  height:30px;
+  padding:0 12px;
+  border:1px solid rgba(75, 122, 82, 0.2);
+  border-radius:999px;
+  background:rgba(255,255,255,.94);
+  color:var(--primary-dark);
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.2px;
+  box-shadow:0 6px 14px rgba(30,22,14,.08);
+  backdrop-filter:blur(6px);
+  cursor:pointer;
+  display:none;
+  transition:all .2s ease;
+}
+.slot-download:hover{
+  background:#fff;
+  border-color:rgba(75, 122, 82, .34);
+  transform:translateY(-1px);
+}
+.photo-slot.has-img .slot-download{
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -743,7 +808,7 @@ function renderCase(){
     html += '<div class="photo-grid-wrap">';
     html += '<div style="font-size:12px;color:var(--lbl);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">通報照片</div>';
     html += '<div class="photo-grid">';
-    photos.forEach(function(p,i){ html += '<img src="' + esc(p) + '" alt="照片'+(i+1)+'" loading="lazy" onclick="openLb(\'' + esc(p) + '\')">'; });
+    photos.forEach(function(p,i){ html += renderPhotoCard(p, '照片' + (i+1)); });
     html += '</div></div>';
   }
   html += '</div>';
@@ -771,7 +836,7 @@ function renderCase(){
       html += '<div class="photo-grid-wrap">';
       html += '<div style="font-size:12px;color:var(--lbl);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">處理照片</div>';
       html += '<div class="photo-grid">';
-      repPhotos.forEach(function(p,i){ html += '<img src="' + esc(p) + '" alt="處理照片'+(i+1)+'" loading="lazy" onclick="openLb(\'' + esc(p) + '\')">'; });
+      repPhotos.forEach(function(p,i){ html += renderPhotoCard(p, '處理照片' + (i+1)); });
       html += '</div></div>';
     }
   } else {
@@ -871,6 +936,7 @@ function openModal(){
     var existing = n === 1 ? d.repPhoto1 : n === 2 ? d.repPhoto2 : d.repPhoto3;
     html += '<div class="photo-slot' + (existing ? ' has-img' : '') + '" id="slot'+n+'">';
     html += '<input type="file" accept="image/*" id="m_photo'+n+'" onchange="handlePhotoChange(this,'+n+')">';
+    html += '<button type="button" class="slot-download" onclick="downloadReplyPhoto('+n+', event)">下載</button>';
     html += '<button type="button" class="slot-remove" onclick="clearReplyPhoto('+n+', event)">移除</button>';
     html += '<svg class="slot-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
     html += '<div class="slot-label">照片 ' + n + '</div>';
@@ -983,6 +1049,41 @@ function handlePhotoChange(input, n){
     slot.classList.add('has-img');
   };
   reader.readAsDataURL(input.files[0]);
+}
+
+function renderPhotoCard(url, label){
+  var safeUrl = esc(url);
+  var safeLabel = esc(label);
+  return '<div class="photo-item">'
+    + '<img src="' + safeUrl + '" alt="' + safeLabel + '" loading="lazy" onclick="openLb(\'' + safeUrl + '\')">'
+    + '<div class="photo-actions">'
+    + '<button type="button" class="photo-action-btn" onclick="downloadPhoto(\'' + safeUrl + '\', \'' + safeLabel + '\', event)">下載</button>'
+    + '</div></div>';
+}
+
+function downloadPhoto(url, label, event){
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  if (!url) return;
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = String(label || 'photo').replace(/[\\/:*?"<>|]+/g, '_') + '.jpg';
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function downloadReplyPhoto(n, event){
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  var thumb = document.getElementById('thumb' + n);
+  if (!thumb || !thumb.getAttribute('src')) return;
+  downloadPhoto(thumb.getAttribute('src'), 'reply-photo-' + n, null);
 }
 
 function clearReplyPhoto(n, event){
