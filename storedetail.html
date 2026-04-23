@@ -103,11 +103,43 @@ body{ font-family: var(--font); background: var(--bg); color: var(--val); font-s
 /* ── Photo grid ── */
 .photo-grid-wrap{ padding: 12px 18px 14px; }
 .photo-grid{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.photo-item{ position: relative; }
 .photo-grid img{
   width: 100%; aspect-ratio: 4/3; object-fit: cover;
   border-radius: 7px; cursor: pointer; border: 1px solid var(--border); transition: transform .18s;
 }
 .photo-grid img:hover{ transform: scale(1.03); }
+.photo-actions{
+  position:absolute;
+  top:10px;
+  right:10px;
+  display:flex;
+  gap:8px;
+}
+.photo-action-btn{
+  min-width:54px;
+  height:30px;
+  padding:0 12px;
+  border:1px solid rgba(59,130,246,.2);
+  border-radius:999px;
+  background:rgba(255,255,255,.94);
+  color:var(--primary-dark);
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.2px;
+  box-shadow:0 6px 14px rgba(30,22,14,.08);
+  backdrop-filter:blur(6px);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .2s ease;
+}
+.photo-action-btn:hover{
+  background:#fff;
+  border-color:rgba(59,130,246,.34);
+  transform:translateY(-1px);
+}
 
 /* ── Action bar ── */
 .action-bar{
@@ -174,6 +206,62 @@ body{ font-family: var(--font); background: var(--bg); color: var(--val); font-s
 .field input[readonly]{ background: var(--bg); color: var(--lbl); cursor: default; }
 .field textarea{ resize: vertical; min-height: 90px; line-height: 1.6; }
 .field select{ cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%238C7B6A' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+.photo-upload-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.photo-slot{
+  position:relative;
+  min-height:120px;
+  border:1.5px dashed var(--border);
+  border-radius:10px;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:14px 10px;
+}
+.photo-slot input[type="file"]{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+.photo-slot .slot-icon{ color:var(--muted); margin-bottom:6px; }
+.photo-slot .slot-label{ font-size:12px; color:var(--muted); }
+.photo-slot img.thumb{ display:none; max-width:100%; max-height:150px; border-radius:8px; }
+.photo-slot.has-img .slot-icon,
+.photo-slot.has-img .slot-label{ display:none; }
+.photo-slot.has-img img.thumb{ display:block; }
+.slot-remove,
+.slot-download{
+  position:absolute;
+  top:10px;
+  z-index:3;
+  min-width:54px;
+  height:30px;
+  padding:0 12px;
+  border:1px solid rgba(59,130,246,.2);
+  border-radius:999px;
+  background:rgba(255,255,255,.94);
+  color:var(--primary-dark);
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.2px;
+  box-shadow:0 6px 14px rgba(30,22,14,.08);
+  backdrop-filter:blur(6px);
+  cursor:pointer;
+  display:none;
+  transition:all .2s ease;
+}
+.slot-remove{ right:10px; }
+.slot-download{ left:10px; }
+.slot-remove:hover,
+.slot-download:hover{
+  background:#fff;
+  border-color:rgba(59,130,246,.34);
+  transform:translateY(-1px);
+}
+.photo-slot.has-img .slot-remove,
+.photo-slot.has-img .slot-download{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
 
 /* ── Spinner & Lightbox & Success ── */
 .spinner{ display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; flex-shrink: 0; }
@@ -398,7 +486,7 @@ function renderStore() {
     html += '<div class="card">';
     html += '<div class="card-header"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> 店家照片</div>';
     html += '<div class="photo-grid-wrap"><div class="photo-grid">';
-    photos.forEach(function(p, i){ html += '<img src="' + esc(p) + '" alt="照片'+(i+1)+'" loading="lazy" onclick="openLb(\'' + esc(p) + '\')">'; });
+    photos.forEach(function(p, i){ html += renderPhotoCard(p, '店家照片' + (i+1)); });
     html += '</div></div></div>';
   }
 
@@ -412,6 +500,7 @@ var CATE_OPTIONS = ['食','衣','住','行','育','樂','其他'];
 function openModal() {
   if (!storeData) return;
   var d = storeData;
+  storePhotoRemoved = [false, false, false];
 
   var html = '';
 
@@ -448,6 +537,21 @@ function openModal() {
   html += '<div class="field"><div class="field-label">審核人</div>';
   html += '<input type="text" id="m_reviewer" value="' + esc(gName) + '" readonly>';
   html += '<div style="font-size:12px;color:var(--primary);margin-top:4px">✓ 已登入為 ' + esc(gName) + '</div></div>';
+
+  html += '<div class="field"><div class="field-label">商店照片</div>';
+  html += '<div class="photo-upload-row">';
+  [1,2,3].forEach(function(n){
+    var existing = n === 1 ? d.photo1 : n === 2 ? d.photo2 : d.photo3;
+    html += '<div class="photo-slot' + (existing ? ' has-img' : '') + '" id="slot'+n+'">';
+    html += '<input type="file" accept="image/*" id="m_photo'+n+'" onchange="handleStorePhotoChange(this,'+n+')">';
+    html += '<button type="button" class="slot-download" onclick="downloadStorePhoto('+n+', event)">下載</button>';
+    html += '<button type="button" class="slot-remove" onclick="clearStorePhoto('+n+', event)">移除</button>';
+    html += '<svg class="slot-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+    html += '<div class="slot-label">照片 ' + n + '</div>';
+    html += '<img class="thumb" id="thumb'+n+'" src="' + (existing ? esc(existing) : '') + '" alt="">';
+    html += '</div>';
+  });
+  html += '</div></div>';
 
   // ── 公開資訊區塊 ──
   var pubVisible = (d.status === '已公開') ? '' : 'display:none';
@@ -520,6 +624,114 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 
+var storePhotoRemoved = [false, false, false];
+
+function renderPhotoCard(url, label){
+  var safeUrl = esc(url);
+  var safeLabel = esc(label);
+  return '<div class="photo-item">'
+    + '<img src="' + safeUrl + '" alt="' + safeLabel + '" loading="lazy" onclick="openLb(\'' + safeUrl + '\')">'
+    + '<div class="photo-actions">'
+    + '<button type="button" class="photo-action-btn" onclick="downloadPhoto(\'' + safeUrl + '\', \'' + safeLabel + '\', event)">下載</button>'
+    + '</div></div>';
+}
+
+function downloadPhoto(url, label, event){
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  if (!url) return;
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = String(label || 'photo').replace(/[\\/:*?"<>|]+/g, '_') + '.jpg';
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function handleStorePhotoChange(input, n){
+  if (!input.files || !input.files[0]) return;
+  storePhotoRemoved[n - 1] = false;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var slot = document.getElementById('slot' + n);
+    var thumb = document.getElementById('thumb' + n);
+    thumb.src = e.target.result;
+    slot.classList.add('has-img');
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function clearStorePhoto(n, event){
+  if (event) event.preventDefault();
+  if (event) event.stopPropagation();
+  var slot = document.getElementById('slot' + n);
+  var input = document.getElementById('m_photo' + n);
+  var thumb = document.getElementById('thumb' + n);
+  if (input) input.value = '';
+  if (thumb) thumb.removeAttribute('src');
+  if (slot) slot.classList.remove('has-img');
+  storePhotoRemoved[n - 1] = true;
+}
+
+function downloadStorePhoto(n, event){
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  var thumb = document.getElementById('thumb' + n);
+  if (!thumb || !thumb.getAttribute('src')) return;
+  downloadPhoto(thumb.getAttribute('src'), 'store-photo-' + n, null);
+}
+
+function compressStoreImage(file){
+  return new Promise(function(resolve){
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var canvas = document.createElement('canvas');
+        var max = 1600, w = img.width, h = img.height;
+        if (w > max || h > max){
+          if (w > h){ h = Math.round(h * max / w); w = max; }
+          else { w = Math.round(w * max / h); h = max; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadStorePhotoForAdmin(fileInput){
+  if (!fileInput || !fileInput.files || !fileInput.files[0]) return '';
+  var file = fileInput.files[0];
+  try {
+    var base64 = await compressStoreImage(file);
+    var sess = getSession();
+    var res = await fetch(CONFIG.SCRIPT_URL, {
+      method: 'POST', redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'uploadAdminPhoto',
+        sessionToken: sess ? sess.sessionToken : '',
+        base64: base64,
+        mimeType: 'image/jpeg',
+        fileName: 'store_' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_')
+      })
+    });
+    var json = JSON.parse(await res.text());
+    return (json.success && json.url) ? json.url : '';
+  } catch (e) {
+    return '';
+  }
+}
+
 // ── SUBMIT ──
 async function submitReview() {
   var status = document.getElementById('m_status').value;
@@ -538,6 +750,14 @@ async function submitReview() {
     var sess = getSession();
     function gv(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; }
     var pinOrderEl = document.getElementById('m_pinOrder');
+    var currentPhotos = [storeData.photo1 || '', storeData.photo2 || '', storeData.photo3 || ''];
+    var photoInputs = [1,2,3].map(function(n){ return document.getElementById('m_photo' + n); });
+    var nextPhotos = [];
+    for (var i = 0; i < photoInputs.length; i++) {
+      if (photoInputs[i] && photoInputs[i].files && photoInputs[i].files[0]) nextPhotos.push(await uploadStorePhotoForAdmin(photoInputs[i]));
+      else if (storePhotoRemoved[i]) nextPhotos.push('');
+      else nextPhotos.push(currentPhotos[i] || '');
+    }
     var payload = {
       action: 'updateStore',
       sessionToken: sess ? sess.sessionToken : '',
@@ -547,6 +767,9 @@ async function submitReview() {
       reviewer: gv('m_reviewer'),
       planType: gv('m_planType') || '免費',
       pinOrder: pinOrderEl ? parseInt(pinOrderEl.value, 10) || 0 : 0,
+      photo1: nextPhotos[0],
+      photo2: nextPhotos[1],
+      photo3: nextPhotos[2],
       pubName:       gv('m_pubName'),
       pubCate:       gv('m_pubCate'),
       pubStoreNum:   gv('m_pubStoreNum'),
