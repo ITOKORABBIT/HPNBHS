@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>案件通報 - 和平里小幫手</title>
+<title>和平里案件通報 - 北屯區和平里 里民小幫手</title>
 <link rel="icon" type="image/png" href="./web_logo.png">
 <link rel="shortcut icon" href="./web_logo.png">
 <link rel="apple-touch-icon" href="./web_logo.png">
@@ -49,7 +49,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* SVG icon ?璅?? */
+/* SVG icon 通用樣式 */
 .icon {
   width: 18px;
   height: 18px;
@@ -61,7 +61,7 @@ body {
   flex-shrink: 0;
 }
 
-/* ?璅?? */
+/* 頂部標題區 */
 .header {
   background: linear-gradient(135deg, #9FCFB3 0%, #7BB596 55%, #5B9B7B 100%);
   padding: 44px 24px 56px;
@@ -116,7 +116,7 @@ body {
   position: relative;
 }
 
-/* 銵典摰孵 */
+/* 表單容器 */
 .form-container {
   max-width: 640px;
   margin: -32px auto 40px;
@@ -125,7 +125,7 @@ body {
   z-index: 1;
 }
 
-/* ?∠? */
+/* 卡片 */
 .card {
   background: #ffffff;
   border-radius: 18px;
@@ -142,7 +142,7 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ?畾菜?憿?*/
+/* 區段標題 */
 .section-title {
   font-size: 17px;
   font-weight: 700;
@@ -162,7 +162,7 @@ body {
   flex-shrink: 0;
 }
 
-/* 甈?蝢斤? */
+/* 欄位群組 */
 .field-group {
   margin-bottom: 20px;
 }
@@ -186,7 +186,7 @@ body {
   font-weight: 700;
 }
 
-/* 頛詨獢??*/
+/* 輸入框共用 */
 input[type="text"],
 input[type="tel"],
 input[type="url"],
@@ -229,7 +229,7 @@ select {
   padding-right: 42px;
 }
 
-/* ?內?? */
+/* 提示文字 */
 .field-hint {
   font-size: 12px;
   color: var(--ink-500);
@@ -257,7 +257,7 @@ select {
   color: var(--ink-300);
 }
 
-/* ?抒?銝? */
+/* 照片上傳區 */
 .photo-upload {
   border: 2px dashed var(--ink-200);
   border-radius: 14px;
@@ -303,51 +303,15 @@ select {
   border-radius: 10px;
   display: none;
 }
-.photo-upload.has-img .upload-icon,
-.photo-upload.has-img .upload-text {
-  display: none;
-}
-.photo-remove-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
-  min-width: 54px;
-  height: 30px;
-  padding: 0 12px;
-  border: 1px solid rgba(91, 155, 123, 0.22);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--green-700);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  box-shadow: 0 6px 14px rgba(45, 82, 64, 0.08);
-  backdrop-filter: blur(6px);
-  cursor: pointer;
-  display: none;
-  transition: all 0.2s ease;
-}
-.photo-remove-btn:hover {
-  background: #fff;
-  border-color: rgba(91, 155, 123, 0.36);
-  color: var(--green-800);
-  transform: translateY(-1px);
-}
-.photo-upload.has-img .photo-remove-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
 
-/* ?抒?蝢斤?璈急? */
+/* 照片群組橫排 */
 .photo-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
 
-/* ??? */
+/* 送出按鈕 */
 .submit-btn {
   width: 100%;
   padding: 16px 24px;
@@ -386,7 +350,7 @@ select {
   box-shadow: none;
 }
 
-/* ??閮 */
+/* 成功訊息 */
 .success-msg {
   display: none;
   text-align: center;
@@ -460,7 +424,7 @@ select {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ?航炊閮 */
+/* 錯誤訊息 */
 .error-text {
   color: var(--warn);
   font-size: 12px;
@@ -473,7 +437,7 @@ input.invalid, textarea.invalid, select.invalid {
   background: var(--warn-bg);
 }
 
-/* Toast ?航炊?內 */
+/* Toast 錯誤提示 */
 .toast-error {
   position: fixed;
   bottom: 24px; left: 50%;
@@ -498,7 +462,7 @@ input.invalid, textarea.invalid, select.invalid {
   transform: translateX(-50%) translateY(0);
 }
 
-/* ??脣漲 Overlay */
+/* 送出進度 Overlay */
 .submit-progress-overlay {
   position: fixed; inset: 0; z-index: 650;
   background: rgba(15,30,50,.56);
@@ -590,13 +554,13 @@ body.loading-submit { overflow: hidden; }
 <div class="header">
   <svg class="header-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-leaf"/></svg>
   <h1>和平里案件通報</h1>
-  <div class="subtitle">請留下案件資訊，我們會盡快協助處理。</div>
+  <div class="subtitle">有問題，隨時報，讓社區更美好</div>
 </div>
 
 <div class="form-container">
   <form id="reportForm" novalidate>
 
-    <!-- ?∠? 1嚗鈭箄?閮?-->
+    <!-- 卡片 1：通報人資訊 -->
     <div class="card">
       <div class="section-title"><span class="title-bar"></span>通報人資訊</div>
 
@@ -604,69 +568,69 @@ body.loading-submit { overflow: hidden; }
         <label class="field-label">
           <svg class="icon"><use href="#i-user"/></svg> 姓名 <span class="required">*</span>
         </label>
-        <input type="text" id="f_name" placeholder="請填寫姓名" required>
-        <div class="error-text">請填寫姓名</div>
+        <input type="text" id="f_name" placeholder="真實姓名" required>
+        <div class="error-text">請輸入姓名</div>
       </div>
 
       <div class="field-group">
         <label class="field-label">
           <svg class="icon"><use href="#i-phone"/></svg> 電話 <span class="required">*</span>
         </label>
-        <input type="tel" id="f_phone" placeholder="請填寫可聯絡的電話" required autocomplete="tel">
-        <div class="error-text">請填寫電話</div>
+        <input type="tel" id="f_phone" placeholder="務必留下手機或住家電話以利聯絡" required autocomplete="tel">
+        <div class="error-text">請輸入電話</div>
       </div>
 
       <div class="field-group" style="margin-bottom:0">
         <label class="field-label">
           <svg class="icon"><use href="#i-message"/></svg> Line ID
         </label>
-        <input type="text" id="f_line" placeholder="選填：方便聯繫的 LINE ID">
+        <input type="text" id="f_line" placeholder="請留下 LINE ID 以利聯絡">
       </div>
     </div>
 
-    <!-- ?∠? 2嚗?批捆 -->
+    <!-- 卡片 2：通報內容 -->
     <div class="card">
-      <div class="section-title"><span class="title-bar"></span>案件內容</div>
+      <div class="section-title"><span class="title-bar"></span>通報內容</div>
 
       <div class="field-group">
         <label class="field-label">
-          <svg class="icon"><use href="#i-tag"/></svg> 案件類別 <span class="required">*</span>
+          <svg class="icon"><use href="#i-tag"/></svg> 通報類別 <span class="required">*</span>
         </label>
-<select id="f_cate" required>
+        <select id="f_cate" required>
           <option value="">請選擇類別</option>
-          <option value="環境">環境</option>
-          <option value="交通">交通</option>
-          <option value="治安">治安</option>
           <option value="生活">生活</option>
           <option value="校園">校園</option>
+          <option value="交通">交通</option>
+          <option value="環境">環境</option>
+          <option value="治安">治安</option>
           <option value="修繕">修繕</option>
           <option value="其他">其他</option>
         </select>
-        <div class="error-text">請選擇案件類別</div>
+        <div class="error-text">請選擇類別</div>
       </div>
 
       <div class="field-group">
         <label class="field-label">
-          <svg class="icon"><use href="#i-clipboard"/></svg> 標題 <span class="required">*</span>
+          <svg class="icon"><use href="#i-clipboard"/></svg> 主旨 <span class="required">*</span>
         </label>
-        <textarea id="f_title" placeholder="請用一句話簡短說明案件內容" rows="2" required></textarea>
-        <div class="error-text">請填寫案件標題</div>
+        <textarea id="f_title" placeholder="請簡單說明主題(30字內)" rows="2" required></textarea>
+        <div class="error-text">請輸入主旨</div>
       </div>
 
       <div class="field-group">
         <label class="field-label">
-          <svg class="icon"><use href="#i-file-text"/></svg> 詳細說明 <span class="required">*</span>
+          <svg class="icon"><use href="#i-file-text"/></svg> 原始描述 <span class="required">*</span>
         </label>
-        <textarea id="f_desc" placeholder="請描述發生地點、現場狀況，以及希望協助處理的內容" rows="4" required></textarea>
-        <div class="error-text">請填寫案件說明</div>
+        <textarea id="f_desc" placeholder="請簡短敘述問題與建議(時、事、人、地、物)。" rows="4" required></textarea>
+        <div class="error-text">請輸入描述</div>
       </div>
 
       <div class="field-group">
         <label class="field-label">
-          <svg class="icon"><use href="#i-pin"/></svg> 案件地點 <span class="required">*</span>
+          <svg class="icon"><use href="#i-pin"/></svg> 發生地點 <span class="required">*</span>
         </label>
-        <input type="text" id="f_addr" placeholder="請填寫發生地點或地址" required>
-        <div class="error-text">請填寫案件地點</div>
+        <input type="text" id="f_addr" placeholder="完整地址" required>
+        <div class="error-text">請輸入地點</div>
       </div>
 
       <div class="field-group" style="margin-bottom:0">
@@ -676,12 +640,12 @@ body.loading-submit { overflow: hidden; }
         <input type="url" id="f_map" placeholder="https://maps.app.goo.gl/xxxxxxxxxxxxxxxxxx">
         <div class="field-hint hint-box">
           <svg class="icon"><use href="#i-info"/></svg>
-          若方便，可附上 Google 地圖連結，協助我們更快確認位置。
+          打開 Google Map → 長按位置 → 分享 → 複製連結 → 貼回來
         </div>
       </div>
     </div>
 
-    <!-- ?∠? 3嚗?隞嗉?? -->
+    <!-- 卡片 3：附件與送出 -->
     <div class="card">
       <div class="section-title"><span class="title-bar"></span>照片附件</div>
 
@@ -689,21 +653,18 @@ body.loading-submit { overflow: hidden; }
         <div class="photo-row">
           <div class="photo-upload" id="photo1_area">
             <input type="file" accept="image/*" id="f_photo1" onchange="previewPhoto(this, 'preview1')">
-            <button type="button" class="photo-remove-btn" onclick="clearPhoto(1, event)">移除</button>
             <svg class="icon upload-icon"><use href="#i-camera"/></svg>
             <div class="upload-text">照片 1</div>
             <img class="preview" id="preview1">
           </div>
           <div class="photo-upload" id="photo2_area">
             <input type="file" accept="image/*" id="f_photo2" onchange="previewPhoto(this, 'preview2')">
-            <button type="button" class="photo-remove-btn" onclick="clearPhoto(2, event)">移除</button>
             <svg class="icon upload-icon"><use href="#i-camera"/></svg>
             <div class="upload-text">照片 2</div>
             <img class="preview" id="preview2">
           </div>
           <div class="photo-upload" id="photo3_area">
             <input type="file" accept="image/*" id="f_photo3" onchange="previewPhoto(this, 'preview3')">
-            <button type="button" class="photo-remove-btn" onclick="clearPhoto(3, event)">移除</button>
             <svg class="icon upload-icon"><use href="#i-camera"/></svg>
             <div class="upload-text">照片 3</div>
             <img class="preview" id="preview3">
@@ -713,9 +674,9 @@ body.loading-submit { overflow: hidden; }
 
       <div class="field-group" style="margin-bottom:0">
         <label class="field-label">
-          <svg class="icon"><use href="#i-hash"/></svg> 1999 案件編號
+          <svg class="icon"><use href="#i-hash"/></svg> 1999 案號
         </label>
-        <input type="text" id="f_1999" placeholder="選填：若已通報 1999，可填入案件編號">
+        <input type="text" id="f_1999" placeholder="如有 1999 案號可加快處理進度">
       </div>
 
       <button type="submit" class="submit-btn" id="submitBtn" aria-label="送出通報">
@@ -729,7 +690,7 @@ body.loading-submit { overflow: hidden; }
     <div class="submit-progress-card">
       <div class="submit-progress-spinner"></div>
       <div class="submit-progress-title">正在送出案件</div>
-      <div class="submit-progress-desc">若有附上照片，系統會先整理圖片後再送出，通常約需 10 到 30 秒。</div>
+      <div class="submit-progress-desc">照片需要先整理再送出，過程可能需要 10 到 30 秒，請先不要離開頁面。</div>
       <div class="submit-progress-step" id="submitProgressStep">準備處理資料…</div>
       <div class="submit-progress-bar">
         <div class="submit-progress-fill" id="submitProgressFill"></div>
@@ -738,20 +699,20 @@ body.loading-submit { overflow: hidden; }
     </div>
   </div>
 
-  <!-- ???恍 -->
+  <!-- 成功畫面 -->
   <div class="success-msg" id="successMsg">
     <div class="card">
       <div class="check-wrap">
         <svg class="icon"><use href="#i-check"/></svg>
       </div>
-      <h2>案件通報已送出</h2>
-      <p>里辦公處收到後會盡快查看與處理。</p>
-      <button onclick="location.reload()">重新填寫</button>
+      <h2>感謝您提供寶貴的意見！</h2>
+      <p>案件已送出，我們將儘快回覆及處理</p>
+      <button onclick="location.reload()">繼續通報</button>
     </div>
   </div>
 </div>
 
-<div class="footer">和平里小幫手｜案件通報表單</div>
+<div class="footer">和平里辦公處 — 里民陳情通報系統</div>
 <div class="toast-error" id="toastError"></div>
 
 <script src="config.js"></script>
@@ -786,41 +747,23 @@ function closeSubmitProgress() {
   document.getElementById('submitProgressOverlay').setAttribute('aria-hidden', 'true');
 }
 
+// 照片預覽
 function previewPhoto(input, previewId) {
   var preview = document.getElementById(previewId);
   var area = input.closest('.photo-upload');
-  var textEl = area.querySelector('.upload-text');
-  var defaultText = area.getAttribute('data-default-text');
-  if (!defaultText) {
-    defaultText = textEl.textContent;
-    area.setAttribute('data-default-text', defaultText);
-  }
   if (input.files && input.files[0]) {
     var reader = new FileReader();
     reader.onload = function(e) {
       preview.src = e.target.result;
       preview.style.display = 'block';
-      textEl.textContent = input.files[0].name;
-      area.classList.add('has-img');
+      area.querySelector('.upload-icon').style.display = 'none';
+      area.querySelector('.upload-text').textContent = input.files[0].name;
     };
     reader.readAsDataURL(input.files[0]);
   }
 }
 
-function clearPhoto(index, event) {
-  if (event) event.preventDefault();
-  if (event) event.stopPropagation();
-  var input = document.getElementById('f_photo' + index);
-  var preview = document.getElementById('preview' + index);
-  var area = document.getElementById('photo' + index + '_area');
-  var defaultText = area.getAttribute('data-default-text') || ('照片 ' + index);
-  input.value = '';
-  preview.removeAttribute('src');
-  preview.style.display = 'none';
-  area.querySelector('.upload-text').textContent = defaultText;
-  area.classList.remove('has-img');
-}
-
+// 壓縮圖片（縮小到 1600px 以內，JPEG 80% 品質）
 function compressImage(file) {
   return new Promise(function(resolve) {
     var reader = new FileReader();
@@ -845,6 +788,7 @@ function compressImage(file) {
   });
 }
 
+// 表單驗證
 async function collectPhotos(btn) {
   var photoInputs = [
     document.getElementById('f_photo1'),
@@ -858,7 +802,7 @@ async function collectPhotos(btn) {
     if (!photoInputs[i].files || !photoInputs[i].files.length) continue;
     done += 1;
     btn.innerHTML = '<span class="spinner"></span> 整理照片 ' + done + '/' + total + '...';
-    setSubmitProgress('正在整理照片 ' + done + '/' + total + '...', Math.round((done / (total + 1)) * 75), '照片會先壓縮整理，再附到案件資料中。');
+    setSubmitProgress('正在整理照片 ' + done + '/' + total + '…', Math.round((done / (total + 1)) * 75), '大圖需要多幾秒是正常的');
     results.push({
       base64: await compressImage(photoInputs[i].files[0]),
       mimeType: photoInputs[i].files[0].type || 'image/jpeg',
@@ -874,8 +818,8 @@ function validateForm() {
     { id: 'f_name', label: '姓名' },
     { id: 'f_phone', label: '電話' },
     { id: 'f_cate', label: '類別' },
-    { id: 'f_title', label: '標題' },
-    { id: 'f_desc', label: '說明' },
+    { id: 'f_title', label: '主旨' },
+    { id: 'f_desc', label: '描述' },
     { id: 'f_addr', label: '地點' }
   ];
 
@@ -895,6 +839,7 @@ function validateForm() {
   return valid;
 }
 
+// 清除驗證狀態
 document.querySelectorAll('input, textarea, select').forEach(function(el) {
   el.addEventListener('input', function() {
     this.classList.remove('invalid');
@@ -903,6 +848,7 @@ document.querySelectorAll('input, textarea, select').forEach(function(el) {
   });
 });
 
+// 送出表單
 document.getElementById('reportForm').addEventListener('submit', async function(e) {
   e.preventDefault();
 
@@ -914,14 +860,16 @@ document.getElementById('reportForm').addEventListener('submit', async function(
   var btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> 送出中...';
-  openSubmitProgress('正在整理案件資料…', 10, '若有附上照片，會先完成壓縮後再送出。');
+  openSubmitProgress('正在整理案件資料…', 10, '若有照片，系統會先壓縮再送出');
 
   try {
+    // 1. 先上傳照片
     var photos = await collectPhotos(btn);
 
     btn.innerHTML = '<span class="spinner"></span> 送出案件中...';
-    setSubmitProgress('正在送出案件資料…', 88, '案件送出完成後，會自動顯示成功畫面。');
+    setSubmitProgress('正在送出案件資料…', 88, '送出完成後會自動進入成功畫面');
 
+    // 2. 組合資料
     var payload = {
       action: 'submitReport',
       formTs: FORM_STARTED_AT,
@@ -938,6 +886,7 @@ document.getElementById('reportForm').addEventListener('submit', async function(
       photos: photos
     };
 
+    // 3. 送到 Make Webhook
     var res = await fetch(CONFIG.SCRIPT_URL, {
       method: 'POST',
       redirect: 'follow',
@@ -948,19 +897,20 @@ document.getElementById('reportForm').addEventListener('submit', async function(
     var json = JSON.parse(text);
     if (!res.ok || !json.success) throw new Error((json && json.error) || ('HTTP ' + res.status));
 
-    setSubmitProgress('案件已成功送出', 100, '系統已完成送件，正在切換到成功畫面。');
+    // 4. 顯示成功
+    setSubmitProgress('案件已送出，正在完成畫面…', 100, '完成後會顯示案件編號');
     closeSubmitProgress();
     document.getElementById('reportForm').style.display = 'none';
     document.getElementById('successMsg').style.display = 'block';
     if (json.caseId) {
       var successText = document.querySelector('#successMsg p');
-      if (successText) successText.textContent = '案件已送出，案件編號：' + json.caseId + '，里辦公處會盡快查看與處理。';
+      if (successText) successText.textContent = '案件已成功送出，案件編號：' + json.caseId + '。里辦公處會盡快處理。';
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
   } catch (err) {
     closeSubmitProgress();
-    showToast('送出失敗，請稍後再試。');
+    showToast('送出失敗，請確認網路後再試');
     btn.disabled = false;
     btn.innerHTML = '<svg class="icon"><use href="#i-send"/></svg> 送出通報';
   }
