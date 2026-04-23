@@ -12,8 +12,8 @@ var SHEET_BULLETIN = '公佈欄';
 
 var GOOGLE_CLIENT_ID = '998009736888-v0hng93jchshicessbc6pjf4e6eiolju.apps.googleusercontent.com';
 var API_KEY          = 'hpnbhs_sk_Qm7Kp2Xa9Wv8Ld5Rn6Yf4Jb';
-var REPORT_WEBHOOK_URL = 'https://hook.us2.make.com/wa9jtsqq171jf7yoycpb7upnpii30m5g';
-var STORE_NOTIFY_WEBHOOK_URL = 'https://hook.us2.make.com/h9dkeqo7b1brd8fmqgjrcq73n1yqiu7c';
+var REPORT_WEBHOOK_URL = 'https://hook.us2.make.com/wa9jtsqq171jf7yoycpb7upnpii30m5g?token=ITOKO';
+var STORE_NOTIFY_WEBHOOK_URL = 'https://hook.us2.make.com/h9dkeqo7b1brd8fmqgjrcq73n1yqiu7c?token=ITOKO';
 var DETAIL_BASE_URL   = 'https://itokorabbit.github.io/HPNBHS/detail.html?id=';
 var DEFAULT_REPORT_IMAGE_URL = 'https://itokorabbit.github.io/HPNBHS/assets/no-photo.svg';
 var NBH_FOLDER_ID    = '10M_y9gRB3FIGILLi4Dq-wxTqjHqNSC_o'; // Photos/NBH — 里民通報照片

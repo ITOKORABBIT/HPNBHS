@@ -1,0 +1,499 @@
+﻿{
+    "name": "HPNBHS - New Store Push",
+    "flow": [
+        {
+            "id": 1,
+            "module": "gateway:CustomWebHook",
+            "version": 1,
+            "parameters": {
+                "hook": 2163667,
+                "maxResults": 1
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": 0,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "hook": {
+                            "data": {
+                                "editable": "true"
+                            },
+                            "label": "?像???寧???"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "hook",
+                        "type": "hook:gateway-webhook",
+                        "label": "Webhook",
+                        "required": true
+                    },
+                    {
+                        "name": "maxResults",
+                        "type": "number",
+                        "label": "Maximum number of results"
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "storeId",
+                        "type": "text"
+                    },
+                    {
+                        "name": "name",
+                        "type": "text"
+                    },
+                    {
+                        "name": "phone",
+                        "type": "text"
+                    },
+                    {
+                        "name": "lineId",
+                        "type": "text"
+                    },
+                    {
+                        "name": "cate",
+                        "type": "text"
+                    },
+                    {
+                        "name": "title",
+                        "type": "text"
+                    },
+                    {
+                        "name": "storephone",
+                        "type": "text"
+                    },
+                    {
+                        "name": "taxid",
+                        "type": "text"
+                    },
+                    {
+                        "name": "desc",
+                        "type": "text"
+                    },
+                    {
+                        "name": "offer",
+                        "type": "text"
+                    },
+                    {
+                        "name": "opentime",
+                        "type": "text"
+                    },
+                    {
+                        "name": "addr",
+                        "type": "text"
+                    },
+                    {
+                        "name": "map",
+                        "type": "text"
+                    },
+                    {
+                        "name": "photo1",
+                        "type": "text"
+                    },
+                    {
+                        "name": "photo2",
+                        "type": "text"
+                    },
+                    {
+                        "name": "photo3",
+                        "type": "text"
+                    },
+                    {
+                        "name": "planType",
+                        "type": "text"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 28,
+            "module": "util:SetVariable2",
+            "version": 1,
+            "parameters": {},
+            "mapper": {
+                "name": "hero_image_url",
+                "scope": "roundtrip",
+                "value": "{{ifempty(trim(1.photo1); \"https://placehold.co/1200x800/e5e7eb/9ca3af/png?text=No+Photo\")}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1200,
+                    "y": 0
+                },
+                "restore": {
+                    "expect": {
+                        "scope": {
+                            "label": "One cycle"
+                        }
+                    }
+                },
+                "interface": [
+                    {
+                        "name": "hero_image_url",
+                        "type": "any",
+                        "label": "hero_image_url"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 5,
+            "module": "http:MakeRequest",
+            "version": 4,
+            "parameters": {
+                "tlsType": "",
+                "proxyKeychain": "",
+                "authenticationType": "noAuth"
+            },
+            "mapper": {
+                "url": "https://api.line.me/v2/bot/message/push",
+                "method": "post",
+                "headers": [
+                    {
+                        "name": "Authorization",
+                        "value": "Bearer 4xJ+gf6OUk7FaVa6Bq5ncsAVPyNZSWUOrp8wcID2Eq1+r6jLbnnZW8p3qwKjJMrnjZKpVf3Sx7mNRP/eE9CYEz2tWKibd4uWAAG4KLDtCBXdtp8XNryKSj/EyoQ4GTXparynczGTWXDQr1WInRCCFAdB04t89/1O/w1cDnyilFU="
+                    },
+                    {
+                        "name": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "contentType": "json",
+                "inputMethod": "jsonString",
+                "shareCookies": false,
+                "parseResponse": true,
+                "allowRedirects": true,
+                "stopOnHttpError": true,
+                "jsonStringBodyContent": "{\r\n  \"to\": \"Cbb4c5f107bc25421664b3bc21cc37e15\",\r\n  \"messages\": [\r\n    {\r\n      \"type\": \"flex\",\r\n      \"altText\": \"特約商店申請\",\r\n      \"contents\": {\r\n        \"type\": \"bubble\",\r\n        \"hero\": {\r\n          \"type\": \"image\",\r\n          \"url\": \"{{28.hero_image_url}}\",\r\n          \"size\": \"full\",\r\n          \"aspectRatio\": \"20:13\",\r\n          \"aspectMode\": \"cover\"\r\n        },\r\n        \"body\": {\r\n          \"type\": \"box\",\r\n          \"layout\": \"vertical\",\r\n          \"spacing\": \"md\",\r\n          \"paddingAll\": \"16px\",\r\n          \"contents\": [\r\n            {\r\n              \"type\": \"text\",\r\n              \"text\": \"特約商店申請\",\r\n              \"weight\": \"bold\",\r\n              \"size\": \"xl\",\r\n              \"color\": \"#C49A3C\"\r\n            },\r\n            {\r\n              \"type\": \"box\",\r\n              \"layout\": \"horizontal\",\r\n              \"margin\": \"sm\",\r\n              \"contents\": [\r\n                {\r\n                  \"type\": \"box\",\r\n                  \"layout\": \"vertical\",\r\n                  \"cornerRadius\": \"12px\",\r\n                  \"backgroundColor\": \"#fef3c7\",\r\n                  \"paddingTop\": \"4px\",\r\n                  \"paddingBottom\": \"4px\",\r\n                  \"paddingStart\": \"12px\",\r\n                  \"paddingEnd\": \"12px\",\r\n                  \"flex\": 0,\r\n                  \"contents\": [\r\n                    {\r\n                      \"type\": \"text\",\r\n                      \"text\": \"{{trim(1.cate)}}\",\r\n                      \"size\": \"xs\",\r\n                      \"color\": \"#92400e\",\r\n                      \"weight\": \"bold\",\r\n                      \"align\": \"center\"\r\n                    }\r\n                  ]\r\n                },\r\n                {\r\n                  \"type\": \"filler\"\r\n                }\r\n              ]\r\n            },\r\n            {\r\n              \"type\": \"text\",\r\n              \"text\": \"{{trim(1.title)}}\",\r\n              \"weight\": \"bold\",\r\n              \"size\": \"lg\",\r\n              \"wrap\": true,\r\n              \"color\": \"#111827\",\r\n              \"margin\": \"md\"\r\n            },\r\n            {\r\n              \"type\": \"separator\",\r\n              \"margin\": \"lg\"\r\n            },\r\n            {\r\n              \"type\": \"box\",\r\n              \"layout\": \"baseline\",\r\n              \"spacing\": \"sm\",\r\n              \"margin\": \"lg\",\r\n              \"contents\": [\r\n                {\r\n                  \"type\": \"text\",\r\n                  \"text\": \"申請人\",\r\n                  \"size\": \"sm\",\r\n                  \"color\": \"#9ca3af\",\r\n                  \"flex\": 2\r\n                },\r\n                {\r\n                  \"type\": \"text\",\r\n                  \"text\": \"{{trim(1.name)}}\",\r\n                  \"size\": \"sm\",\r\n                  \"color\": \"#374151\",\r\n                  \"flex\": 5\r\n                }\r\n              ]\r\n            },\r\n            {\r\n              \"type\": \"box\",\r\n              \"layout\": \"baseline\",\r\n              \"spacing\": \"sm\",\r\n              \"contents\": [\r\n                {\r\n                  \"type\": \"text\",\r\n                  \"text\": \"聯絡電話\",\r\n                  \"size\": \"sm\",\r\n                  \"color\": \"#9ca3af\",\r\n                  \"flex\": 2\r\n                },\r\n                {\r\n                  \"type\": \"text\",\r\n                  \"text\": \"{{ifempty(trim(1.phone); \"未填\")}}\",\r\n                  \"size\": \"sm\",\r\n                  \"color\": \"#374151\",\r\n                  \"flex\": 5\r\n                }\r\n              ]\r\n            },\r\n            {\r\n              \"type\": \"box\",\r\n              \"layout\": \"baseline\",\r\n              \"spacing\": \"sm\",\r\n              \"contents\": [\r\n                {\r\n                  \"type\": \"text\",\r\n                  \"text\": \"方案類型\",\r\n                  \"size\": \"sm\",\r\n                  \"color\": \"#9ca3af\",\r\n                  \"flex\": 2\r\n                },\r\n                {\r\n                  \"type\": \"text\",\r\n                  \"text\": \"{{trim(1.planType)}}\",\r\n                  \"size\": \"sm\",\r\n                  \"color\": \"#374151\",\r\n                  \"flex\": 5\r\n                }\r\n              ]\r\n            }\r\n          ]\r\n        },\r\n        \"footer\": {\r\n          \"type\": \"box\",\r\n          \"layout\": \"vertical\",\r\n          \"paddingAll\": \"12px\",\r\n          \"contents\": [\r\n            {\r\n              \"type\": \"button\",\r\n              \"style\": \"primary\",\r\n              \"color\": \"#C49A3C\",\r\n              \"height\": \"sm\",\r\n              \"action\": {\r\n                \"type\": \"uri\",\r\n                \"label\": \"查看商店資料\",\r\n                \"uri\": \"https://itokorabbit.github.io/HPNBHS/storedetail.html?id={{1.storeId}}\"\r\n              }\r\n            }\r\n          ]\r\n        }\r\n      }\r\n    }\r\n  ]\r\n}",
+                "requestCompressedContent": true
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1500,
+                    "y": 0
+                },
+                "restore": {
+                    "expect": {
+                        "method": {
+                            "mode": "chose",
+                            "label": "POST"
+                        },
+                        "headers": {
+                            "mode": "chose",
+                            "items": [
+                                null,
+                                null
+                            ]
+                        },
+                        "contentType": {
+                            "label": "application/jsonEnter data in the JSON format, as a string or using a data structure."
+                        },
+                        "inputMethod": {
+                            "label": "JSON stringEnter the JSON body as a raw text string. If values contain JSON reserved characters, you must escape them manually."
+                        },
+                        "shareCookies": {
+                            "mode": "chose"
+                        },
+                        "parseResponse": {
+                            "mode": "chose"
+                        },
+                        "allowRedirects": {
+                            "mode": "chose"
+                        },
+                        "paginationType": {
+                            "label": "Empty"
+                        },
+                        "queryParameters": {
+                            "mode": "chose"
+                        },
+                        "stopOnHttpError": {
+                            "mode": "chose"
+                        },
+                        "requestCompressedContent": {
+                            "mode": "chose"
+                        }
+                    },
+                    "parameters": {
+                        "tlsType": {
+                            "label": "Empty"
+                        },
+                        "proxyKeychain": {
+                            "label": "Choose a key"
+                        },
+                        "authenticationType": {
+                            "label": "No authenticationUse when no credentials are required for the request."
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "authenticationType",
+                        "type": "select",
+                        "label": "Authentication type",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "noAuth",
+                                "apiKey",
+                                "basicAuth",
+                                "oAuth"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "tlsType",
+                        "type": "select",
+                        "label": "Transport layer security (TLS)",
+                        "validate": {
+                            "enum": [
+                                "mTls",
+                                "tls"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "proxyKeychain",
+                        "type": "keychain:proxy",
+                        "label": "Proxy"
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "url",
+                        "type": "url",
+                        "label": "URL",
+                        "required": true
+                    },
+                    {
+                        "name": "method",
+                        "type": "select",
+                        "label": "Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "get",
+                                "head",
+                                "post",
+                                "put",
+                                "patch",
+                                "delete",
+                                "options"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "headers",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "name",
+                                    "type": "text",
+                                    "label": "Name",
+                                    "required": true,
+                                    "validate": {
+                                        "pattern": "^[-!#$%&'*+.^_`|~0-9A-Za-z]+$"
+                                    }
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "text",
+                                    "label": "Value"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Header"
+                        },
+                        "type": "array",
+                        "label": "Headers"
+                    },
+                    {
+                        "name": "queryParameters",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "name",
+                                    "type": "text",
+                                    "label": "Name",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "text",
+                                    "label": "Value"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Parameter"
+                        },
+                        "type": "array",
+                        "label": "Query parameters"
+                    },
+                    {
+                        "name": "contentType",
+                        "type": "select",
+                        "label": "Body content type",
+                        "validate": {
+                            "enum": [
+                                "json",
+                                "multipart",
+                                "urlEncoded",
+                                "custom"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "parseResponse",
+                        "type": "boolean",
+                        "label": "Parse response",
+                        "required": true
+                    },
+                    {
+                        "name": "stopOnHttpError",
+                        "type": "boolean",
+                        "label": "Return error if HTTP request fails",
+                        "required": true
+                    },
+                    {
+                        "name": "timeout",
+                        "type": "uinteger",
+                        "label": "Timeout",
+                        "validate": {
+                            "max": 300,
+                            "min": 1
+                        }
+                    },
+                    {
+                        "name": "allowRedirects",
+                        "type": "boolean",
+                        "label": "Allow redirects",
+                        "required": true
+                    },
+                    {
+                        "name": "shareCookies",
+                        "type": "boolean",
+                        "label": "Share cookies with other HTTP modules",
+                        "required": true
+                    },
+                    {
+                        "name": "requestCompressedContent",
+                        "type": "boolean",
+                        "label": "Request compressed content",
+                        "required": true
+                    },
+                    {
+                        "name": "inputMethod",
+                        "type": "select",
+                        "label": "Body input method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "dataStructure",
+                                "jsonString"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "jsonStringBodyContent",
+                        "type": "text",
+                        "label": "Body content",
+                        "required": true
+                    },
+                    {
+                        "name": "paginationType",
+                        "type": "select",
+                        "label": "Pagination type",
+                        "validate": {
+                            "enum": [
+                                "offsetBased",
+                                "pageBased",
+                                "urlBased",
+                                "tokenBased"
+                            ]
+                        }
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "data",
+                        "type": "any",
+                        "label": "Data"
+                    },
+                    {
+                        "name": "statusCode",
+                        "type": "number",
+                        "label": "Status Code"
+                    },
+                    {
+                        "name": "headers",
+                        "spec": [
+                            {
+                                "name": "content-length",
+                                "type": "text",
+                                "label": "Content-Length"
+                            },
+                            {
+                                "name": "content-encoding",
+                                "type": "text",
+                                "label": "Content-Encoding"
+                            },
+                            {
+                                "name": "content-type",
+                                "type": "text",
+                                "label": "Content-Type"
+                            },
+                            {
+                                "name": "server",
+                                "type": "text",
+                                "label": "Server"
+                            },
+                            {
+                                "name": "cache-control",
+                                "type": "text",
+                                "label": "Cache-Control"
+                            },
+                            {
+                                "name": "set-cookie",
+                                "spec": {
+                                    "type": "text"
+                                },
+                                "type": "array",
+                                "label": "Set-Cookie"
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Headers"
+                    }
+                ]
+            }
+        }
+    ],
+    "metadata": {
+        "instant": true,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": true,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "us2.make.com",
+        "notes": []
+    }
+}
+
