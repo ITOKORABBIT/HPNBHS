@@ -285,16 +285,23 @@ function handleSubmitStore(data) {
     String(data.opentime  || '').trim(),        // M: 營業時間
     String(data.addr      || '').trim(),        // N: 店家地址
     String(data.map       || '').trim(),        // O: 地圖網址
-    String(data.photo1    || ''),               // P: 照片1
-    String(data.photo2    || ''),               // Q: 照片2
-    String(data.photo3    || ''),               // R: 照片3
-    '',                                         // S: 管理員備註
-    nowText,                                    // T: 最後更新
-    '',                                         // U: 審核人
-    '', '', '', '', '', '', '', '', '',          // V-AD: 公開欄位（審核後填）
-    planType,                                   // AE: 方案類型
-    0,                                          // AF: 置頂順序
-    0,                                          // AG: 排序順序
+    String(data.photo1    || ''),               // P:  照片1
+    String(data.photo2    || ''),               // Q:  照片2
+    String(data.photo3    || ''),               // R:  照片3
+    String(data.photo4    || ''),               // S:  照片4
+    String(data.photo5    || ''),               // T:  照片5
+    String(data.photo6    || ''),               // U:  照片6
+    String(data.photo7    || ''),               // V:  照片7
+    String(data.photo8    || ''),               // W:  照片8
+    String(data.photo9    || ''),               // X:  照片9
+    String(data.photo10   || ''),               // Y:  照片10
+    '',                                         // Z:  管理員備註
+    nowText,                                    // AA: 最後更新
+    '',                                         // AB: 審核人
+    '', '', '', '', '', '', '', '', '',          // AC-AK: 公開欄位（審核後填）
+    planType,                                   // AL: 方案類型
+    0,                                          // AM: 置頂順序
+    0,                                          // AN: 排序順序
   ]);
 
   notifyNewStore_({
@@ -749,7 +756,7 @@ function handleGetPublicStores(data) {
     if (!all[i][0]) continue;
     if (String(all[i][2]) !== '已公開') continue;
     var s = rowToPublicStore(all[i]);
-    s._sort = Number(all[i][32] || 0);
+    s._sort = Number(all[i][39] || 0);
     stores.push(s);
   }
   var planW = { '優選': 1, '精選': 2, '免費': 3 };
@@ -776,15 +783,19 @@ function rowToStore(r) {
     hours:      String(r[12] || ''), addr:       String(r[13] || ''),
     mapUrl:     String(r[14] || ''), photo1:     String(r[15] || ''),
     photo2:     String(r[16] || ''), photo3:     String(r[17] || ''),
-    note:       String(r[18] || ''), lastUpdate: fmtDate(r[19]),
-    reviewer:   String(r[20] || ''), pubName:    String(r[21] || ''),
-    pubCate:    String(r[22] || ''), pubPhone:   String(r[23] || ''),
-    pubAddr:    String(r[24] || ''), pubMapUrl:  String(r[25] || ''),
-    pubDesc:    String(r[26] || ''), pubOffer:   String(r[27] || ''),
-    pubHours:   String(r[28] || ''), pubStoreNum: String(r[29] || ''),
-    planType:   String(r[30] || '免費'),          // AE欄：方案類型（免費/精選/優選）
-    pinOrder:   Number(r[31]  || 0),               // AF欄：置頂順序（0=不置頂）
-    sortOrder:  Number(r[32]  || 0),               // AG欄：自訂排序（0=未設定）
+    photo4:     String(r[18] || ''), photo5:     String(r[19] || ''),
+    photo6:     String(r[20] || ''), photo7:     String(r[21] || ''),
+    photo8:     String(r[22] || ''), photo9:     String(r[23] || ''),
+    photo10:    String(r[24] || ''),
+    note:       String(r[25] || ''), lastUpdate: fmtDate(r[26]),
+    reviewer:   String(r[27] || ''), pubName:    String(r[28] || ''),
+    pubCate:    String(r[29] || ''), pubPhone:   String(r[30] || ''),
+    pubAddr:    String(r[31] || ''), pubMapUrl:  String(r[32] || ''),
+    pubDesc:    String(r[33] || ''), pubOffer:   String(r[34] || ''),
+    pubHours:   String(r[35] || ''), pubStoreNum: String(r[36] || ''),
+    planType:   String(r[37] || '免費'),          // AL欄：方案類型（免費/精選/優選）
+    pinOrder:   Number(r[38]  || 0),               // AM欄：置頂順序（0=不置頂）
+    sortOrder:  Number(r[39]  || 0),               // AN欄：自訂排序（0=未設定）
   };
 }
 
@@ -804,15 +815,20 @@ function handleGetPublicStore(data) {
 
 function rowToPublicStore(r) {
   return {
-    storeId:     String(r[0]  || ''), photo1:      String(r[15] || ''),
-    pubName:     String(r[21] || ''), pubCate:     String(r[22] || ''),
-    pubPhone:    String(r[23] || ''), pubAddr:     String(r[24] || ''),
-    pubMapUrl:   String(r[25] || ''), pubDesc:     String(r[26] || ''),
-    pubOffer:    String(r[27] || ''), pubHours:    String(r[28] || ''),
-    pubStoreNum: String(r[29] || ''),
-    planType:    String(r[30] || '免費'),           // AE欄：方案類型
-    pinOrder:    Number(r[31]  || 0),               // AF欄：置頂順序
-    sortOrder:   Number(r[32]  || 0),               // AG欄：自訂排序
+    storeId:     String(r[0]  || ''),
+    photo1:      String(r[15] || ''), photo2:      String(r[16] || ''),
+    photo3:      String(r[17] || ''), photo4:      String(r[18] || ''),
+    photo5:      String(r[19] || ''), photo6:      String(r[20] || ''),
+    photo7:      String(r[21] || ''), photo8:      String(r[22] || ''),
+    photo9:      String(r[23] || ''), photo10:     String(r[24] || ''),
+    pubName:     String(r[28] || ''), pubCate:     String(r[29] || ''),
+    pubPhone:    String(r[30] || ''), pubAddr:     String(r[31] || ''),
+    pubMapUrl:   String(r[32] || ''), pubDesc:     String(r[33] || ''),
+    pubOffer:    String(r[34] || ''), pubHours:    String(r[35] || ''),
+    pubStoreNum: String(r[36] || ''),
+    planType:    String(r[37] || '免費'),           // AL欄：方案類型
+    pinOrder:    Number(r[38]  || 0),               // AM欄：置頂順序
+    sortOrder:   Number(r[39]  || 0),               // AN欄：自訂排序
   };
 }
 
@@ -834,28 +850,35 @@ function handleUpdateStore(data) {
   var now = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm');
 
   sheet.getRange(rowIndex,  3).setValue(data.status   || '');
-  sheet.getRange(rowIndex, 19).setValue(data.note     || '');
-  sheet.getRange(rowIndex, 20).setValue(now);
-  sheet.getRange(rowIndex, 21).setValue(data.reviewer || '');
-  if (data.photo1 !== undefined) sheet.getRange(rowIndex, 16).setValue(data.photo1 || '');
-  if (data.photo2 !== undefined) sheet.getRange(rowIndex, 17).setValue(data.photo2 || '');
-  if (data.photo3 !== undefined) sheet.getRange(rowIndex, 18).setValue(data.photo3 || '');
+  sheet.getRange(rowIndex, 26).setValue(data.note     || '');
+  sheet.getRange(rowIndex, 27).setValue(now);
+  sheet.getRange(rowIndex, 28).setValue(data.reviewer || '');
+  if (data.photo1  !== undefined) sheet.getRange(rowIndex, 16).setValue(data.photo1  || '');
+  if (data.photo2  !== undefined) sheet.getRange(rowIndex, 17).setValue(data.photo2  || '');
+  if (data.photo3  !== undefined) sheet.getRange(rowIndex, 18).setValue(data.photo3  || '');
+  if (data.photo4  !== undefined) sheet.getRange(rowIndex, 19).setValue(data.photo4  || '');
+  if (data.photo5  !== undefined) sheet.getRange(rowIndex, 20).setValue(data.photo5  || '');
+  if (data.photo6  !== undefined) sheet.getRange(rowIndex, 21).setValue(data.photo6  || '');
+  if (data.photo7  !== undefined) sheet.getRange(rowIndex, 22).setValue(data.photo7  || '');
+  if (data.photo8  !== undefined) sheet.getRange(rowIndex, 23).setValue(data.photo8  || '');
+  if (data.photo9  !== undefined) sheet.getRange(rowIndex, 24).setValue(data.photo9  || '');
+  if (data.photo10 !== undefined) sheet.getRange(rowIndex, 25).setValue(data.photo10 || '');
 
   if (data.status === '已公開') {
-    sheet.getRange(rowIndex, 22).setValue(data.pubName   || '');
-    sheet.getRange(rowIndex, 23).setValue(data.pubCate   || '');
-    sheet.getRange(rowIndex, 24).setValue(data.pubPhone  || '');
-    sheet.getRange(rowIndex, 25).setValue(data.pubAddr   || '');
-    sheet.getRange(rowIndex, 26).setValue(data.pubMapUrl || '');
-    sheet.getRange(rowIndex, 27).setValue(data.pubDesc     || '');
-    sheet.getRange(rowIndex, 28).setValue(data.pubOffer    || '');
-    sheet.getRange(rowIndex, 29).setValue(data.pubHours    || '');
-    sheet.getRange(rowIndex, 30).setValue(data.pubStoreNum || '');
+    sheet.getRange(rowIndex, 29).setValue(data.pubName   || '');
+    sheet.getRange(rowIndex, 30).setValue(data.pubCate   || '');
+    sheet.getRange(rowIndex, 31).setValue(data.pubPhone  || '');
+    sheet.getRange(rowIndex, 32).setValue(data.pubAddr   || '');
+    sheet.getRange(rowIndex, 33).setValue(data.pubMapUrl || '');
+    sheet.getRange(rowIndex, 34).setValue(data.pubDesc     || '');
+    sheet.getRange(rowIndex, 35).setValue(data.pubOffer    || '');
+    sheet.getRange(rowIndex, 36).setValue(data.pubHours    || '');
+    sheet.getRange(rowIndex, 37).setValue(data.pubStoreNum || '');
   }
 
-  // 方案類型（AE欄）與置頂順序（AF欄）可隨時更新，不限狀態
-  if (data.planType !== undefined) sheet.getRange(rowIndex, 31).setValue(data.planType || '免費');
-  if (data.pinOrder !== undefined) sheet.getRange(rowIndex, 32).setValue(Number(data.pinOrder || 0));
+  // 方案類型（AL欄）與置頂順序（AM欄）可隨時更新，不限狀態
+  if (data.planType !== undefined) sheet.getRange(rowIndex, 38).setValue(data.planType || '免費');
+  if (data.pinOrder !== undefined) sheet.getRange(rowIndex, 39).setValue(Number(data.pinOrder || 0));
 
   return jsonOut({ success: true });
 }
