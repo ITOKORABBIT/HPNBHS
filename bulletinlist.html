@@ -742,7 +742,7 @@ function persistCurrentDraftCache() {
   const scope = getDraftScope();
   const snapshot = buildEditorSnapshot();
   if (hasDraftContent(snapshot)) {
-    snapshot.status = '未發布';
+    if (!editingBulletinId) snapshot.status = '未發布';
     store[scope] = snapshot;
   } else {
     delete store[scope];
@@ -1074,8 +1074,9 @@ function setFilterStatus(value) {
 function renderBulletinCard(item) {
   var statusClass = normalizeBulletinStatus(item.status) === '已發布' ? 'badge-published' : 'badge-draft';
   var preview = stripHtml(item.content || '').slice(0, 80);
-  return '<div class="bull-item" data-bulletin-id="' + escapeHtml(item.bulletinId) + '">' +
-    '<div class="bull-drag-handle">⠿</div>' +
+  var bid = escapeHtml(item.bulletinId);
+  return '<div class="bull-item" data-bulletin-id="' + bid + '" onclick="editBulletin(\'' + bid + '\')" style="cursor:pointer">' +
+    '<div class="bull-drag-handle" onclick="event.stopPropagation()">⠿</div>' +
     '<div class="bull-item-body">' +
       '<div class="bull-item-title">' + escapeHtml(item.title || '（無標題）') + '</div>' +
       '<div class="bull-item-meta">' +
@@ -1086,8 +1087,7 @@ function renderBulletinCard(item) {
       (preview ? '<div class="bull-item-preview">' + escapeHtml(preview) + '</div>' : '') +
     '</div>' +
     '<div class="bull-item-actions">' +
-      '<button class="inline-btn" onclick="editBulletin(\'' + escapeHtml(item.bulletinId) + '\')">編輯</button>' +
-      '<button class="inline-btn" onclick="quickToggleStatus(\'' + escapeHtml(item.bulletinId) + '\')">' +
+      '<button class="inline-btn" onclick="event.stopPropagation(); quickToggleStatus(\'' + bid + '\')">' +
         (normalizeBulletinStatus(item.status) === '已發布' ? '取消發布' : '發布') +
       '</button>' +
     '</div>' +

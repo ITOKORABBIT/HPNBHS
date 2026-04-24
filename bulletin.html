@@ -341,7 +341,10 @@ function openModal(idx) {
   const images = splitImageUrls(b.imageUrl);
   document.getElementById('modalTitle').textContent   = b.title;
   document.getElementById('modalDate').textContent    = fmtDate(b.createdAt);
-  const contentHtml = (b.content || '').replace(/\n/g, '<br>');
+  const contentHtml = (b.content || '')
+    .replace(/<div>/gi, '<p>')
+    .replace(/<\/div>/gi, '</p>')
+    .replace(/\n/g, '<br>');
   document.getElementById('modalContent').innerHTML = sanitizeHtml(contentHtml);
   const gallery = document.getElementById('modalGallery');
   if (images.length) {
