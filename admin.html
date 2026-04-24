@@ -94,6 +94,34 @@ a{color:inherit;text-decoration:none}
   color:var(--rose);
   font-size:14px;
 }
+.webview-warn{
+  display:none;
+  margin-bottom:18px;
+  padding:14px 16px;
+  border-radius:14px;
+  background:#fff8e1;
+  border:1px solid #ffe082;
+  color:#7a5800;
+  font-size:14px;
+  line-height:1.7;
+}
+.webview-warn strong{display:block;margin-bottom:4px;font-size:15px}
+.webview-copy-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-top:10px;
+  padding:10px 16px;
+  border:none;
+  border-radius:12px;
+  background:#f59e0b;
+  color:#fff;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  width:100%;
+  justify-content:center;
+}
 
 .app-shell{display:none}
 .topbar{
@@ -453,6 +481,12 @@ tbody tr:last-child td{border-bottom:none}
   <div class="login-card">
     <div class="login-badge">和平里小幫手 管理入口</div>
     <div class="login-title">管理後台</div>
+    <div class="webview-warn" id="webviewWarn">
+      <strong>⚠️ 無法在此瀏覽器登入</strong>
+      您目前使用 LINE 或 App 內建瀏覽器，Google 帳號登入會被封鎖。<br>
+      請複製連結，貼到 <strong>Chrome</strong> 或手機預設瀏覽器開啟。
+      <button class="webview-copy-btn" onclick="copyLoginUrl()">複製登入網址</button>
+    </div>
     <div class="login-sub">
       這裡整合里民案件通報、特約商店、活動公告欄與管理者帳號。
       請使用已授權的 Google 帳號登入。
@@ -704,7 +738,40 @@ function handleExpiredSession() {
   if (typeof google !== 'undefined') google.accounts.id.disableAutoSelect();
 }
 
+function isLineWebView() {
+  return /Line\//i.test(navigator.userAgent);
+}
+
+function isOtherWebView() {
+  const ua = navigator.userAgent;
+  return /FBAN|FBAV|Instagram|MicroMessenger/i.test(ua) ||
+    (ua.includes('Android') && /wv\b/.test(ua));
+}
+
+function copyLoginUrl() {
+  const url = location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.querySelector('.webview-copy-btn');
+    btn.textContent = '✓ 已複製！貼到 Chrome 開啟';
+    btn.style.background = '#16a34a';
+  }).catch(() => {
+    prompt('請手動複製此網址：', url);
+  });
+}
+
 function initGoogle() {
+  if (isLineWebView()) {
+    const url = new URL(location.href);
+    if (!url.searchParams.has('openExternalBrowser')) {
+      url.searchParams.set('openExternalBrowser', '1');
+      location.replace(url.toString());
+      return;
+    }
+  }
+  if (isOtherWebView()) {
+    document.getElementById('webviewWarn').style.display = 'block';
+    return;
+  }
   const sess = getSession();
   if (sess) {
     adminName = sess.name || '';

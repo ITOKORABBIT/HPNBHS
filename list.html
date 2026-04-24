@@ -633,6 +633,16 @@ body{
 
 <script src="config.js"></script>
 <script>
+(function(){
+  if (/Line\//i.test(navigator.userAgent)) {
+    var url = new URL(location.href);
+    if (!url.searchParams.has('openExternalBrowser')) {
+      url.searchParams.set('openExternalBrowser', '1');
+      location.replace(url.toString());
+    }
+  }
+})();
+
 // ──────────────────────────────────────────
 // SESSION AUTH — 無管理員 session 跳回 admin.html
 // ──────────────────────────────────────────
