@@ -642,10 +642,10 @@ function handleGetPublicCases(data) {
       var wa = swt_(a.status), wb = swt_(b.status);
       if (wa !== wb) return wa - wb;
     }
-    var sa = a._sort > 0 ? a._sort : 999999;
-    var sb = b._sort > 0 ? b._sort : 999999;
-    if (sa !== sb) return sa - sb;
-    return b.caseId.localeCompare(a.caseId);
+    var ha = a._sort > 0, hb = b._sort > 0;
+    if (ha !== hb) return ha ? 1 : -1;
+    if (!ha) return b.caseId.localeCompare(a.caseId);
+    return a._sort - b._sort;
   });
   cases.forEach(function(c) { delete c._pin; delete c._sort; });
   return jsonOut({ success: true, cases: cases });

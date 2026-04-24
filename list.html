@@ -906,19 +906,19 @@ function applyFilters() {
     return true;
   });
 
-  // 排序：置頂優先，再依狀態群組，再依自訂 sortOrder，最後依案件號 desc
+  // 排序：置頂優先，再依狀態群組，未手動排序的排最前（新案優先），已排序的依 sortOrder 升冪
   filtered.sort(function(a, b){
     var isPinnedA = a.pinOrder > 0 ? 0 : 1;
     var isPinnedB = b.pinOrder > 0 ? 0 : 1;
     if (isPinnedA !== isPinnedB) return isPinnedA - isPinnedB;
-    var sortA = a.sortOrder > 0 ? a.sortOrder : 999999;
-    var sortB = b.sortOrder > 0 ? b.sortOrder : 999999;
     if (isPinnedA === 1) { // 非置頂：先按狀態群組
       var wa = statusWeight(a.status), wb = statusWeight(b.status);
       if (wa !== wb) return wa - wb;
     }
-    if (sortA !== sortB) return sortA - sortB;
-    return caseIdNum(b.caseId) - caseIdNum(a.caseId);
+    var hasA = a.sortOrder > 0, hasB = b.sortOrder > 0;
+    if (hasA !== hasB) return hasA ? 1 : -1;
+    if (!hasA) return caseIdNum(b.caseId) - caseIdNum(a.caseId);
+    return a.sortOrder - b.sortOrder;
   });
 
   renderGrid(filtered);
