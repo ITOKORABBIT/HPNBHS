@@ -746,16 +746,13 @@ function v(s){ return s ? esc(s) : '<span class="empty">—</span>'; }
 
 // ── 類別彩色標籤 ──
 var CATE_COLOR = {
-  '交通':    { bg:'#EBF3FF', txt:'#1A56A8' },
-  '環境':    { bg:'#EAF3EB', txt:'#2F6836' },
-  '噪音':    { bg:'#FFF3E0', txt:'#B75D00' },
-  '公共設施': { bg:'#E0F7FA', txt:'#006B6B' },
-  '治安':    { bg:'#FEE2E2', txt:'#991B1B' },
-  '衛生':    { bg:'#F5F3FF', txt:'#5B21B6' },
-  '道路':    { bg:'#E8EAF6', txt:'#303F9F' },
-  '消防':    { bg:'#FFF3E0', txt:'#E53935' },
-  '水電':    { bg:'#FFF8E1', txt:'#F57F17' },
-  '其他':    { bg:'#F0EEEC', txt:'#7A6E66' },
+  '生活':  { bg:'#E0F7FA', txt:'#006B6B' },
+  '校園':  { bg:'#FFF3E0', txt:'#B75D00' },
+  '交通':  { bg:'#EBF3FF', txt:'#1A56A8' },
+  '環境':  { bg:'#EAF3EB', txt:'#2F6836' },
+  '治安':  { bg:'#FEE2E2', txt:'#991B1B' },
+  '修繕':  { bg:'#FFF8E1', txt:'#F57F17' },
+  '其他':  { bg:'#F0EEEC', txt:'#7A6E66' },
 };
 function cateBadge(cat) {
   var c = CATE_COLOR[cat] || { bg:'#F0EEEC', txt:'#7A6E66' };
@@ -989,26 +986,6 @@ function openModal(){
   document.getElementById('replyModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  // If Google name not yet retrieved, render sign-in button
-  if (!gName && CONFIG.GOOGLE_CLIENT_ID) {
-    var btnDiv = document.getElementById('googleSignInBtn');
-    if (btnDiv && typeof google !== 'undefined') {
-      google.accounts.id.renderButton(btnDiv, {
-        type: 'standard', theme: 'outline', size: 'medium',
-        text: 'signin_with', locale: 'zh-TW', width: 240
-      });
-    } else if (btnDiv) {
-      // GSI not yet loaded, retry after delay
-      setTimeout(function(){
-        if (typeof google !== 'undefined') {
-          google.accounts.id.renderButton(btnDiv, {
-            type: 'standard', theme: 'outline', size: 'medium',
-            text: 'signin_with', locale: 'zh-TW', width: 240
-          });
-        }
-      }, 1000);
-    }
-  }
 }
 
 function closeModal(){
