@@ -258,88 +258,75 @@ select {
 }
 
 /* 照片上傳區 */
-.photo-upload {
-  border: 2px dashed var(--ink-200);
-  border-radius: 14px;
-  padding: 22px 12px;
-  text-align: center;
-  cursor: pointer;
-  background: var(--green-50);
-  transition: all 0.25s ease;
-  position: relative;
-  min-height: 110px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.photo-upload:hover {
-  border-color: var(--green-400);
-  background: var(--green-100);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(91, 155, 123, 0.12);
-}
-.photo-upload input[type="file"] {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-.photo-upload .upload-icon {
-  width: 28px;
-  height: 28px;
-  color: var(--green-400);
-  margin-bottom: 6px;
-  stroke-width: 1.8;
-}
-.photo-upload .upload-text {
-  font-size: 13px;
-  color: var(--ink-500);
-  font-weight: 500;
-}
-.photo-upload .preview {
-  max-width: 100%;
-  max-height: 200px;
-  border-radius: 10px;
-  display: none;
-}
-.photo-upload.has-img .upload-icon,
-.photo-upload.has-img .upload-text {
-  display: none;
-}
-.photo-remove-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
-  min-width: 54px;
-  height: 30px;
-  padding: 0 12px;
-  border: 1px solid rgba(91, 155, 123, 0.22);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--green-700);
-  font-size: 12px;
-  display: none;
-  transition: all 0.2s ease;
-}
-.photo-remove-btn:hover {
-  background: #fff;
-  border-color: rgba(91, 155, 123, 0.36);
-  color: var(--green-800);
-  transform: translateY(-1px);
-}
-.photo-upload.has-img .photo-remove-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* 照片群組橫排 */
-.photo-row {
+/* ── 多選照片上傳 widget ── */
+.photo-upload-area { display: flex; flex-direction: column; gap: 8px; }
+.photo-preview-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 10px;
+}
+.photo-preview-item {
+  border: 1.5px solid var(--ink-200);
+  border-radius: 12px;
+  aspect-ratio: 4/3;
+  position: relative;
+  background: var(--green-50);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+}
+.photo-preview-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+.photo-preview-item .item-remove {
+  position: absolute; top: 6px; right: 6px; z-index: 3;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(91,155,123,.22);
+  color: var(--green-700);
+  font-size: 13px; font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.10);
+  transition: background .15s, transform .15s;
+}
+.photo-preview-item .item-remove:hover {
+  background: #fff; transform: scale(1.1);
+}
+.photo-preview-item .drag-hint {
+  position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%);
+  font-size: 10px; color: rgba(255,255,255,.9);
+  background: rgba(0,0,0,.30); padding: 2px 7px; border-radius: 4px;
+  pointer-events: none; white-space: nowrap;
+}
+.photo-add-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 14px 12px;
+  border: 2px dashed var(--ink-200);
+  border-radius: 14px;
+  background: var(--green-50);
+  color: var(--ink-400);
+  font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  transition: border-color .2s, background .2s, color .2s;
+}
+.photo-add-btn:hover {
+  border-color: var(--green-400);
+  background: var(--green-100);
+  color: var(--green-700);
+}
+.photo-add-btn svg { flex-shrink: 0; color: var(--green-400); }
+.photo-add-btn.hidden { display: none; }
+.photo-preview-item.is-sorting { opacity: .35; }
+.sort-ghost { border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.sort-placeholder {
+  border: 2px dashed var(--green-400);
+  border-radius: 12px;
+  background: rgba(91,155,123,.07);
+  aspect-ratio: 4/3;
 }
 
 /* 送出按鈕 */
@@ -556,7 +543,7 @@ body.loading-submit { overflow: hidden; }
   .header h1 { font-size: 20px; }
   .header-icon { width: 38px; height: 38px; }
   .card { padding: 22px 18px; border-radius: 16px; }
-  .photo-row { grid-template-columns: 1fr; }
+
 }
 </style>
 </head>
@@ -681,28 +668,13 @@ body.loading-submit { overflow: hidden; }
       <div class="section-title"><span class="title-bar"></span>照片附件</div>
 
       <div class="field-group">
-        <div class="photo-row">
-          <div class="photo-upload" id="photo1_area" data-default-text="照片 1">
-            <input type="file" accept="image/*" id="f_photo1" onchange="previewPhoto(this, 'preview1')">
-            <button type="button" class="photo-remove-btn" onclick="clearPhoto(1, event)">移除</button>
-            <svg class="icon upload-icon"><use href="#i-camera"/></svg>
-            <div class="upload-text">照片 1</div>
-            <img class="preview" id="preview1">
-          </div>
-          <div class="photo-upload" id="photo2_area" data-default-text="照片 2">
-            <input type="file" accept="image/*" id="f_photo2" onchange="previewPhoto(this, 'preview2')">
-            <button type="button" class="photo-remove-btn" onclick="clearPhoto(2, event)">移除</button>
-            <svg class="icon upload-icon"><use href="#i-camera"/></svg>
-            <div class="upload-text">照片 2</div>
-            <img class="preview" id="preview2">
-          </div>
-          <div class="photo-upload" id="photo3_area" data-default-text="照片 3">
-            <input type="file" accept="image/*" id="f_photo3" onchange="previewPhoto(this, 'preview3')">
-            <button type="button" class="photo-remove-btn" onclick="clearPhoto(3, event)">移除</button>
-            <svg class="icon upload-icon"><use href="#i-camera"/></svg>
-            <div class="upload-text">照片 3</div>
-            <img class="preview" id="preview3">
-          </div>
+        <div class="photo-upload-area" id="reportPhotoArea">
+          <div class="photo-preview-grid" id="reportPhotoGrid"></div>
+          <label class="photo-add-btn" id="reportPhotoAddBtn">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            新增照片（最多 5 張）
+            <input type="file" accept="image/*" multiple id="reportPhotoInput" style="display:none" onchange="handleReportPhotoAdd(this)">
+          </label>
         </div>
       </div>
 
@@ -750,6 +722,7 @@ body.loading-submit { overflow: hidden; }
 <div class="toast-error" id="toastError"></div>
 
 <script src="config.js"></script>
+<script src="./assets/sortable-order.js"></script>
 <script>
 var FORM_STARTED_AT = Date.now();
 
@@ -781,34 +754,89 @@ function closeSubmitProgress() {
   document.getElementById('submitProgressOverlay').setAttribute('aria-hidden', 'true');
 }
 
-// 照片預覽
-function previewPhoto(input, previewId) {
-  var preview = document.getElementById(previewId);
-  var area = input.closest('.photo-upload');
-  if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      preview.src = e.target.result;
-      preview.style.display = 'block';
-      area.querySelector('.upload-text').textContent = input.files[0].name;
-      area.classList.add('has-img');
-    };
-    reader.readAsDataURL(input.files[0]);
+// ── 多選照片 widget ──
+var reportPhotos = [];
+var reportPhotoIdSeq = 0;
+var reportPhotoSortable = null;
+
+function renderReportPhotoGrid() {
+  var grid   = document.getElementById('reportPhotoGrid');
+  var addBtn = document.getElementById('reportPhotoAddBtn');
+  if (!grid) return;
+
+  grid.innerHTML = '';
+  reportPhotos.forEach(function(p) {
+    var div = document.createElement('div');
+    div.className = 'photo-preview-item';
+    div.setAttribute('data-sort-id', String(p.id));
+    var img = document.createElement('img');
+    img.src = p.src;
+    img.alt = '照片';
+    var rmBtn = document.createElement('button');
+    rmBtn.type = 'button';
+    rmBtn.className = 'item-remove';
+    rmBtn.textContent = '✕';
+    rmBtn.setAttribute('data-pid', String(p.id));
+    rmBtn.addEventListener('click', function(e) {
+      e.preventDefault(); e.stopPropagation();
+      var pid = parseInt(this.getAttribute('data-pid'));
+      syncReportPhotosFromDOM();
+      reportPhotos = reportPhotos.filter(function(x) { return x.id !== pid; });
+      renderReportPhotoGrid();
+    });
+    var hint = document.createElement('span');
+    hint.className = 'drag-hint';
+    hint.textContent = '拖曳排序';
+    div.appendChild(img);
+    div.appendChild(rmBtn);
+    if (reportPhotos.length > 1) div.appendChild(hint);
+    grid.appendChild(div);
+  });
+
+  if (addBtn) addBtn.classList.toggle('hidden', reportPhotos.length >= 5);
+
+  if (reportPhotoSortable) { reportPhotoSortable.destroy(); reportPhotoSortable = null; }
+  if (reportPhotos.length > 1) {
+    reportPhotoSortable = new SortableOrder(grid, {
+      selector: '.photo-preview-item',
+      onReorder: function(ids) {
+        var idMap = {};
+        reportPhotos.forEach(function(p) { idMap[p.id] = p; });
+        reportPhotos = ids.map(function(id) { return idMap[parseInt(id)]; }).filter(Boolean);
+      }
+    });
   }
 }
 
-function clearPhoto(index, event) {
-  if (event) event.preventDefault();
-  if (event) event.stopPropagation();
-  var input = document.getElementById('f_photo' + index);
-  var preview = document.getElementById('preview' + index);
-  var area = document.getElementById('photo' + index + '_area');
-  var defaultText = area.getAttribute('data-default-text') || ('照片 ' + index);
+function syncReportPhotosFromDOM() {
+  var grid = document.getElementById('reportPhotoGrid');
+  if (!grid) return;
+  var items = grid.querySelectorAll('[data-sort-id]');
+  var idMap = {};
+  reportPhotos.forEach(function(p) { idMap[p.id] = p; });
+  var ordered = Array.prototype.map.call(items, function(el) {
+    return idMap[parseInt(el.getAttribute('data-sort-id'))];
+  }).filter(Boolean);
+  if (ordered.length === reportPhotos.length) reportPhotos = ordered;
+}
+
+function handleReportPhotoAdd(input) {
+  if (!input.files || !input.files.length) return;
+  var slots = 5 - reportPhotos.length;
+  if (slots <= 0) return;
+  var files = Array.prototype.slice.call(input.files, 0, slots);
+  var pending = files.length;
+  files.forEach(function(file) {
+    var id = reportPhotoIdSeq++;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      reportPhotos.push({ id: id, src: e.target.result, file: file });
+      pending--;
+      if (pending === 0) renderReportPhotoGrid();
+    };
+    reader.readAsDataURL(file);
+  });
   input.value = '';
-  preview.removeAttribute('src');
-  preview.style.display = 'none';
-  area.querySelector('.upload-text').textContent = defaultText;
-  area.classList.remove('has-img');
 }
 
 // 壓縮圖片（縮小到 1600px 以內，JPEG 80% 品質）
@@ -836,25 +864,17 @@ function compressImage(file) {
   });
 }
 
-// 表單驗證
 async function collectPhotos(btn) {
-  var photoInputs = [
-    document.getElementById('f_photo1'),
-    document.getElementById('f_photo2'),
-    document.getElementById('f_photo3')
-  ];
+  syncReportPhotosFromDOM();
   var results = [];
-  var total = photoInputs.filter(function(i) { return i.files && i.files.length > 0; }).length;
-  var done = 0;
-  for (var i = 0; i < photoInputs.length; i++) {
-    if (!photoInputs[i].files || !photoInputs[i].files.length) continue;
-    done += 1;
-    btn.innerHTML = '<span class="spinner"></span> 整理照片 ' + done + '/' + total + '...';
-    setSubmitProgress('正在整理照片 ' + done + '/' + total + '…', Math.round((done / (total + 1)) * 75), '大圖需要多幾秒是正常的');
+  var total = reportPhotos.length;
+  for (var i = 0; i < reportPhotos.length; i++) {
+    btn.innerHTML = '<span class="spinner"></span> 整理照片 ' + (i + 1) + '/' + total + '...';
+    setSubmitProgress('正在整理照片 ' + (i + 1) + '/' + total + '…', Math.round(((i + 1) / (total + 1)) * 75), '大圖需要多幾秒是正常的');
     results.push({
-      base64: await compressImage(photoInputs[i].files[0]),
-      mimeType: photoInputs[i].files[0].type || 'image/jpeg',
-      fileName: photoInputs[i].files[0].name || ('photo_' + (i + 1) + '.jpg')
+      base64: await compressImage(reportPhotos[i].file),
+      mimeType: reportPhotos[i].file.type || 'image/jpeg',
+      fileName: reportPhotos[i].file.name || ('photo_' + (i + 1) + '.jpg')
     });
   }
   return results;

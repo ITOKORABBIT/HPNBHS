@@ -370,101 +370,69 @@ body{
   margin-top: 5px;
 }
 
-/* ────────── Photo upload ────────── */
-.photo-upload-row{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+/* ────────── Photo upload widget ────────── */
+.photo-upload-area{ display:flex; flex-direction:column; gap:8px; }
+.photo-preview-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
 }
-.photo-slot{
-  border: 1.5px dashed var(--border);
-  border-radius: 8px;
-  aspect-ratio: 4/3;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  cursor: pointer; position: relative;
-  background: var(--bg); overflow: hidden;
-  transition: border-color .15s;
+.photo-preview-item{
+  border:1.5px solid var(--border);
+  border-radius:8px;
+  aspect-ratio:4/3;
+  position:relative;
+  background:var(--bg);
+  overflow:hidden;
+  cursor:grab;
+  user-select:none;
 }
-.photo-slot:hover{ border-color: var(--primary); }
-.photo-slot input[type="file"]{
-  position: absolute; inset: 0;
-  opacity: 0; cursor: pointer;
-  font-size: 0;
-  z-index: 2;
+.photo-preview-item img{
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+  pointer-events:none;
 }
-.photo-slot .slot-icon{ color: var(--muted); margin-bottom: 4px; }
-.photo-slot .slot-label{ font-size: 11px; color: var(--muted); }
-.photo-slot img.thumb{
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: none;
-}
-.photo-slot.has-img .slot-icon,
-.photo-slot.has-img .slot-label{ display:none; }
-.photo-slot.has-img img.thumb{ display:block; }
-.slot-remove{
-  position:absolute;
-  top:10px;
-  right:10px;
-  z-index:3;
-  min-width:54px;
-  height:30px;
-  padding:0 12px;
-  border:1px solid rgba(75, 122, 82, 0.2);
-  border-radius:999px;
-  background:rgba(255,255,255,.94);
+.photo-preview-item .item-remove{
+  position:absolute; top:6px; right:6px; z-index:3;
+  width:28px; height:28px; border-radius:50%;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(75,122,82,.2);
   color:var(--primary-dark);
-  font-size:12px;
-  font-weight:600;
-  letter-spacing:.2px;
-  box-shadow:0 6px 14px rgba(30, 22, 14, .08);
-  backdrop-filter:blur(6px);
+  font-size:13px; font-weight:700;
   cursor:pointer;
-  display:none;
-  transition:all .2s ease;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.12);
+  transition:background .15s, transform .15s;
 }
-.slot-remove:hover{
-  background:#fff;
-  border-color:rgba(75, 122, 82, .34);
-  transform:translateY(-1px);
+.photo-preview-item .item-remove:hover{
+  background:#fff; transform:scale(1.1);
 }
-.photo-slot.has-img .slot-remove{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
+.photo-preview-item .drag-hint{
+  position:absolute; bottom:5px; left:50%; transform:translateX(-50%);
+  font-size:10px; color:rgba(255,255,255,.88);
+  background:rgba(0,0,0,.32); padding:2px 7px; border-radius:4px;
+  pointer-events:none; white-space:nowrap;
 }
-.slot-download{
-  position:absolute;
-  top:10px;
-  left:10px;
-  z-index:3;
-  min-width:54px;
-  height:30px;
-  padding:0 12px;
-  border:1px solid rgba(75, 122, 82, 0.2);
-  border-radius:999px;
-  background:rgba(255,255,255,.94);
-  color:var(--primary-dark);
-  font-size:12px;
-  font-weight:600;
-  letter-spacing:.2px;
-  box-shadow:0 6px 14px rgba(30,22,14,.08);
-  backdrop-filter:blur(6px);
-  cursor:pointer;
-  display:none;
-  transition:all .2s ease;
+.photo-add-btn{
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  padding:11px 10px;
+  border:1.5px dashed var(--border);
+  border-radius:8px;
+  background:var(--bg);
+  color:var(--muted);
+  font-size:13px; cursor:pointer;
+  transition:border-color .15s, color .15s;
 }
-.slot-download:hover{
-  background:#fff;
-  border-color:rgba(75, 122, 82, .34);
-  transform:translateY(-1px);
-}
-.photo-slot.has-img .slot-download{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
+.photo-add-btn:hover{ border-color:var(--primary); color:var(--primary-dark); }
+.photo-add-btn.hidden{ display:none; }
+.photo-preview-item.is-sorting{ opacity:.35; }
+.sort-ghost{ border-radius:8px; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,.2); }
+.sort-placeholder{
+  border:2px dashed var(--primary);
+  border-radius:8px;
+  background:rgba(75,122,82,.06);
+  aspect-ratio:4/3;
 }
 
 /* ────────── Toggle ────────── */
@@ -581,7 +549,7 @@ body{
 /* ────────── RWD ────────── */
 @media(max-width:480px){
   .info-row{ grid-template-columns: 90px 1fr; }
-  .photo-upload-row{ grid-template-columns: repeat(3, 1fr); }
+
 }
 </style>
 </head>
@@ -652,6 +620,7 @@ body{
 </div>
 
 <script src="config.js"></script>
+<script src="./assets/sortable-order.js"></script>
 <script>
 (function(){
   if (/Line\//i.test(navigator.userAgent)) {
@@ -783,8 +752,9 @@ function row(lbl, val){ return '<div class="info-row"><div class="info-lbl">' + 
 
 function renderCase(){
   var d = caseData;
-  var photos    = [d.photo1,    d.photo2,    d.photo3   ].filter(Boolean);
-  var repPhotos = [d.repPhoto1, d.repPhoto2, d.repPhoto3].filter(Boolean);
+  var photos    = [d.photo1, d.photo2, d.photo3, d.photo4, d.photo5].filter(Boolean);
+  var repPhotos = [d.repPhoto1, d.repPhoto2, d.repPhoto3, d.repPhoto4, d.repPhoto5,
+                   d.repPhoto6, d.repPhoto7, d.repPhoto8, d.repPhoto9, d.repPhoto10].filter(Boolean);
 
   document.getElementById('pageTitle').textContent = d.title || '案件詳情';
 
@@ -890,7 +860,9 @@ function showError(t, m){
     '<div class="card"><div class="state-box"><h3>' + t + '</h3><p>' + m + '</p></div></div>';
 }
 
-var replyPhotoRemoved = [false, false, false];
+var replyPhotos = [];
+var replyPhotoIdSeq = 0;
+var photoSortable = null;
 
 // ────────────────────────────────────────────────────────────
 // MODAL
@@ -908,7 +880,6 @@ function openModal(){
     return '<option value="' + c + '"' + (d.publicCate === c ? ' selected' : '') + '>' + c + '</option>';
   }).join('');
 
-  replyPhotoRemoved = [false, false, false];
   var html = '';
 
   // 案件狀態
@@ -937,19 +908,14 @@ function openModal(){
 
   // 處理照片
   html += '<div class="field">';
-  html += '<div class="field-label">處理照片</div>';
-  html += '<div class="photo-upload-row">';
-  [1,2,3].forEach(function(n){
-    var existing = n === 1 ? d.repPhoto1 : n === 2 ? d.repPhoto2 : d.repPhoto3;
-    html += '<div class="photo-slot' + (existing ? ' has-img' : '') + '" id="slot'+n+'">';
-    html += '<input type="file" accept="image/*" id="m_photo'+n+'" onchange="handlePhotoChange(this,'+n+')">';
-    html += '<button type="button" class="slot-download" onclick="downloadReplyPhoto('+n+', event)">下載</button>';
-    html += '<button type="button" class="slot-remove" onclick="clearReplyPhoto('+n+', event)">移除</button>';
-    html += '<svg class="slot-icon" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
-    html += '<div class="slot-label">照片 ' + n + '</div>';
-    html += '<img class="thumb" id="thumb'+n+'" src="' + (existing ? esc(existing) : '') + '" alt="">';
-    html += '</div>';
-  });
+  html += '<div class="field-label">處理照片 <span style="color:var(--muted);font-size:11px;font-weight:400">（最多 10 張，可拖曳調整順序）</span></div>';
+  html += '<div class="photo-upload-area" id="photoUploadArea">';
+  html += '<div class="photo-preview-grid" id="photoPreviewGrid"></div>';
+  html += '<label class="photo-add-btn" id="photoAddBtn">';
+  html += '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+  html += '新增照片';
+  html += '<input type="file" accept="image/*" multiple id="photoFileInput" style="display:none" onchange="handleMultiPhotoAdd(this)">';
+  html += '</label>';
   html += '</div></div>';
 
   // 備註
@@ -993,6 +959,7 @@ function openModal(){
   html += '</div>'; // collapsible
 
   document.getElementById('modalBody').innerHTML = html;
+  initReplyPhotos(d);
   document.getElementById('replyModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 
@@ -1023,19 +990,97 @@ function togglePub(){
 }
 
 // ────────────────────────────────────────────────────────────
-// PHOTO PREVIEW
+// MULTI-PHOTO UPLOAD WIDGET
 // ────────────────────────────────────────────────────────────
-function handlePhotoChange(input, n){
-  if (!input.files || !input.files[0]) return;
-  replyPhotoRemoved[n - 1] = false;
-  var reader = new FileReader();
-  reader.onload = function(e){
-    var slot  = document.getElementById('slot' + n);
-    var thumb = document.getElementById('thumb' + n);
-    thumb.src = e.target.result;
-    slot.classList.add('has-img');
-  };
-  reader.readAsDataURL(input.files[0]);
+function initReplyPhotos(d) {
+  replyPhotos = [];
+  replyPhotoIdSeq = 0;
+  if (photoSortable) { photoSortable.destroy(); photoSortable = null; }
+  [d.repPhoto1, d.repPhoto2, d.repPhoto3, d.repPhoto4, d.repPhoto5,
+   d.repPhoto6, d.repPhoto7, d.repPhoto8, d.repPhoto9, d.repPhoto10].forEach(function(url) {
+    if (url) replyPhotos.push({ id: replyPhotoIdSeq++, src: url, file: null, origUrl: url });
+  });
+  renderPhotoPreviewGrid();
+}
+
+function renderPhotoPreviewGrid() {
+  var grid   = document.getElementById('photoPreviewGrid');
+  var addBtn = document.getElementById('photoAddBtn');
+  if (!grid) return;
+
+  grid.innerHTML = '';
+  replyPhotos.forEach(function(p) {
+    var div = document.createElement('div');
+    div.className = 'photo-preview-item';
+    div.setAttribute('data-sort-id', String(p.id));
+    var img = document.createElement('img');
+    img.src = p.src;
+    img.alt = '照片';
+    var rmBtn = document.createElement('button');
+    rmBtn.type = 'button';
+    rmBtn.className = 'item-remove';
+    rmBtn.textContent = '✕';
+    rmBtn.setAttribute('data-pid', String(p.id));
+    rmBtn.addEventListener('click', function(e) {
+      e.preventDefault(); e.stopPropagation();
+      var pid = parseInt(this.getAttribute('data-pid'));
+      syncPhotosFromDOM();
+      replyPhotos = replyPhotos.filter(function(x) { return x.id !== pid; });
+      renderPhotoPreviewGrid();
+    });
+    var hint = document.createElement('span');
+    hint.className = 'drag-hint';
+    hint.textContent = '拖曳排序';
+    div.appendChild(img);
+    div.appendChild(rmBtn);
+    if (replyPhotos.length > 1) div.appendChild(hint);
+    grid.appendChild(div);
+  });
+
+  if (addBtn) addBtn.classList.toggle('hidden', replyPhotos.length >= 10);
+
+  if (photoSortable) { photoSortable.destroy(); photoSortable = null; }
+  if (replyPhotos.length > 1) {
+    photoSortable = new SortableOrder(grid, {
+      selector: '.photo-preview-item',
+      onReorder: function(ids) {
+        var idMap = {};
+        replyPhotos.forEach(function(p) { idMap[p.id] = p; });
+        replyPhotos = ids.map(function(id) { return idMap[parseInt(id)]; }).filter(Boolean);
+      }
+    });
+  }
+}
+
+function syncPhotosFromDOM() {
+  var grid = document.getElementById('photoPreviewGrid');
+  if (!grid) return;
+  var items = grid.querySelectorAll('[data-sort-id]');
+  var idMap = {};
+  replyPhotos.forEach(function(p) { idMap[p.id] = p; });
+  var ordered = Array.prototype.map.call(items, function(el) {
+    return idMap[parseInt(el.getAttribute('data-sort-id'))];
+  }).filter(Boolean);
+  if (ordered.length === replyPhotos.length) replyPhotos = ordered;
+}
+
+function handleMultiPhotoAdd(input) {
+  if (!input.files || !input.files.length) return;
+  var slots = 10 - replyPhotos.length;
+  if (slots <= 0) return;
+  var files = Array.prototype.slice.call(input.files, 0, slots);
+  var pending = files.length;
+  files.forEach(function(file) {
+    var id = replyPhotoIdSeq++;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      replyPhotos.push({ id: id, src: e.target.result, file: file, origUrl: '' });
+      pending--;
+      if (pending === 0) renderPhotoPreviewGrid();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
 }
 
 function renderPhotoCard(url, label){
@@ -1063,27 +1108,6 @@ function downloadPhoto(url, label, event){
   a.remove();
 }
 
-function downloadReplyPhoto(n, event){
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-  var thumb = document.getElementById('thumb' + n);
-  if (!thumb || !thumb.getAttribute('src')) return;
-  downloadPhoto(thumb.getAttribute('src'), 'reply-photo-' + n, null);
-}
-
-function clearReplyPhoto(n, event){
-  if (event) event.preventDefault();
-  if (event) event.stopPropagation();
-  var slot = document.getElementById('slot' + n);
-  var input = document.getElementById('m_photo' + n);
-  var thumb = document.getElementById('thumb' + n);
-  if (input) input.value = '';
-  if (thumb) thumb.removeAttribute('src');
-  if (slot) slot.classList.remove('has-img');
-  replyPhotoRemoved[n - 1] = true;
-}
 
 // ────────────────────────────────────────────────────────────
 // IMAGE COMPRESS + UPLOAD
@@ -1110,9 +1134,8 @@ function compressImage(file){
   });
 }
 
-async function uploadPhoto(fileInput){
-  if (!fileInput || !fileInput.files || !fileInput.files[0]) return '';
-  var file = fileInput.files[0];
+async function uploadPhotoFile(file){
+  if (!file) return '';
   try {
     var base64 = await compressImage(file);
     var sess = getSession();
@@ -1153,14 +1176,14 @@ async function submitReply(){
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> 上傳照片…';
 
-  // Upload photos (only new uploads; keep existing URLs if no new file)
-  var inputs = [1,2,3].map(function(n){ return document.getElementById('m_photo' + n); });
-  var existing = [caseData.repPhoto1, caseData.repPhoto2, caseData.repPhoto3];
-  var photos = await Promise.all(inputs.map(function(inp, i){
-    if (inp && inp.files && inp.files[0]) return uploadPhoto(inp);
-    if (replyPhotoRemoved[i]) return Promise.resolve('');
-    return Promise.resolve(existing[i] || '');
+  // Sync DOM order (in case user dragged without triggering onReorder)
+  syncPhotosFromDOM();
+
+  // Upload new files; keep existing URLs as-is
+  var photos = await Promise.all(replyPhotos.map(function(p) {
+    return p.file ? uploadPhotoFile(p.file) : Promise.resolve(p.origUrl || '');
   }));
+  while (photos.length < 10) photos.push('');
 
   btn.innerHTML = '<span class="spinner"></span> 送出中…';
 
@@ -1179,6 +1202,13 @@ async function submitReply(){
     reply_photo1:    photos[0],
     reply_photo2:    photos[1],
     reply_photo3:    photos[2],
+    reply_photo4:    photos[3],
+    reply_photo5:    photos[4],
+    reply_photo6:    photos[5],
+    reply_photo7:    photos[6],
+    reply_photo8:    photos[7],
+    reply_photo9:    photos[8],
+    reply_photo10:   photos[9],
   };
 
   try {

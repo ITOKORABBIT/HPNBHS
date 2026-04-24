@@ -206,8 +206,10 @@ function handleSubmitReport(data) {
     String(data.addr    || '').trim(),
     String(data.map     || '').trim(),
     String(data.case1999 || data['1999'] || '').trim(),
-    photos[0], photos[1], photos[2],
-    '', nowText, '', '', '', '', '', '', 'FALSE', '', '', '', '', replyUrl, 0
+    photos[0], photos[1], photos[2], photos[3], photos[4],
+    '', nowText, '',                              // replyTime, lastUpdate, replyContent
+    '', '', '', '', '', '', '', '', '', '',        // repPhoto1-10
+    '', '', 'FALSE', '', '', '', '', replyUrl, 0  // handler, note, publicFlag…publicSummary, replyUrl, pinOrder
   ]);
 
   notifyNewReport_({
@@ -222,6 +224,7 @@ function handleSubmitReport(data) {
     map:   String(data.map   || '').trim(),
     case1999: String(data.case1999 || data['1999'] || '').trim(),
     photo1: photos[0] || DEFAULT_REPORT_IMAGE_URL, photo2: photos[1], photo3: photos[2],
+    photo4: photos[3], photo5: photos[4],
     replyUrl: replyUrl, detailUrl: replyUrl
   });
 
@@ -392,8 +395,8 @@ function buildDetailUrl_(caseId) {
 }
 
 function uploadPublicReportPhotos_(photos, caseId) {
-  var result = ['', '', ''];
-  var items = Array.isArray(photos) ? photos.slice(0, 3) : [];
+  var result = ['', '', '', '', ''];
+  var items = Array.isArray(photos) ? photos.slice(0, 5) : [];
   for (var i = 0; i < items.length; i++) {
     if (!items[i] || !items[i].base64) continue;
     try {
@@ -487,22 +490,31 @@ function rowToCase(r) {
     photo1:        String(r[12] || ''),
     photo2:        String(r[13] || ''),
     photo3:        String(r[14] || ''),
-    replyTime:     fmtDate(r[15]),
-    lastUpdate:    fmtDate(r[16]),
-    replyContent:  String(r[17] || ''),
-    repPhoto1:     String(r[18] || ''),
-    repPhoto2:     String(r[19] || ''),
-    repPhoto3:     String(r[20] || ''),
-    handler:       String(r[21] || ''),
-    note:          String(r[22] || ''),
-    publicFlag:    String(r[23] || ''),
-    publicTitle:   String(r[24] || ''),
-    publicCate:    String(r[25] || ''),
-    publicLoc:     String(r[26] || ''),
-    publicSummary: String(r[27] || ''),
-    replyUrl:      String(r[28] || ''),
-    pinOrder:      Number(r[29]  || 0),   // AD欄：置頂順序（0=不置頂）
-    sortOrder:     Number(r[30]  || 0),   // AE欄：自訂顯示排序（0=未設定）
+    photo4:        String(r[15] || ''),
+    photo5:        String(r[16] || ''),
+    replyTime:     fmtDate(r[17]),
+    lastUpdate:    fmtDate(r[18]),
+    replyContent:  String(r[19] || ''),
+    repPhoto1:     String(r[20] || ''),
+    repPhoto2:     String(r[21] || ''),
+    repPhoto3:     String(r[22] || ''),
+    repPhoto4:     String(r[23] || ''),
+    repPhoto5:     String(r[24] || ''),
+    repPhoto6:     String(r[25] || ''),
+    repPhoto7:     String(r[26] || ''),
+    repPhoto8:     String(r[27] || ''),
+    repPhoto9:     String(r[28] || ''),
+    repPhoto10:    String(r[29] || ''),
+    handler:       String(r[30] || ''),
+    note:          String(r[31] || ''),
+    publicFlag:    String(r[32] || ''),
+    publicTitle:   String(r[33] || ''),
+    publicCate:    String(r[34] || ''),
+    publicLoc:     String(r[35] || ''),
+    publicSummary: String(r[36] || ''),
+    replyUrl:      String(r[37] || ''),
+    pinOrder:      Number(r[38]  || 0),   // AM欄：置頂順序（0=不置頂）
+    sortOrder:     Number(r[39]  || 0),   // AN欄：自訂顯示排序（0=未設定）
   };
 }
 
@@ -522,22 +534,29 @@ function handleUpdateReply(data) {
   if (rowIndex === -1) return jsonOut({ success: false, error: '找不到案件: ' + data.caseId });
 
   var now = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm');
-  var existingReplyTime = all[rowIndex - 1][15];
+  var existingReplyTime = all[rowIndex - 1][17];
 
   sheet.getRange(rowIndex,  3).setValue(data.status || '');
-  sheet.getRange(rowIndex, 16).setValue(existingReplyTime ? existingReplyTime : now);
-  sheet.getRange(rowIndex, 17).setValue(now);
-  sheet.getRange(rowIndex, 18).setValue(data.reply_content || '');
-  sheet.getRange(rowIndex, 19).setValue(data.reply_photo1 || '');
-  sheet.getRange(rowIndex, 20).setValue(data.reply_photo2 || '');
-  sheet.getRange(rowIndex, 21).setValue(data.reply_photo3 || '');
-  sheet.getRange(rowIndex, 22).setValue(data.handler || '');
-  sheet.getRange(rowIndex, 23).setValue(data.PS || '');
-  sheet.getRange(rowIndex, 24).setValue(data.public ? '是' : '否');
-  sheet.getRange(rowIndex, 25).setValue(data.public_title || '');
-  sheet.getRange(rowIndex, 26).setValue(data.public_category || '');
-  sheet.getRange(rowIndex, 27).setValue(data.public_location || '');
-  sheet.getRange(rowIndex, 28).setValue(data.public_content || '');
+  sheet.getRange(rowIndex, 18).setValue(existingReplyTime ? existingReplyTime : now);
+  sheet.getRange(rowIndex, 19).setValue(now);
+  sheet.getRange(rowIndex, 20).setValue(data.reply_content || '');
+  sheet.getRange(rowIndex, 21).setValue(data.reply_photo1  || '');
+  sheet.getRange(rowIndex, 22).setValue(data.reply_photo2  || '');
+  sheet.getRange(rowIndex, 23).setValue(data.reply_photo3  || '');
+  sheet.getRange(rowIndex, 24).setValue(data.reply_photo4  || '');
+  sheet.getRange(rowIndex, 25).setValue(data.reply_photo5  || '');
+  sheet.getRange(rowIndex, 26).setValue(data.reply_photo6  || '');
+  sheet.getRange(rowIndex, 27).setValue(data.reply_photo7  || '');
+  sheet.getRange(rowIndex, 28).setValue(data.reply_photo8  || '');
+  sheet.getRange(rowIndex, 29).setValue(data.reply_photo9  || '');
+  sheet.getRange(rowIndex, 30).setValue(data.reply_photo10 || '');
+  sheet.getRange(rowIndex, 31).setValue(data.handler || '');
+  sheet.getRange(rowIndex, 32).setValue(data.PS || '');
+  sheet.getRange(rowIndex, 33).setValue(data.public ? '是' : '否');
+  sheet.getRange(rowIndex, 34).setValue(data.public_title || '');
+  sheet.getRange(rowIndex, 35).setValue(data.public_category || '');
+  sheet.getRange(rowIndex, 36).setValue(data.public_location || '');
+  sheet.getRange(rowIndex, 37).setValue(data.public_content || '');
 
   return jsonOut({ success: true });
 }
@@ -618,19 +637,19 @@ function handleGetPublicCases(data) {
   for (var i = 1; i < all.length; i++) {
     if (!all[i][0]) continue;
     var r = all[i];
-    var pub = String(r[23] || '');
+    var pub = String(r[32] || '');
     if (pub !== '是' && pub.toUpperCase() !== 'TRUE') continue;
     cases.push({
       caseId:        String(r[0]  || ''),
       status:        String(r[2]  || ''),
-      replyTime:     fmtDate(r[15]),
-      publicTitle:   String(r[24] || ''),
-      publicCate:    String(r[25] || ''),
-      publicLoc:     String(r[26] || ''),
-      publicSummary: String(r[27] || ''),
-      repPhoto1:     String(r[18] || ''),
-      _pin:  Number(r[29] || 0),
-      _sort: Number(r[30] || 0),
+      replyTime:     fmtDate(r[17]),
+      publicTitle:   String(r[33] || ''),
+      publicCate:    String(r[34] || ''),
+      publicLoc:     String(r[35] || ''),
+      publicSummary: String(r[36] || ''),
+      repPhoto1:     String(r[20] || ''),
+      _pin:  Number(r[38] || 0),
+      _sort: Number(r[39] || 0),
     });
   }
   var SW = { '新案件': 1, '處理中': 2, '轉交': 3, '結案': 4, '不受理': 5 };
@@ -663,14 +682,17 @@ function handleGetPublicCase(data) {
   for (var i = 1; i < all.length; i++) {
     if (String(all[i][0]) !== caseId) continue;
     var r = all[i];
-    var pub = String(r[23] || '');
+    var pub = String(r[32] || '');
     if (pub !== '是' && pub.toUpperCase() !== 'TRUE') return jsonOut({ success: false, error: '此案件未公開' });
     return jsonOut({ success: true, caseData: {
       caseId: String(r[0] || ''), status: String(r[2] || ''),
-      replyTime: fmtDate(r[15]),
-      repPhoto1: String(r[18] || ''), repPhoto2: String(r[19] || ''), repPhoto3: String(r[20] || ''),
-      publicTitle: String(r[24] || ''), publicCate: String(r[25] || ''),
-      publicLoc: String(r[26] || ''), publicSummary: String(r[27] || ''),
+      replyTime: fmtDate(r[17]),
+      repPhoto1:  String(r[20] || ''), repPhoto2:  String(r[21] || ''), repPhoto3:  String(r[22] || ''),
+      repPhoto4:  String(r[23] || ''), repPhoto5:  String(r[24] || ''), repPhoto6:  String(r[25] || ''),
+      repPhoto7:  String(r[26] || ''), repPhoto8:  String(r[27] || ''), repPhoto9:  String(r[28] || ''),
+      repPhoto10: String(r[29] || ''),
+      publicTitle: String(r[33] || ''), publicCate: String(r[34] || ''),
+      publicLoc: String(r[35] || ''), publicSummary: String(r[36] || ''),
     }});
   }
   return jsonOut({ success: false, error: '找不到案件' });
