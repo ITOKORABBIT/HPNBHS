@@ -61,6 +61,7 @@ function doPost(e) {
       case 'deleteBulletin':     return requireAdmin(data, handleDeleteBulletin);
       // ── 置頂功能 ──
       case 'pinCase':           return requireAdmin(data, handlePinCase);
+      case 'reorderCases':      return requireAdmin(data, handleReorderCases);
       case 'getAdmins':         return requireSuperAdmin(data, handleGetAdmins);
       case 'addAdmin':          return requireSuperAdmin(data, handleAddAdmin);
       case 'updateAdmin':       return requireSuperAdmin(data, handleUpdateAdmin);
@@ -497,7 +498,8 @@ function rowToCase(r) {
     publicLoc:     String(r[26] || ''),
     publicSummary: String(r[27] || ''),
     replyUrl:      String(r[28] || ''),
-    pinOrder:      Number(r[29]  || 0)   // AD欄：置頂順序（0=不置頂）
+    pinOrder:      Number(r[29]  || 0),   // AD欄：置頂順序（0=不置頂）
+    sortOrder:     Number(r[30]  || 0),   // AE欄：自訂顯示排序（0=未設定）
   };
 }
 
@@ -616,13 +618,36 @@ function handleGetPublicCases(data) {
     var pub = String(r[23] || '');
     if (pub !== '是' && pub.toUpperCase() !== 'TRUE') continue;
     cases.push({
-      caseId: String(r[0] || ''), status: String(r[2] || ''),
-      replyTime: fmtDate(r[15]), publicTitle: String(r[24] || ''),
-      publicCate: String(r[25] || ''), publicLoc: String(r[26] || ''),
-      publicSummary: String(r[27] || ''), repPhoto1: String(r[18] || ''),
+      caseId:        String(r[0]  || ''),
+      status:        String(r[2]  || ''),
+      replyTime:     fmtDate(r[15]),
+      publicTitle:   String(r[24] || ''),
+      publicCate:    String(r[25] || ''),
+      publicLoc:     String(r[26] || ''),
+      publicSummary: String(r[27] || ''),
+      repPhoto1:     String(r[18] || ''),
+      _pin:  Number(r[29] || 0),
+      _sort: Number(r[30] || 0),
     });
   }
-  cases.sort(function(a, b) { return b.caseId.localeCompare(a.caseId); });
+  var SW = { '新案件': 1, '處理中': 2, '轉交': 3, '結案': 4, '不受理': 5 };
+  function swt_(s) {
+    for (var k in SW) if (s.indexOf(k) !== -1) return SW[k];
+    return 9;
+  }
+  cases.sort(function(a, b) {
+    var pa = a._pin > 0 ? 0 : 1, pb = b._pin > 0 ? 0 : 1;
+    if (pa !== pb) return pa - pb;
+    if (pa === 1) { // 非置頂：先按狀態群組
+      var wa = swt_(a.status), wb = swt_(b.status);
+      if (wa !== wb) return wa - wb;
+    }
+    var sa = a._sort > 0 ? a._sort : 999999;
+    var sb = b._sort > 0 ? b._sort : 999999;
+    if (sa !== sb) return sa - sb;
+    return b.caseId.localeCompare(a.caseId);
+  });
+  cases.forEach(function(c) { delete c._pin; delete c._sort; });
   return jsonOut({ success: true, cases: cases });
 }
 
@@ -884,6 +909,24 @@ function handlePinCase(data) {
     return jsonOut({ success: true });
   }
   return jsonOut({ success: false, error: '找不到案件: ' + caseId });
+}
+
+function handleReorderCases(data) {
+  var orders = data.orders;
+  if (!Array.isArray(orders) || !orders.length)
+    return jsonOut({ success: false, error: 'Missing orders' });
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_CASES);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var all = sheet.getDataRange().getValues();
+  var orderMap = {};
+  for (var k = 0; k < orders.length; k++)
+    orderMap[String(orders[k].caseId)] = Number(orders[k].sortOrder || 0);
+  for (var i = 1; i < all.length; i++) {
+    var cid = String(all[i][0] || '');
+    if (orderMap.hasOwnProperty(cid))
+      sheet.getRange(i + 1, 31).setValue(orderMap[cid]); // AE欄
+  }
+  return jsonOut({ success: true });
 }
 
 function handleSetPinStore(data) {

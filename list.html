@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 <style>
 /* ── Reset & Tokens ── */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -479,6 +480,20 @@ body{
 .pin-btn.pinned { background: #FFF1F1; border-color: #E57373; color: #C62828; }
 .case-card.is-pinned { border-left: 3px solid #F59E0B; }
 
+/* ── 拖曳排序 ── */
+.group-cards {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 12px;
+}
+.sortable-ghost { opacity: 0.3; }
+.sortable-drag {
+  box-shadow: 0 12px 40px rgba(0,0,0,.25) !important;
+  cursor: grabbing !important;
+  transform: rotate(0.5deg) scale(1.02);
+}
+
 /* ── RWD ── */
 @media(max-width: 480px){
   .card-grid{
@@ -701,6 +716,16 @@ function statusGroupLabel(s) {
   return s;
 }
 
+function statusGroupKey(s) {
+  if (!s) return 'other';
+  if (s.indexOf('新案件') !== -1) return '新案件';
+  if (s.indexOf('處理中') !== -1) return '處理中';
+  if (s.indexOf('轉交')   !== -1) return '已轉交';
+  if (s.indexOf('結案')   !== -1) return '已結案';
+  if (s.indexOf('不受理') !== -1) return '不受理';
+  return s;
+}
+
 function badgeCls(s) {
   if (!s) return 'badge-proc';
   if (s.indexOf('新案件') !== -1)  return 'badge-new';
@@ -760,6 +785,8 @@ var currentStatusFilter   = 'all';
 var currentCategoryFilter = 'all';
 var chartsDrawn = false;
 var chartInstances = [];
+var sortableInstances = [];
+var GROUP_SORT_OFFSET = { pinned: 0, '新案件': 10000, '處理中': 20000, '已轉交': 30000, '已結案': 40000, '不受理': 50000 };
 
 // ──────────────────────────────────────────
 // LOAD DATA
@@ -879,14 +906,18 @@ function applyFilters() {
     return true;
   });
 
-  // 排序：置頂優先（pinOrder asc），再依狀態權重，再依案件號 desc
+  // 排序：置頂優先，再依狀態群組，再依自訂 sortOrder，最後依案件號 desc
   filtered.sort(function(a, b){
-    var pa = a.pinOrder > 0 ? a.pinOrder : 999999;
-    var pb = b.pinOrder > 0 ? b.pinOrder : 999999;
-    if (pa !== pb) return pa - pb;
-    var wa = statusWeight(a.status);
-    var wb = statusWeight(b.status);
-    if (wa !== wb) return wa - wb;
+    var isPinnedA = a.pinOrder > 0 ? 0 : 1;
+    var isPinnedB = b.pinOrder > 0 ? 0 : 1;
+    if (isPinnedA !== isPinnedB) return isPinnedA - isPinnedB;
+    var sortA = a.sortOrder > 0 ? a.sortOrder : 999999;
+    var sortB = b.sortOrder > 0 ? b.sortOrder : 999999;
+    if (isPinnedA === 1) { // 非置頂：先按狀態群組
+      var wa = statusWeight(a.status), wb = statusWeight(b.status);
+      if (wa !== wb) return wa - wb;
+    }
+    if (sortA !== sortB) return sortA - sortB;
     return caseIdNum(b.caseId) - caseIdNum(a.caseId);
   });
 
@@ -908,6 +939,11 @@ function applyFilters() {
 
 function renderGrid(cases) {
   var grid = document.getElementById('cardGrid');
+
+  // 銷毀舊的 Sortable 實例
+  sortableInstances.forEach(function(s){ try{ s.destroy(); }catch(e){} });
+  sortableInstances = [];
+
   if (!cases.length) {
     grid.innerHTML = '<div class="state-wrap">' +
       '<svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">' +
@@ -916,39 +952,66 @@ function renderGrid(cases) {
     return;
   }
 
-  var html = '';
-  var lastGroup = null;
-  var shownPinHeader = false;
-  var shownNormalHeader = false;
-
+  // 依群組收集卡片（保留 applyFilters 排序後的順序）
+  var groupOrder = ['pinned', '新案件', '處理中', '已轉交', '已結案', '不受理', 'other'];
+  var groups = {};
   cases.forEach(function(d){
-    var isPinned = d.pinOrder > 0;
-    // 置頂組標頭
-    if (isPinned && !shownPinHeader) {
-      var pinCnt = cases.filter(function(x){ return x.pinOrder > 0; }).length;
-      html += '<div class="group-header">' +
-        '<span class="group-label">📌 置頂案件</span>' +
-        '<span class="group-count">' + pinCnt + ' 筆</span>' +
-        '<div class="group-line"></div></div>';
-      shownPinHeader = true;
-      lastGroup = '📌 置頂案件';
-    }
-    // 一般狀態組標頭
-    if (!isPinned) {
-      var grp = statusGroupLabel(d.status);
-      if (grp !== lastGroup) {
-        var cnt = cases.filter(function(x){ return !x.pinOrder && statusGroupLabel(x.status) === grp; }).length;
-        html += '<div class="group-header">' +
-          '<span class="group-label">' + grp + '</span>' +
-          '<span class="group-count">' + cnt + ' 筆</span>' +
-          '<div class="group-line"></div></div>';
-        lastGroup = grp;
-      }
-    }
-    html += renderCard(d);
+    var gKey = d.pinOrder > 0 ? 'pinned' : statusGroupKey(d.status);
+    if (!groups[gKey]) groups[gKey] = [];
+    groups[gKey].push(d);
+  });
+
+  var html = '';
+  groupOrder.forEach(function(gKey){
+    var cards = groups[gKey];
+    if (!cards || !cards.length) return;
+    var label = gKey === 'pinned' ? '📌 置頂案件' : statusGroupLabel(cards[0].status);
+    html += '<div class="group-header">' +
+      '<span class="group-label">' + label + '</span>' +
+      '<span class="group-count">' + cards.length + ' 筆</span>' +
+      '<div class="group-line"></div></div>';
+    html += '<div class="group-cards" id="grp-' + gKey + '">';
+    cards.forEach(function(d){ html += renderCard(d); });
+    html += '</div>';
   });
 
   grid.innerHTML = html;
+
+  // 初始化 SortableJS
+  if (typeof Sortable !== 'undefined') {
+    groupOrder.forEach(function(gKey){
+      var el = document.getElementById('grp-' + gKey);
+      if (!el) return;
+      (function(key, container){
+        var inst = Sortable.create(container, {
+          animation: 150,
+          delay: 200,
+          delayOnTouchOnly: true,
+          filter: '.pin-btn',
+          preventOnFilter: false,
+          ghostClass: 'sortable-ghost',
+          dragClass: 'sortable-drag',
+          onEnd: function(){ onSortEnd(key, container); }
+        });
+        sortableInstances.push(inst);
+      })(gKey, el);
+    });
+  }
+}
+
+function onSortEnd(groupKey, el) {
+  var offset = GROUP_SORT_OFFSET[groupKey] !== undefined ? GROUP_SORT_OFFSET[groupKey] : 60000;
+  var cards = el.querySelectorAll('[data-case-id]');
+  var orders = [];
+  for (var i = 0; i < cards.length; i++) {
+    var cid = cards[i].getAttribute('data-case-id');
+    var so = offset + (i + 1) * 10;
+    orders.push({ caseId: cid, sortOrder: so });
+    for (var j = 0; j < allCases.length; j++) {
+      if (allCases[j].caseId === cid) { allCases[j].sortOrder = so; break; }
+    }
+  }
+  apiCall('reorderCases', { orders: orders }).catch(function(){});
 }
 
 function imgFallback(img) {
@@ -975,7 +1038,7 @@ function renderCard(d) {
 
   var isPinned = d.pinOrder > 0;
   var cardCls = 'case-card ' + cardStatusCls(d.status) + (isPinned ? ' is-pinned' : '');
-  var html = '<div class="' + cardCls + '" onclick="openCase(\'' + esc(d.caseId) + '\')">';
+  var html = '<div class="' + cardCls + '" data-case-id="' + esc(d.caseId) + '" onclick="openCase(\'' + esc(d.caseId) + '\')">';
   html += thumb;
   html += '<div class="card-body">';
   html += '<div class="card-top">';
