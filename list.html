@@ -1363,8 +1363,6 @@ function renderStats() {
   chartsDrawn = true;
 }
 
-// Re-render stats when sidebar opens after data loads
-var _origOpen = openSidebar;
 openSidebar = function() {
   sidebarOpen = true;
   document.getElementById('statsSidebar').classList.add('open');

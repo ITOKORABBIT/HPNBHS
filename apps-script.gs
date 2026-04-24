@@ -1214,7 +1214,7 @@ function handleAddBulletin(data) {
   var sheet = ss.getSheetByName(SHEET_BULLETIN);
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_BULLETIN);
-    sheet.appendRow(['公告ID','建立時間','標題','內容','圖片網址','置頂','狀態','建立者']);
+    sheet.appendRow(['公告ID','建立時間','標題','內容','圖片網址','置頂','狀態','建立者','公告分類','排序順序']);
   }
   var id  = nextBulletinId(sheet);
   var now = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm');

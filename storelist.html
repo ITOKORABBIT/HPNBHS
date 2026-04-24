@@ -497,8 +497,6 @@ function planBadge(planType) {
   if (plan === '精選') return '<span class="plan-badge plan-badge-std">⭐ 精選</span>';
   return '<span class="plan-badge plan-badge-free">🏠 免費</span>';
 }
-function statusGroupLabel(s){ if (s==='申請審核中') return '🟠 申請審核中'; if (s==='已公開') return '🟢 已公開'; if (s==='不通過') return '⚪ 不通過'; return s || '其他'; }
-function statusWeight(s){ if (s==='申請審核中') return 1; if (s==='已公開') return 2; if (s==='不通過') return 3; return 9; }
 function planGroupLabel(p){ if (p==='優選') return '👑 優選方案'; if (p==='精選') return '⭐ 精選方案'; return '🏠 免費方案'; }
 function storeIdNum(id){ if (!id) return 0; var m = String(id).match(/(\d+)/); return m ? parseInt(m[1],10) : 0; }
 
