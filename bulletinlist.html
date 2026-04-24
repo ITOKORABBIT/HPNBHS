@@ -182,7 +182,33 @@ a{text-decoration:none;color:inherit}
   color:var(--accent);
 }
 
-.list-wrap{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#fff}
+.list-wrap{padding:4px 0}
+.group-header{
+  display:flex;align-items:center;gap:8px;
+  padding:14px 4px 6px;
+  font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.04em;
+}
+.group-header:first-child{padding-top:4px}
+.group-cards{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.bull-item{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;
+  border:1px solid var(--border);border-radius:14px;background:#fff;
+  transition:transform .15s,box-shadow .15s;
+}
+.bull-item:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(43,35,27,.08)}
+.bull-drag-handle{
+  flex:0 0 auto;color:var(--muted);cursor:grab;
+  font-size:17px;opacity:.45;user-select:none;padding:2px 4px;
+}
+.bull-drag-handle:active{cursor:grabbing}
+.bull-item-body{flex:1;min-width:0}
+.bull-item-title{font-weight:800;color:var(--heading);margin-bottom:4px;word-break:break-all}
+.bull-item-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:4px}
+.bull-item-preview{font-size:13px;color:var(--muted);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bull-item-actions{display:flex;flex-wrap:nowrap;gap:8px;flex:0 0 auto}
+.sortable-ghost{opacity:.4}
+.sortable-drag{box-shadow:0 8px 24px rgba(43,35,27,.18)!important}
 table{width:100%;border-collapse:collapse}
 th,td{
   padding:14px 16px;
@@ -243,11 +269,17 @@ th:last-child,td:last-child{white-space:nowrap;width:1px}
 }
 
 .editor-head{
+  position:sticky;
+  top:0;
+  background:var(--card);
+  z-index:10;
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
   gap:14px;
-  margin-bottom:18px;
+  padding-bottom:16px;
+  margin-bottom:2px;
+  border-bottom:1px solid var(--border);
 }
 .editor-head-actions{
   display:flex;
@@ -549,6 +581,14 @@ th:last-child,td:last-child{white-space:nowrap;width:1px}
             <option value="已發布">已發布</option>
           </select>
         </div>
+        <div class="form-section">
+          <label class="label" for="categoryInput">公告分類</label>
+          <select class="select" id="categoryInput">
+            <option value="緊急通告">🚨 緊急通告</option>
+            <option value="政策宣導">📋 政策宣導</option>
+            <option value="里民活動" selected>🎪 里民活動</option>
+          </select>
+        </div>
       </div>
 
       <div class="form-section">
@@ -602,6 +642,7 @@ th:last-child,td:last-child{white-space:nowrap;width:1px}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 <script src="config.js"></script>
 <script>
 const SESSION_KEY = 'hpnbhs_admin';
@@ -611,6 +652,15 @@ let allBulletins = [];
 let filterStatus = 'all';
 let editingBulletinId = null;
 let uploadingBulletinImage = false;
+var sortableInstances = [];
+var CATE_SORT_OFFSET = { '緊急通告': 0, '政策宣導': 10000, '里民活動': 20000 };
+var CATE_ORDER = ['緊急通告', '政策宣導', '里民活動'];
+
+function catGroupLabel(c) {
+  if (c === '緊急通告') return '🚨 緊急通告';
+  if (c === '政策宣導') return '📋 政策宣導';
+  return '🎪 里民活動';
+}
 
 function openEditor() {
   document.getElementById('editorModal').classList.add('open');
@@ -695,6 +745,7 @@ function buildEditorSnapshot() {
     bulletinId: editingBulletinId || '',
     title: document.getElementById('titleInput').value.trim(),
     status: document.getElementById('statusInput').value,
+    category: document.getElementById('categoryInput').value,
     imageUrl: getImageUrls().join('\n'),
     content: document.getElementById('contentInput').value.trim(),
     pinned: document.getElementById('pinnedInput').checked,
@@ -730,6 +781,7 @@ function applyDraftSnapshot(snapshot) {
   if (!snapshot) return;
   document.getElementById('titleInput').value = snapshot.title || '';
   document.getElementById('statusInput').value = normalizeBulletinStatus(snapshot.status);
+  document.getElementById('categoryInput').value = snapshot.category || '里民活動';
   setImageUrls(splitImageUrls(snapshot.imageUrl || ''));
   document.getElementById('imageFileInput').value = '';
   document.getElementById('contentInput').value = snapshot.content || '';
@@ -891,6 +943,7 @@ function createBulletin() {
   document.getElementById('editorSub').textContent = '建立新公告後，可先存為未發布，再決定是否發布到里民前台。';
   document.getElementById('titleInput').value = '';
   document.getElementById('statusInput').value = '未發布';
+  document.getElementById('categoryInput').value = '里民活動';
   document.getElementById('imageInput').value = '';
   document.getElementById('imageFileInput').value = '';
   document.getElementById('contentInput').value = '';
@@ -915,6 +968,7 @@ function fillEditor(item) {
   document.getElementById('editorSub').textContent = '目前正在編輯 ' + item.bulletinId + '，儲存後會立即同步到資料表。';
   document.getElementById('titleInput').value = item.title || '';
   document.getElementById('statusInput').value = normalizeBulletinStatus(item.status);
+  document.getElementById('categoryInput').value = item.category || '里民活動';
   document.getElementById('imageInput').value = item.imageUrl || '';
   document.getElementById('imageFileInput').value = '';
   document.getElementById('contentInput').value = item.content || '';
@@ -1038,33 +1092,113 @@ function setFilterStatus(value) {
   renderBulletins();
 }
 
+function renderBulletinCard(item) {
+  var statusClass = normalizeBulletinStatus(item.status) === '已發布' ? 'badge-published' : 'badge-draft';
+  var preview = stripHtml(item.content || '').slice(0, 80);
+  return '<div class="bull-item" data-bulletin-id="' + escapeHtml(item.bulletinId) + '">' +
+    '<div class="bull-drag-handle">⠿</div>' +
+    '<div class="bull-item-body">' +
+      '<div class="bull-item-title">' + escapeHtml(item.title || '（無標題）') + '</div>' +
+      '<div class="bull-item-meta">' +
+        '<span class="badge ' + statusClass + '">' + escapeHtml(normalizeBulletinStatus(item.status)) + '</span>' +
+        (item.pinned ? ' <span class="badge badge-pinned">置頂</span>' : '') +
+        ' <span style="font-size:12px;color:var(--muted)">' + escapeHtml(fmtDate(item.createdAt)) + '</span>' +
+      '</div>' +
+      (preview ? '<div class="bull-item-preview">' + escapeHtml(preview) + '</div>' : '') +
+    '</div>' +
+    '<div class="bull-item-actions">' +
+      '<button class="inline-btn" onclick="editBulletin(\'' + escapeHtml(item.bulletinId) + '\')">編輯</button>' +
+      '<button class="inline-btn" onclick="quickToggleStatus(\'' + escapeHtml(item.bulletinId) + '\')">' +
+        (normalizeBulletinStatus(item.status) === '已發布' ? '取消發布' : '發布') +
+      '</button>' +
+    '</div>' +
+  '</div>';
+}
+
 function renderBulletins() {
+  sortableInstances.forEach(function(s){ try{ s.destroy(); }catch(e){} });
+  sortableInstances = [];
+
   buildPills();
-  const q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
-  const list = allBulletins.filter(item => {
+  var q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  var listWrap = document.getElementById('listWrap');
+
+  var list = allBulletins.filter(function(item) {
     if (filterStatus !== 'all' && normalizeBulletinStatus(item.status) !== filterStatus) return false;
     if (!q) return true;
-    const hay = [item.bulletinId, item.title, item.content, item.author].join(' ').toLowerCase();
-    return hay.includes(q);
+    var hay = [item.bulletinId, item.title, item.content, item.author, item.category || ''].join(' ').toLowerCase();
+    return hay.indexOf(q) !== -1;
+  });
+
+  // Sort by category group, then sortOrder
+  var catW = { '緊急通告': 1, '政策宣導': 2, '里民活動': 3 };
+  list.sort(function(a, b) {
+    var wa = catW[a.category] || 3, wb = catW[b.category] || 3;
+    if (wa !== wb) return wa - wb;
+    var ha = a.sortOrder > 0, hb = b.sortOrder > 0;
+    if (ha !== hb) return ha ? 1 : -1;
+    if (!ha) return (b.createdAt || '').localeCompare(a.createdAt || '');
+    return a.sortOrder - b.sortOrder;
   });
 
   if (!list.length) {
-    document.getElementById('listWrap').innerHTML = '<div class="empty"><h3>沒有符合的公告</h3><p>請切換狀態或調整搜尋條件。</p></div>';
+    listWrap.innerHTML = '<div class="empty"><h3>沒有符合的公告</h3><p>請切換狀態或調整搜尋條件。</p></div>';
     return;
   }
 
-  const rows = list.map(item => (
-    '<tr>' +
-    '<td>' + escapeHtml(item.bulletinId) + '</td>' +
-    '<td><div class="title-cell">' + escapeHtml(item.title || '（無標題）') + '</div><span class="preview">' + escapeHtml(stripHtml(item.content || '').slice(0, 60)) + '</span></td>' +
-    '<td><span class="badge ' + (normalizeBulletinStatus(item.status) === '已發布' ? 'badge-published' : 'badge-draft') + '">' + escapeHtml(normalizeBulletinStatus(item.status)) + '</span>' + (item.pinned ? ' <span class="badge badge-pinned">置頂</span>' : '') + '</td>' +
-    '<td>' + escapeHtml(fmtDate(item.createdAt)) + '</td>' +
-    '<td><div class="inline-actions"><button class="inline-btn" onclick="editBulletin(\'' + escapeHtml(item.bulletinId) + '\')">編輯</button><button class="inline-btn" onclick="quickToggleStatus(\'' + escapeHtml(item.bulletinId) + '\')">' + (normalizeBulletinStatus(item.status) === '已發布' ? '取消發布' : '發布') + '</button></div></td>' +
-    '</tr>'
-  )).join('');
+  // Group by category
+  var groups = {};
+  CATE_ORDER.forEach(function(c) { groups[c] = []; });
+  list.forEach(function(item) {
+    var c = item.category || '里民活動';
+    if (!groups[c]) groups[c] = [];
+    groups[c].push(item);
+  });
 
-  document.getElementById('listWrap').innerHTML =
-    '<table><thead><tr><th>公告編號</th><th>標題</th><th>狀態</th><th>建立時間</th><th>操作</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  var html = '';
+  CATE_ORDER.forEach(function(cateKey) {
+    var grp = groups[cateKey];
+    if (!grp || !grp.length) return;
+    html += '<div class="group-header">' + escapeHtml(catGroupLabel(cateKey)) +
+            ' <span style="font-weight:400;font-size:12px;opacity:.7">(' + grp.length + ')</span></div>';
+    html += '<div class="group-cards" data-group-key="' + escapeHtml(cateKey) + '">';
+    grp.forEach(function(item) { html += renderBulletinCard(item); });
+    html += '</div>';
+  });
+  listWrap.innerHTML = html;
+
+  // Init SortableJS per group
+  CATE_ORDER.forEach(function(cateKey) {
+    var el = listWrap.querySelector('.group-cards[data-group-key="' + cateKey + '"]');
+    if (!el) return;
+    (function(key, container) {
+      var inst = Sortable.create(container, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        dragClass: 'sortable-drag',
+        delay: 200,
+        delayOnTouchOnly: true,
+        onEnd: function() { onBulletinSortEnd(key, container); }
+      });
+      sortableInstances.push(inst);
+    })(cateKey, el);
+  });
+}
+
+function onBulletinSortEnd(groupKey, el) {
+  var cards = el.querySelectorAll('[data-bulletin-id]');
+  var offset = CATE_SORT_OFFSET[groupKey] || 0;
+  var orders = [];
+  for (var i = 0; i < cards.length; i++) {
+    var bid = cards[i].getAttribute('data-bulletin-id');
+    var sortVal = offset + (i + 1) * 10;
+    orders.push({ bulletinId: bid, sortOrder: sortVal });
+    for (var j = 0; j < allBulletins.length; j++) {
+      if (allBulletins[j].bulletinId === bid) { allBulletins[j].sortOrder = sortVal; break; }
+    }
+  }
+  apiCall('reorderBulletins', { orders: orders })
+    .catch(function() { console.error('reorderBulletins failed'); });
 }
 
 function editBulletin(id) {
@@ -1117,6 +1251,7 @@ function saveBulletin() {
   const content = document.getElementById('contentInput').value.trim();
   const imageUrl = getImageUrls().join('\n');
   const status = normalizeBulletinStatus(document.getElementById('statusInput').value);
+  const category = document.getElementById('categoryInput').value;
   const pinned = document.getElementById('pinnedInput').checked;
 
   if (!title) {
@@ -1130,6 +1265,7 @@ function saveBulletin() {
     content: content,
     imageUrl: imageUrl,
     status: status,
+    category: category,
     pinned: pinned
   };
   if (editingBulletinId) payload.bulletinId = editingBulletinId;
@@ -1172,9 +1308,8 @@ function removeBulletin() {
       showMessage(json.error || '刪除失敗', false);
       return;
     }
-    showMessage('公告已刪除。', true);
     clearDraftCache(removingScope);
-    createBulletin();
+    closeEditor();
     loadBulletins();
   }).catch(() => {
     showMessage('刪除失敗，請稍後再試。', false);
@@ -1187,9 +1322,10 @@ function refreshPreview() {
   const content = document.getElementById('contentInput').value.trim();
   const images = getImageUrls();
   const status = document.getElementById('statusInput').value;
+  const category = document.getElementById('categoryInput').value;
   const pinned = document.getElementById('pinnedInput').checked;
   document.getElementById('previewTitle').textContent = title || '尚未輸入標題';
-  document.getElementById('previewMeta').textContent = '狀態：' + normalizeBulletinStatus(status) + (pinned ? ' ・ 置頂' : '');
+  document.getElementById('previewMeta').textContent = '狀態：' + normalizeBulletinStatus(status) + ' ・ ' + category + (pinned ? ' ・ 置頂' : '');
   const previewContent = document.getElementById('previewContent');
   previewContent.innerHTML = content || '尚未輸入內容';
   const gallery = document.getElementById('previewGallery');
@@ -1202,7 +1338,7 @@ function refreshPreview() {
   }
 }
 
-['titleInput', 'contentInput', 'imageInput', 'statusInput', 'pinnedInput'].forEach(id => {
+['titleInput', 'contentInput', 'imageInput', 'statusInput', 'categoryInput', 'pinnedInput'].forEach(id => {
   document.addEventListener('input', event => {
     if (event.target && event.target.id === id) refreshPreview();
   });
@@ -1216,7 +1352,7 @@ document.getElementById('contentEditor').addEventListener('input', function() {
   persistCurrentDraftCache();
 });
 
-['titleInput', 'contentInput', 'imageInput', 'statusInput', 'pinnedInput'].forEach(id => {
+['titleInput', 'contentInput', 'imageInput', 'statusInput', 'categoryInput', 'pinnedInput'].forEach(id => {
   const el = document.getElementById(id);
   if (!el) return;
   el.addEventListener('input', persistCurrentDraftCache);

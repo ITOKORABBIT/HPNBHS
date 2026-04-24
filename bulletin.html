@@ -126,6 +126,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--val);font-size:15p
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
 .pin-icon{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.cate-header{
+  padding:14px 4px 6px;
+  font-size:13px;font-weight:700;color:var(--lbl);letter-spacing:.03em;
+}
+.cate-header:first-child{padding-top:4px}
+.cate-badge{
+  display:inline-flex;align-items:center;
+  padding:2px 8px;border-radius:999px;
+  font-size:11px;font-weight:700;
+}
+.cate-emergency{background:#fee2e2;color:#b91c1c}
+.cate-policy{background:#dbeafe;color:#1d4ed8}
+.cate-activity{background:var(--primary-light);color:var(--primary-dark)}
 </style>
 </head>
 <body>
@@ -256,11 +270,44 @@ async function load() {
   }
 }
 
+function catBadgeClass(cate) {
+  if (cate === '緊急通告') return 'cate-emergency';
+  if (cate === '政策宣導') return 'cate-policy';
+  return 'cate-activity';
+}
+function catHeaderLabel(cate) {
+  if (cate === '緊急通告') return '🚨 緊急通告';
+  if (cate === '政策宣導') return '📋 政策宣導';
+  return '🎪 里民活動';
+}
+
 function render(list) {
+  // Client-side sort to ensure correct category order
+  var catW = { '緊急通告': 1, '政策宣導': 2, '里民活動': 3 };
+  list = list.slice().sort(function(a, b) {
+    var wa = catW[a.category] || 3, wb = catW[b.category] || 3;
+    if (wa !== wb) return wa - wb;
+    var ha = (a.sortOrder || 0) > 0, hb = (b.sortOrder || 0) > 0;
+    if (ha !== hb) return ha ? 1 : -1;
+    if (!ha) return (b.createdAt || '').localeCompare(a.createdAt || '');
+    return (a.sortOrder || 0) - (b.sortOrder || 0);
+  });
+  _bulletins = list;
+
   const el = document.getElementById('listEl');
   el.style.display = 'flex';
   el.innerHTML = '';
+  let lastCate = null;
   list.forEach(function(b, idx) {
+    const cate = b.category || '里民活動';
+    if (cate !== lastCate) {
+      const header = document.createElement('div');
+      header.className = 'cate-header';
+      header.textContent = catHeaderLabel(cate);
+      el.appendChild(header);
+      lastCate = cate;
+    }
+
     const card = document.createElement('div');
     card.className = 'bull-card' + (b.pinned ? ' pinned' : '');
     card.setAttribute('role', 'button');
@@ -272,6 +319,7 @@ function render(list) {
     const images = splitImageUrls(b.imageUrl);
     let html = '<div class="card-body"><div class="card-meta">';
     if (b.pinned) html += '<span class="pin-badge">' + PIN_SVG + ' 置頂</span>';
+    html += '<span class="cate-badge ' + catBadgeClass(cate) + '">' + esc(cate) + '</span>';
     html += '<span class="date-lbl">' + esc(fmtDate(b.createdAt)) + '</span>';
     html += '</div><div class="card-title">' + esc(b.title) + '</div>';
     html += '<div class="card-preview">' + esc(stripHtml(b.content)) + '</div></div>';

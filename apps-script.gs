@@ -60,6 +60,7 @@ function doPost(e) {
       case 'addBulletin':        return requireAdmin(data, handleAddBulletin);
       case 'updateBulletin':     return requireAdmin(data, handleUpdateBulletin);
       case 'deleteBulletin':     return requireAdmin(data, handleDeleteBulletin);
+      case 'reorderBulletins':   return requireAdmin(data, handleReorderBulletins);
       // ── 置頂功能 ──
       case 'pinCase':           return requireAdmin(data, handlePinCase);
       case 'reorderCases':      return requireAdmin(data, handleReorderCases);
@@ -1070,7 +1071,7 @@ function setupBulletinSheet() {
   var sheet = ss.insertSheet(SHEET_BULLETIN);
 
   // 欄位標題
-  var headers = ['公告ID', '建立時間', '標題', '內容', '圖片網址', '置頂', '狀態', '建立者'];
+  var headers = ['公告ID', '建立時間', '標題', '內容', '圖片網址', '置頂', '狀態', '建立者', '公告分類', '排序順序'];
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
 
   // 標題列樣式
@@ -1157,6 +1158,8 @@ function rowToBulletin(r) {
     pinned:     String(r[5] || '').toUpperCase() === 'TRUE',
     status:     normalizeBulletinStatus(r[6]),
     author:     String(r[7] || ''),
+    category:   String(r[8] || '') || '里民活動',  // I欄：公告分類
+    sortOrder:  Number(r[9]  || 0),                // J欄：排序順序
   };
 }
 
@@ -1171,8 +1174,13 @@ function handleGetPublicBulletins(data) {
     list.push(rowToBulletin(all[i]));
   }
   list.sort(function(a, b) {
-    if (b.pinned !== a.pinned) return b.pinned ? 1 : -1;
-    return b.createdAt.localeCompare(a.createdAt);
+    var catW = { '緊急通告': 1, '政策宣導': 2, '里民活動': 3 };
+    var wa = catW[a.category] || 3, wb = catW[b.category] || 3;
+    if (wa !== wb) return wa - wb;
+    var ha = a.sortOrder > 0, hb = b.sortOrder > 0;
+    if (ha !== hb) return ha ? 1 : -1;
+    if (!ha) return b.createdAt.localeCompare(a.createdAt);
+    return a.sortOrder - b.sortOrder;
   });
   return jsonOut({ success: true, bulletins: list });
 }
@@ -1188,8 +1196,13 @@ function handleGetBulletins(data) {
     list.push(rowToBulletin(all[i]));
   }
   list.sort(function(a, b) {
-    if (b.pinned !== a.pinned) return b.pinned ? 1 : -1;
-    return b.createdAt.localeCompare(a.createdAt);
+    var catW = { '緊急通告': 1, '政策宣導': 2, '里民活動': 3 };
+    var wa = catW[a.category] || 3, wb = catW[b.category] || 3;
+    if (wa !== wb) return wa - wb;
+    var ha = a.sortOrder > 0, hb = b.sortOrder > 0;
+    if (ha !== hb) return ha ? 1 : -1;
+    if (!ha) return b.createdAt.localeCompare(a.createdAt);
+    return a.sortOrder - b.sortOrder;
   });
   return jsonOut({ success: true, bulletins: list });
 }
@@ -1213,6 +1226,8 @@ function handleAddBulletin(data) {
     data.pinned ? 'TRUE' : 'FALSE',
     normalizeBulletinStatus(data.status),
     data._session ? data._session.name : '',
+    String(data.category || '') || '里民活動',  // I: 公告分類
+    0,                                           // J: 排序順序
   ]);
   return jsonOut({ success: true, bulletinId: id });
 }
@@ -1231,9 +1246,28 @@ function handleUpdateBulletin(data) {
     if (data.imageUrl !== undefined) sheet.getRange(row, 5).setValue(data.imageUrl);
     if (data.pinned   !== undefined) sheet.getRange(row, 6).setValue(data.pinned ? 'TRUE' : 'FALSE');
     if (data.status   !== undefined) sheet.getRange(row, 7).setValue(normalizeBulletinStatus(data.status));
+    if (data.category !== undefined) sheet.getRange(row, 9).setValue(String(data.category || '') || '里民活動');
     return jsonOut({ success: true });
   }
   return jsonOut({ success: false, error: '找不到公告: ' + id });
+}
+
+function handleReorderBulletins(data) {
+  var orders = data.orders;
+  if (!Array.isArray(orders) || !orders.length)
+    return jsonOut({ success: false, error: 'Missing orders' });
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_BULLETIN);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var all = sheet.getDataRange().getValues();
+  var orderMap = {};
+  for (var k = 0; k < orders.length; k++)
+    orderMap[String(orders[k].bulletinId)] = Number(orders[k].sortOrder || 0);
+  for (var i = 1; i < all.length; i++) {
+    var bid = String(all[i][0] || '');
+    if (orderMap.hasOwnProperty(bid))
+      sheet.getRange(i + 1, 10).setValue(orderMap[bid]); // J欄
+  }
+  return jsonOut({ success: true });
 }
 
 function handleDeleteBulletin(data) {
