@@ -408,6 +408,20 @@ body{
 .photo-preview-item .item-remove:hover{
   background:#fff; transform:scale(1.1);
 }
+.photo-preview-item .item-download{
+  position:absolute; top:6px; left:6px; z-index:3;
+  width:28px; height:28px; border-radius:50%;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(75,122,82,.2);
+  color:var(--primary-dark);
+  font-size:14px; font-weight:700;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.12);
+  transition:background .15s, transform .15s;
+  text-decoration:none;
+}
+.photo-preview-item .item-download:hover{ background:#fff; transform:scale(1.1); }
 .photo-preview-item .drag-hint{
   position:absolute; bottom:5px; left:50%; transform:translateX(-50%);
   font-size:10px; color:rgba(255,255,255,.88);
@@ -1033,6 +1047,19 @@ function renderPhotoPreviewGrid() {
     hint.textContent = '拖曳排序';
     div.appendChild(img);
     div.appendChild(rmBtn);
+    if (p.origUrl) {
+      var dlBtn = document.createElement('button');
+      dlBtn.type = 'button';
+      dlBtn.className = 'item-download';
+      dlBtn.title = '下載';
+      dlBtn.textContent = '↓';
+      dlBtn.setAttribute('data-url', p.origUrl);
+      dlBtn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        downloadPhoto(this.getAttribute('data-url'), 'photo', e);
+      });
+      div.appendChild(dlBtn);
+    }
     if (replyPhotos.length > 1) div.appendChild(hint);
     grid.appendChild(div);
   });
