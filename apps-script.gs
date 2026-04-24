@@ -51,6 +51,7 @@ function doPost(e) {
       case 'getStore':          return requireAdmin(data, handleGetStore);
       case 'updateStore':       return requireAdmin(data, handleUpdateStore);
       case 'setPinStore':       return requireAdmin(data, handleSetPinStore);
+      case 'reorderStores':     return requireAdmin(data, handleReorderStores);
       case 'getPublicStores':    return handleGetPublicStores(data);
       case 'getPublicStore':     return handleGetPublicStore(data);
       // ── 公佈欄 ──
@@ -289,6 +290,7 @@ function handleSubmitStore(data) {
     '', '', '', '', '', '', '', '', '',          // V-AD: 公開欄位（審核後填）
     planType,                                   // AE: 方案類型
     0,                                          // AF: 置頂順序
+    0,                                          // AG: 排序順序
   ]);
 
   notifyNewStore_({
@@ -723,8 +725,20 @@ function handleGetPublicStores(data) {
   for (var i = 1; i < all.length; i++) {
     if (!all[i][0]) continue;
     if (String(all[i][2]) !== '已公開') continue;
-    stores.push(rowToPublicStore(all[i]));
+    var s = rowToPublicStore(all[i]);
+    s._sort = Number(all[i][32] || 0);
+    stores.push(s);
   }
+  var planW = { '優選': 1, '精選': 2, '免費': 3 };
+  stores.sort(function(a, b) {
+    var wa = planW[a.planType] || 3, wb = planW[b.planType] || 3;
+    if (wa !== wb) return wa - wb;
+    var ha = a._sort > 0, hb = b._sort > 0;
+    if (ha !== hb) return ha ? 1 : -1;
+    if (!ha) return b.storeId.localeCompare(a.storeId);
+    return a._sort - b._sort;
+  });
+  stores.forEach(function(s) { delete s._sort; });
   return jsonOut({ success: true, stores: stores });
 }
 
@@ -747,6 +761,7 @@ function rowToStore(r) {
     pubHours:   String(r[28] || ''), pubStoreNum: String(r[29] || ''),
     planType:   String(r[30] || '免費'),          // AE欄：方案類型（免費/精選/優選）
     pinOrder:   Number(r[31]  || 0),               // AF欄：置頂順序（0=不置頂）
+    sortOrder:  Number(r[32]  || 0),               // AG欄：自訂排序（0=未設定）
   };
 }
 
@@ -774,6 +789,7 @@ function rowToPublicStore(r) {
     pubStoreNum: String(r[29] || ''),
     planType:    String(r[30] || '免費'),           // AE欄：方案類型
     pinOrder:    Number(r[31]  || 0),               // AF欄：置頂順序
+    sortOrder:   Number(r[32]  || 0),               // AG欄：自訂排序
   };
 }
 
@@ -925,6 +941,24 @@ function handleReorderCases(data) {
     var cid = String(all[i][0] || '');
     if (orderMap.hasOwnProperty(cid))
       sheet.getRange(i + 1, 31).setValue(orderMap[cid]); // AE欄
+  }
+  return jsonOut({ success: true });
+}
+
+function handleReorderStores(data) {
+  var orders = data.orders;
+  if (!Array.isArray(orders) || !orders.length)
+    return jsonOut({ success: false, error: 'Missing orders' });
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_STORES);
+  if (!sheet) return jsonOut({ success: false, error: 'Sheet not found' });
+  var all = sheet.getDataRange().getValues();
+  var orderMap = {};
+  for (var k = 0; k < orders.length; k++)
+    orderMap[String(orders[k].storeId)] = Number(orders[k].sortOrder || 0);
+  for (var i = 1; i < all.length; i++) {
+    var sid = String(all[i][0] || '');
+    if (orderMap.hasOwnProperty(sid))
+      sheet.getRange(i + 1, 33).setValue(orderMap[sid]); // AG欄
   }
   return jsonOut({ success: true });
 }

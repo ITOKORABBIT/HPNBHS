@@ -434,10 +434,9 @@ function selectCate(el) {
 }
 
 function planWeight(d) {
-  if ((d.planType === '優選') && d.pinOrder > 0) return 1;
-  if (d.planType === '優選') return 2;
-  if (d.planType === '精選') return 3;
-  return 4;
+  if (d.planType === '優選') return 1;
+  if (d.planType === '精選') return 2;
+  return 3;
 }
 
 function applyFilters() {
@@ -451,12 +450,13 @@ function applyFilters() {
     return true;
   });
 
-  // 排序：優選置頂 > 優選 > 精選 > 免費，同級按 pinOrder asc
   filtered.sort(function(a, b) {
     var wa = planWeight(a), wb = planWeight(b);
     if (wa !== wb) return wa - wb;
-    if (wa <= 2) return (a.pinOrder || 0) - (b.pinOrder || 0);
-    return 0;
+    var ha = a.sortOrder > 0, hb = b.sortOrder > 0;
+    if (ha !== hb) return ha ? 1 : -1;
+    if (!ha) return b.storeId.localeCompare(a.storeId);
+    return a.sortOrder - b.sortOrder;
   });
 
   renderGrid(filtered);
@@ -482,12 +482,11 @@ function renderGrid(stores) {
 
   var html = '';
   var lastGroup = null;
+  var grpLabel = { 'premium': '👑 優選商家', 'std': '⭐ 精選商家', 'free': '🏠 更多商家' };
   stores.forEach(function(d) {
     var grp = (d.planType === '優選') ? 'premium' : (d.planType === '精選') ? 'std' : 'free';
     if (grp !== lastGroup) {
-      if (grp === 'premium') html += sectionHeader('👑 優選推薦商家');
-      else if (grp === 'std' && lastGroup === 'premium') html += sectionHeader('⭐ 精選商家');
-      else if (grp === 'free' && (lastGroup === 'premium' || lastGroup === 'std')) html += sectionHeader('🏠 更多商家');
+      html += sectionHeader(grpLabel[grp]);
       lastGroup = grp;
     }
     html += renderCard(d);

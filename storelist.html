@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 img{display:block;max-width:100%}
@@ -252,10 +253,16 @@ body{ font-family: var(--font); background: var(--bg); color: var(--val); font-s
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .skel-card{ background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
 
+/* ── Sortable group ── */
+.group-cards{ grid-column: 1/-1; display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+.sortable-ghost{ opacity: .4; }
+.sortable-drag{ box-shadow: 0 8px 24px rgba(0,0,0,.18) !important; }
+
 /* ── RWD ── */
 @media(max-width: 480px){
   .card-grid{ grid-template-columns: 1fr; padding: 4px 10px 80px; }
   .stats-sidebar{ width:100%; max-width:100%; border-right:none; }
+  .group-cards{ grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -463,6 +470,8 @@ var currentCategoryFilter = 'all';
 var sidebarOpen = false;
 var chartsDrawn = false;
 var chartInstances = [];
+var sortableInstances = [];
+var PLAN_SORT_OFFSET = { '優選': 0, '精選': 10000, '免費': 20000 };
 
 // ── CATEGORY COLORS ──
 var CATE_COLOR = {
@@ -490,6 +499,7 @@ function planBadge(planType) {
 }
 function statusGroupLabel(s){ if (s==='申請審核中') return '🟠 申請審核中'; if (s==='已公開') return '🟢 已公開'; if (s==='不通過') return '⚪ 不通過'; return s || '其他'; }
 function statusWeight(s){ if (s==='申請審核中') return 1; if (s==='已公開') return 2; if (s==='不通過') return 3; return 9; }
+function planGroupLabel(p){ if (p==='優選') return '👑 優選方案'; if (p==='精選') return '⭐ 精選方案'; return '🏠 免費方案'; }
 function storeIdNum(id){ if (!id) return 0; var m = String(id).match(/(\d+)/); return m ? parseInt(m[1],10) : 0; }
 
 // ── LOAD ──
@@ -568,9 +578,13 @@ function applyFilters() {
   });
 
   filtered.sort(function(a, b){
-    var wa = statusWeight(a.status), wb = statusWeight(b.status);
+    var pw = { '優選': 1, '精選': 2, '免費': 3 };
+    var wa = pw[a.planType] || 3, wb = pw[b.planType] || 3;
     if (wa !== wb) return wa - wb;
-    return storeIdNum(b.storeId) - storeIdNum(a.storeId);
+    var hasA = a.sortOrder > 0, hasB = b.sortOrder > 0;
+    if (hasA !== hasB) return hasA ? 1 : -1;
+    if (!hasA) return storeIdNum(b.storeId) - storeIdNum(a.storeId);
+    return a.sortOrder - b.sortOrder;
   });
 
   renderGrid(filtered);
@@ -587,23 +601,46 @@ function applyFilters() {
 }
 
 function renderGrid(stores) {
+  sortableInstances.forEach(function(s){ try{ s.destroy(); }catch(e){} });
+  sortableInstances = [];
   var grid = document.getElementById('cardGrid');
   if (!stores.length) {
     grid.innerHTML = '<div class="state-wrap"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><h3>沒有符合的商店</h3><p>請嘗試調整搜尋條件或篩選項目</p></div>';
     return;
   }
-  var html = '';
-  var lastGroup = null;
+  var planOrder = ['優選', '精選', '免費'];
+  var groups = {};
+  planOrder.forEach(function(p){ groups[p] = []; });
   stores.forEach(function(d){
-    var grp = statusGroupLabel(d.status);
-    if (grp !== lastGroup) {
-      var cnt = stores.filter(function(x){ return statusGroupLabel(x.status) === grp; }).length;
-      html += '<div class="group-header"><span class="group-label">' + grp + '</span><span class="group-count">' + cnt + ' 間</span><div class="group-line"></div></div>';
-      lastGroup = grp;
-    }
-    html += renderCard(d);
+    var p = d.planType || '免費';
+    if (!groups[p]) groups[p] = [];
+    groups[p].push(d);
+  });
+  var html = '';
+  planOrder.forEach(function(planKey){
+    var grp = groups[planKey];
+    if (!grp.length) return;
+    html += '<div class="group-header"><span class="group-label">' + planGroupLabel(planKey) + '</span><span class="group-count">' + grp.length + ' 間</span><div class="group-line"></div></div>';
+    html += '<div class="group-cards" data-group-key="' + planKey + '">';
+    grp.forEach(function(d){ html += renderCard(d); });
+    html += '</div>';
   });
   grid.innerHTML = html;
+  planOrder.forEach(function(planKey){
+    var el = grid.querySelector('.group-cards[data-group-key="' + planKey + '"]');
+    if (!el) return;
+    (function(key, container){
+      var inst = Sortable.create(container, {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        dragClass: 'sortable-drag',
+        delay: 200,
+        delayOnTouchOnly: true,
+        onEnd: function(){ onSortEnd(key, container); }
+      });
+      sortableInstances.push(inst);
+    })(planKey, el);
+  });
 }
 
 function renderCard(d) {
@@ -620,7 +657,7 @@ function renderCard(d) {
   }
 
   var planCls = d.planType === '優選' ? ' plan-premium' : d.planType === '精選' ? ' plan-std' : '';
-  var html = '<div class="store-card ' + cardStatusCls(d.status) + planCls + '" onclick="openStore(\'' + esc(d.storeId) + '\')">';
+  var html = '<div class="store-card ' + cardStatusCls(d.status) + planCls + '" data-store-id="' + esc(d.storeId) + '" onclick="openStore(\'' + esc(d.storeId) + '\')">';
   html += thumb;
   html += '<div class="card-body">';
   html += '<div class="card-top"><span class="card-id">#' + esc(d.storeId) + '</span><span class="badge ' + badgeCls(d.status) + '">' + esc(d.status) + '</span></div>';
@@ -641,6 +678,22 @@ function renderCard(d) {
 function imgFallback(img) {
   var wrap = img.parentNode;
   wrap.innerHTML = '<div class="card-thumb-placeholder"><div class="no-photo-content"><span class="no-photo-emoji">🏪</span><span class="no-photo-text">尚無照片</span></div></div>';
+}
+
+function onSortEnd(groupKey, el) {
+  var cards = el.querySelectorAll('[data-store-id]');
+  var offset = PLAN_SORT_OFFSET[groupKey] || 0;
+  var orders = [];
+  for (var i = 0; i < cards.length; i++) {
+    var sid = cards[i].getAttribute('data-store-id');
+    var sortVal = offset + (i + 1) * 10;
+    orders.push({ storeId: sid, sortOrder: sortVal });
+    for (var j = 0; j < allStores.length; j++) {
+      if (allStores[j].storeId === sid) { allStores[j].sortOrder = sortVal; break; }
+    }
+  }
+  apiCall('reorderStores', { orders: orders })
+    .catch(function(){ console.error('reorderStores failed'); });
 }
 
 function openStore(id) { window.location.href = 'storedetail.html?id=' + encodeURIComponent(id); }
