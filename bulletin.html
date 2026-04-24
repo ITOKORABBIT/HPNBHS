@@ -92,20 +92,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--val);font-size:15p
 .modal-scroll{overflow-y:auto;flex:1}
 .modal-body{padding:16px 16px 8px}
 .modal-gallery{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
-  gap:8px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
   padding:0 16px 20px;
 }
 .modal-gallery img{
   width:100%;
-  height:90px;
-  object-fit:cover;
+  height:auto;
   border-radius:10px;
   cursor:zoom-in;
+  display:block;
 }
 .modal-date{font-size:12px;color:var(--muted);margin-bottom:12px}
-.modal-content{font-size:14px;color:var(--val);line-height:1.75;word-break:break-word}
+.modal-content{font-size:15px;color:var(--val);line-height:1.85;word-break:break-word}
 .modal-content h2,.modal-content h3{margin:0 0 .7em;color:var(--heading)}
 .modal-content p{margin:0 0 1em}
 .modal-content ul,.modal-content ol{margin:0 0 1em;padding-left:1.4em}
@@ -341,7 +341,8 @@ function openModal(idx) {
   const images = splitImageUrls(b.imageUrl);
   document.getElementById('modalTitle').textContent   = b.title;
   document.getElementById('modalDate').textContent    = fmtDate(b.createdAt);
-  document.getElementById('modalContent').innerHTML = sanitizeHtml(b.content);
+  const contentHtml = (b.content || '').replace(/\n/g, '<br>');
+  document.getElementById('modalContent').innerHTML = sanitizeHtml(contentHtml);
   const gallery = document.getElementById('modalGallery');
   if (images.length) {
     gallery.innerHTML = images.map(url => '<img src="' + esc(url) + '" alt="" loading="lazy">').join('');
