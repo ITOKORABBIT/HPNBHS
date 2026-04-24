@@ -354,6 +354,16 @@ body{ font-family: var(--font); background: var(--bg); color: var(--val); font-s
 
 <script src="storeconfig.js"></script>
 <script>
+(function(){
+  if (/Line\//i.test(navigator.userAgent)) {
+    var url = new URL(location.href);
+    if (!url.searchParams.has('openExternalBrowser')) {
+      url.searchParams.set('openExternalBrowser', '1');
+      location.replace(url.toString());
+    }
+  }
+})();
+
 // ── SESSION AUTH ──
 var SESSION_KEY = 'tokuten_admin';
 var SESSION_TTL = 2 * 3600 * 1000;

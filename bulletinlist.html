@@ -615,6 +615,16 @@ a{text-decoration:none;color:inherit}
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 <script src="config.js"></script>
 <script>
+(function(){
+  if (/Line\//i.test(navigator.userAgent)) {
+    var url = new URL(location.href);
+    if (!url.searchParams.has('openExternalBrowser')) {
+      url.searchParams.set('openExternalBrowser', '1');
+      location.replace(url.toString());
+    }
+  }
+})();
+
 const SESSION_KEY = 'hpnbhs_admin';
 const SESSION_TTL = 2 * 3600 * 1000;
 const BULLETIN_DRAFT_KEY = 'hpnbhs_bulletin_editor_drafts';
