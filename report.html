@@ -930,6 +930,24 @@ function validateForm() {
     valid = false;
   }
 
+  // 主旨最少 5 字
+  var titleEl = document.getElementById('f_title');
+  var titleErr = titleEl.parentElement.querySelector('.error-text');
+  if (titleEl.value.trim().length < 5) {
+    titleEl.classList.add('invalid');
+    if (titleErr) { titleErr.textContent = '主旨至少需要 5 個字'; titleErr.style.display = 'block'; }
+    valid = false;
+  }
+
+  // 描述最少 10 字
+  var descEl = document.getElementById('f_desc');
+  var descErr = descEl.parentElement.querySelector('.error-text');
+  if (descEl.value.trim().length < 10) {
+    descEl.classList.add('invalid');
+    if (descErr) { descErr.textContent = '描述至少需要 10 個字'; descErr.style.display = 'block'; }
+    valid = false;
+  }
+
   return valid;
 }
 
@@ -1006,7 +1024,14 @@ document.getElementById('reportForm').addEventListener('submit', async function(
   } catch (err) {
     closeSubmitProgress();
     console.error('[submit] error:', err);
-    showToast('送出失敗：' + (err.message || '未知錯誤'));
+    var GAS_ERRORS = {
+      'too_many_requests':       '相同的通報在 5 分鐘內已送出，請稍後再試',
+      'form_expired':            '表單已逾時，請重新整理頁面後再試',
+      'bot_rejected':            '驗證失敗，請重新整理頁面後再試',
+      'missing_required_fields': '請確認所有必填欄位已填寫',
+      'invalid_phone':           '電話號碼格式不正確',
+    };
+    showToast('送出失敗：' + (GAS_ERRORS[err.message] || err.message || '未知錯誤'));
     btn.disabled = false;
     btn.innerHTML = '<svg class="icon"><use href="#i-send"/></svg> 送出通報';
   }

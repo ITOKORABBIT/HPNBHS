@@ -368,7 +368,9 @@ function validatePublicReport_(data) {
 
   var title = String(data.title || '').trim();
   var addr  = String(data.addr  || '').trim();
-  var dedupeKey = 'report_' + Utilities.base64EncodeWebSafe(phone + '|' + title + '|' + addr).substring(0, 120);
+  var rawKey = phone + '|' + title + '|' + addr;
+  var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, rawKey, Utilities.Charset.UTF_8);
+  var dedupeKey = 'r_' + Utilities.base64EncodeWebSafe(digest).replace(/=/g, '');
   var cache = CacheService.getScriptCache();
   if (cache.get(dedupeKey)) return 'too_many_requests';
   cache.put(dedupeKey, '1', PUBLIC_SUBMIT_COOLDOWN);
