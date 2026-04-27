@@ -330,7 +330,8 @@ function loadCase() {
 // RENDER
 // ──────────────────────────────────────────
 function renderCase(d) {
-  var repPhotos = [d.repPhoto1, d.repPhoto2, d.repPhoto3].filter(Boolean);
+  var repPhotos = [d.repPhoto1, d.repPhoto2, d.repPhoto3, d.repPhoto4, d.repPhoto5,
+                   d.repPhoto6, d.repPhoto7, d.repPhoto8, d.repPhoto9, d.repPhoto10].filter(Boolean);
   var title = d.publicTitle || '公開案件詳情';
 
   document.getElementById('pageTitle').textContent = title;
