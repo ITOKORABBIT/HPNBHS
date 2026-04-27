@@ -1210,10 +1210,20 @@ async function submitReply(){
   // Sync DOM order (in case user dragged without triggering onReorder)
   syncPhotosFromDOM();
 
-  // Upload new files; keep existing URLs as-is
-  var photos = await Promise.all(replyPhotos.map(function(p) {
-    return p.file ? uploadPhotoFile(p.file) : Promise.resolve(p.origUrl || '');
-  }));
+  // 循序上傳（避免並發導致部分失敗）；已有 URL 的保留原值
+  var photos = [];
+  var newFileCount = replyPhotos.filter(function(p){ return !!p.file; }).length;
+  var uploaded = 0;
+  for (var pi = 0; pi < replyPhotos.length; pi++) {
+    var p = replyPhotos[pi];
+    if (p.file) {
+      uploaded++;
+      btn.innerHTML = '<span class="spinner"></span> 上傳照片 ' + uploaded + ' / ' + newFileCount + '…';
+      photos.push(await uploadPhotoFile(p.file));
+    } else {
+      photos.push(p.origUrl || '');
+    }
+  }
   while (photos.length < 10) photos.push('');
 
   btn.innerHTML = '<span class="spinner"></span> 送出中…';
