@@ -84,15 +84,6 @@ body{
 }
 
 /* ── Hero image ── */
-.hero-img{
-  width: 100%;
-  aspect-ratio: 16/9;
-  object-fit: cover;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  margin-bottom: 14px;
-  display: block;
-}
 .hero-placeholder{
   width: 100%; aspect-ratio: 16/9;
   border-radius: var(--radius);
@@ -101,6 +92,60 @@ body{
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 14px;
 }
+
+/* ── Carousel ── */
+.carousel-wrap{
+  position: relative;
+  width: 100%; aspect-ratio: 16/9;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin-bottom: 14px;
+  overflow: hidden;
+  background: #000;
+  user-select: none;
+}
+.carousel-track{
+  display: flex;
+  width: 100%; height: 100%;
+  transition: transform .3s ease;
+}
+.carousel-slide{
+  flex: 0 0 100%; height: 100%;
+  cursor: zoom-in;
+}
+.carousel-slide img{
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block; max-width: none;
+}
+.carousel-btn{
+  position: absolute; top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,.45);
+  border: none; color: #fff;
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; line-height: 1;
+  cursor: pointer; z-index: 5;
+  transition: background .15s;
+}
+.carousel-btn:hover{ background: rgba(0,0,0,.7); }
+.carousel-btn.prev{ left: 10px; }
+.carousel-btn.next{ right: 10px; }
+.carousel-dots{
+  position: absolute; bottom: 10px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 6px; z-index: 5;
+}
+.carousel-dot{
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.45);
+  cursor: pointer;
+  transition: background .2s;
+}
+.carousel-dot.active{ background: #fff; }
 
 /* ── Title card ── */
 .title-card{
@@ -311,6 +356,58 @@ function closeLb() {
 }
 document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeLb(); });
 
+/* ── Carousel state ── */
+var carouselPhotos = [];
+var carouselIdx = 0;
+
+function buildCarousel(photos) {
+  if (!photos.length) {
+    return '<div class="hero-placeholder"><svg width="48" height="48" fill="none" stroke="#4A92C4" stroke-width="1.5" opacity=".4" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>';
+  }
+  var slides = photos.map(function(url, i) {
+    return '<div class="carousel-slide" onclick="openLb(carouselPhotos[' + i + '])">' +
+      '<img src="' + esc(url) + '" alt="" loading="' + (i === 0 ? 'eager' : 'lazy') + '" ' +
+      'onerror="this.parentNode.style.background=\'#1a1a1a\'">' +
+      '</div>';
+  }).join('');
+  var dots = photos.length > 1 ? photos.map(function(_, i) {
+    return '<div class="carousel-dot' + (i === 0 ? ' active' : '') + '" onclick="goSlide(' + i + ')"></div>';
+  }).join('') : '';
+  var btns = photos.length > 1
+    ? '<button class="carousel-btn prev" onclick="prevSlide(event)">&#8249;</button>' +
+      '<button class="carousel-btn next" onclick="nextSlide(event)">&#8250;</button>'
+    : '';
+  return '<div class="carousel-wrap" id="carouselWrap">' +
+    '<div class="carousel-track" id="carouselTrack">' + slides + '</div>' +
+    btns +
+    (dots ? '<div class="carousel-dots" id="carouselDots">' + dots + '</div>' : '') +
+    '</div>';
+}
+
+function goSlide(idx) {
+  if (!carouselPhotos.length) return;
+  carouselIdx = (idx + carouselPhotos.length) % carouselPhotos.length;
+  var track = document.getElementById('carouselTrack');
+  if (track) track.style.transform = 'translateX(-' + (carouselIdx * 100) + '%)';
+  var dots = document.querySelectorAll('.carousel-dot');
+  dots.forEach(function(d, i) { d.classList.toggle('active', i === carouselIdx); });
+}
+function prevSlide(e) { if (e) e.stopPropagation(); goSlide(carouselIdx - 1); }
+function nextSlide(e) { if (e) e.stopPropagation(); goSlide(carouselIdx + 1); }
+
+/* touch swipe */
+var _tsX = 0;
+document.addEventListener('touchstart', function(e) {
+  var w = document.getElementById('carouselWrap');
+  if (w && w.contains(e.target)) _tsX = e.touches[0].clientX;
+}, { passive: true });
+document.addEventListener('touchend', function(e) {
+  var w = document.getElementById('carouselWrap');
+  if (!w || !w.contains(e.target)) return;
+  var dx = e.changedTouches[0].clientX - _tsX;
+  if (Math.abs(dx) > 40) dx < 0 ? nextSlide(null) : prevSlide(null);
+}, { passive: true });
+
 var storeId = new URLSearchParams(location.search).get('id') || '';
 var backTarget = new URLSearchParams(location.search).get('back') || 'storeopenlist.html';
 
@@ -341,12 +438,11 @@ function renderStore(d) {
 
   var html = '';
 
-  // ── 封面照片 ──
-  if (d.photo1) {
-    html += '<img class="hero-img" src="' + esc(d.photo1) + '" alt="" onerror="this.parentNode.replaceChild(makePlaceholder(),this)">';
-  } else {
-    html += '<div class="hero-placeholder"><svg width="48" height="48" fill="none" stroke="#4A92C4" stroke-width="1.5" opacity=".4" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>';
-  }
+  // ── 照片輪播 ──
+  var photoKeys = ['photo1','photo2','photo3','photo4','photo5','photo6','photo7','photo8','photo9','photo10'];
+  carouselPhotos = photoKeys.map(function(k){ return d[k] || ''; }).filter(Boolean);
+  carouselIdx = 0;
+  html += buildCarousel(carouselPhotos);
 
   // ── 店名 + 類別 ──
   html += '<div class="title-card">';

@@ -622,9 +622,10 @@ body.loading-submit { overflow: hidden; }
 
       <div class="field-group">
         <label class="field-label">
-          <svg class="icon"><use href="#i-phone"/></svg> 店家電話
+          <svg class="icon"><use href="#i-phone"/></svg> 店家電話 <span class="required">*</span>
         </label>
-        <input type="text" inputmode="tel" id="f_store_phone" placeholder="請輸入店家電話（選填）">
+        <input type="text" inputmode="tel" id="f_store_phone" placeholder="請輸入店家電話" required>
+        <div class="error-text">請輸入有效店家電話號碼</div>
       </div>
 
       <div class="field-group">
@@ -952,12 +953,21 @@ function validateForm() {
     }
   });
 
-  // 電話格式：去掉非數字後至少 8 碼（與 GAS 驗證一致）
+  // 申請人電話格式：去掉非數字後至少 8 碼
   var phoneEl = document.getElementById('f_phone');
   var phoneErr = phoneEl.parentElement.querySelector('.error-text');
   if (phoneEl.value.replace(/[^\d]/g, '').length < 8) {
     phoneEl.classList.add('invalid');
     if (phoneErr) { phoneErr.textContent = '請輸入有效電話號碼'; phoneErr.style.display = 'block'; }
+    valid = false;
+  }
+
+  // 店家電話格式：去掉非數字後至少 8 碼
+  var storePhoneEl = document.getElementById('f_store_phone');
+  var storePhoneErr = storePhoneEl.parentElement.querySelector('.error-text');
+  if (storePhoneEl.value.replace(/[^\d]/g, '').length < 8) {
+    storePhoneEl.classList.add('invalid');
+    if (storePhoneErr) { storePhoneErr.style.display = 'block'; }
     valid = false;
   }
 
