@@ -357,7 +357,7 @@ function validatePublicReport_(data) {
   }
 
   var photos = Array.isArray(data.photos) ? data.photos : [];
-  if (photos.length > 3) return 'too_many_photos';
+  if (photos.length > 5) return 'too_many_photos';
 
   var phone = normalizePhone_(data.phone);
   if (!phone || phone.length < 8) return 'invalid_phone';
