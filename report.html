@@ -864,22 +864,40 @@ function compressImage(file) {
   });
 }
 
-async function collectPhotos(btn) {
+async function uploadOneReportPhoto(file) {
+  try {
+    var base64 = await compressImage(file);
+    var res = await fetch(CONFIG.SCRIPT_URL, {
+      method: 'POST', redirect: 'follow',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'uploadReportPhoto',
+        origin: location.origin,
+        base64: base64,
+        mimeType: file.type || 'image/jpeg'
+      })
+    });
+    var json = JSON.parse(await res.text());
+    return (json.success && json.url) ? json.url : '';
+  } catch(e) {
+    console.warn('[uploadReportPhoto]', e);
+    return '';
+  }
+}
+
+async function uploadAllReportPhotos(btn) {
   syncReportPhotosFromDOM();
-  var results = [];
+  var urls = [];
   var total = reportPhotos.length;
-  for (var i = 0; i < reportPhotos.length; i++) {
-    var stepLabel = '正在壓縮照片 ' + (i + 1) + ' / ' + total + '…';
+  for (var i = 0; i < total; i++) {
+    var stepLabel = '正在上傳照片 ' + (i + 1) + ' / ' + total + '…';
     btn.innerHTML = '<span class="spinner"></span> ' + stepLabel;
     setSubmitProgress(stepLabel, Math.round((i / total) * 75), '大圖需要多幾秒是正常的');
-    await new Promise(function(r) { setTimeout(r, 60); }); // 讓瀏覽器先 repaint 再壓縮
-    results.push({
-      base64: await compressImage(reportPhotos[i].file),
-      mimeType: reportPhotos[i].file.type || 'image/jpeg',
-      fileName: reportPhotos[i].file.name || ('photo_' + (i + 1) + '.jpg')
-    });
+    await new Promise(function(r) { setTimeout(r, 60); });
+    urls.push(await uploadOneReportPhoto(reportPhotos[i].file));
   }
-  return results;
+  while (urls.length < 5) urls.push('');
+  return urls;
 }
 
 function validateForm() {
@@ -930,11 +948,11 @@ document.getElementById('reportForm').addEventListener('submit', async function(
   var btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> 送出中...';
-  openSubmitProgress('正在整理案件資料…', 10, '若有照片，系統會先壓縮再送出');
+  openSubmitProgress('正在整理案件資料…', 10, '若有照片，系統會先逐張上傳再送出');
 
   try {
-    // 1. 先上傳照片
-    var photos = await collectPhotos(btn);
+    // 1. 逐張上傳照片，取回 Drive URL
+    var photoUrls = await uploadAllReportPhotos(btn);
 
     btn.innerHTML = '<span class="spinner"></span> 送出案件中...';
     setSubmitProgress('正在送出案件資料…', 88, '送出完成後會自動進入成功畫面');
@@ -953,12 +971,13 @@ document.getElementById('reportForm').addEventListener('submit', async function(
       addr: document.getElementById('f_addr').value.trim(),
       map: document.getElementById('f_map').value.trim(),
       case1999: document.getElementById('f_1999').value.trim(),
-      photos: photos
+      photo1: photoUrls[0], photo2: photoUrls[1], photo3: photoUrls[2],
+      photo4: photoUrls[3], photo5: photoUrls[4]
     };
 
     // 3. 送到 Make Webhook
     var bodyStr = JSON.stringify(payload);
-    console.log('[submit] payload size:', Math.round(bodyStr.length / 1024) + ' KB', '/ photos:', photos.length);
+    console.log('[submit] payload size:', Math.round(bodyStr.length / 1024) + ' KB', '/ photos:', photoUrls.filter(Boolean).length);
     var res = await fetch(CONFIG.SCRIPT_URL, {
       method: 'POST',
       redirect: 'follow',

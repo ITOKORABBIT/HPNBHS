@@ -43,6 +43,7 @@ function doPost(e) {
       case 'uploadAdminPhoto':  return requireAdmin(data, handleUploadPhoto);
       case 'uploadBulletinImage': return requireAdmin(data, handleUploadBulletinImage);
       case 'uploadPublicPhoto': return jsonOut({ success: false, error: 'uploadPublicPhoto 已停用，請改用 submitReport' });
+      case 'uploadReportPhoto': return handleReportPhotoUpload(data, e);
       case 'uploadStorePhoto':  return handleStorePublicUpload(data, e);
       case 'getPublicCases':    return handleGetPublicCases(data);
       case 'getPublicCase':     return handleGetPublicCase(data);
@@ -191,7 +192,13 @@ function handleSubmitReport(data) {
   var nowText = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd HH:mm');
   var caseId = nextCaseId_(sheet, 'HP');
   var replyUrl = buildDetailUrl_(caseId);
-  var photos = uploadPublicReportPhotos_(data.photos, caseId);
+  var photos = [
+    String(data.photo1 || ''),
+    String(data.photo2 || ''),
+    String(data.photo3 || ''),
+    String(data.photo4 || ''),
+    String(data.photo5 || '')
+  ];
   var phoneText = toSheetText_(data.phone);
   var lineIdText = toSheetText_(data.lineId);
 
@@ -355,9 +362,6 @@ function validatePublicReport_(data) {
   for (var i = 0; i < requiredFields.length; i++) {
     if (!String(data[requiredFields[i]] || '').trim()) return 'missing_required_fields';
   }
-
-  var photos = Array.isArray(data.photos) ? data.photos : [];
-  if (photos.length > 5) return 'too_many_photos';
 
   var phone = normalizePhone_(data.phone);
   if (!phone || phone.length < 8) return 'invalid_phone';
@@ -610,6 +614,23 @@ function handleStorePublicUpload(data, e) {
   var err = checkPublicUploadAccess(data, e);
   if (err) return jsonOut({ success: false, error: err });
   return doUpload(data, STOR_FOLDER_ID);
+}
+
+function handleReportPhotoUpload(data, e) {
+  var origin = String(data.origin || '');
+  if (origin) {
+    var allowed = false;
+    for (var i = 0; i < ALLOWED_REFERERS.length; i++) {
+      if (origin.indexOf(ALLOWED_REFERERS[i]) === 0) { allowed = true; break; }
+    }
+    if (!allowed) return jsonOut({ success: false, error: '不允許的來源網域' });
+  }
+  var rateKey = 'rate_rpt_' + String(origin || 'unknown').replace(/\W/g, '_').substring(0, 60);
+  var cache = CacheService.getScriptCache();
+  var cnt = parseInt(cache.get(rateKey) || '0', 10);
+  if (cnt >= 15) return jsonOut({ success: false, error: '上傳次數過多，請稍後再試' });
+  cache.put(rateKey, String(cnt + 1), 60);
+  return doUpload(data, NBH_FOLDER_ID, 'report');
 }
 
 function doUpload(data, folderId, fileNamePrefix) {
