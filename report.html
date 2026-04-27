@@ -839,24 +839,22 @@ function handleReportPhotoAdd(input) {
   input.value = '';
 }
 
-// 壓縮圖片（縮小到 1600px 以內，JPEG 80% 品質）
-function compressImage(file) {
+// 讀取原始檔案；超過 4.5MB 才縮小尺寸（不降品質）以通過 GAS 5MB 限制
+function prepareImageForUpload(file) {
+  var LIMIT = 4.5 * 1024 * 1024;
   return new Promise(function(resolve) {
     var reader = new FileReader();
     reader.onload = function(e) {
+      if (file.size <= LIMIT) { resolve(e.target.result); return; }
       var img = new Image();
       img.onload = function() {
+        var scale = Math.sqrt(LIMIT / file.size);
+        var w = Math.floor(img.width  * scale);
+        var h = Math.floor(img.height * scale);
         var canvas = document.createElement('canvas');
-        var maxSize = 1600;
-        var w = img.width, h = img.height;
-        if (w > maxSize || h > maxSize) {
-          if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-          else { w = Math.round(w * maxSize / h); h = maxSize; }
-        }
-        canvas.width = w;
-        canvas.height = h;
+        canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        resolve(canvas.toDataURL('image/jpeg', 0.8));
+        resolve(canvas.toDataURL(file.type || 'image/jpeg', 1.0));
       };
       img.src = e.target.result;
     };
@@ -866,7 +864,7 @@ function compressImage(file) {
 
 async function uploadOneReportPhoto(file) {
   try {
-    var base64 = await compressImage(file);
+    var base64 = await prepareImageForUpload(file);
     var res = await fetch(CONFIG.SCRIPT_URL, {
       method: 'POST', redirect: 'follow',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
