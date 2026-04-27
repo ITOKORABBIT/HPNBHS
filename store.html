@@ -951,6 +951,16 @@ function validateForm() {
       if (err) err.style.display = 'none';
     }
   });
+
+  // 電話格式：去掉非數字後至少 8 碼（與 GAS 驗證一致）
+  var phoneEl = document.getElementById('f_phone');
+  var phoneErr = phoneEl.parentElement.querySelector('.error-text');
+  if (phoneEl.value.replace(/[^\d]/g, '').length < 8) {
+    phoneEl.classList.add('invalid');
+    if (phoneErr) { phoneErr.textContent = '請輸入有效電話號碼'; phoneErr.style.display = 'block'; }
+    valid = false;
+  }
+
   return valid;
 }
 
