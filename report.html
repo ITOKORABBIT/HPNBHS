@@ -869,8 +869,10 @@ async function collectPhotos(btn) {
   var results = [];
   var total = reportPhotos.length;
   for (var i = 0; i < reportPhotos.length; i++) {
-    btn.innerHTML = '<span class="spinner"></span> 整理照片 ' + (i + 1) + '/' + total + '...';
-    setSubmitProgress('正在整理照片 ' + (i + 1) + '/' + total + '…', Math.round(((i + 1) / (total + 1)) * 75), '大圖需要多幾秒是正常的');
+    var stepLabel = '正在壓縮照片 ' + (i + 1) + ' / ' + total + '…';
+    btn.innerHTML = '<span class="spinner"></span> ' + stepLabel;
+    setSubmitProgress(stepLabel, Math.round((i / total) * 75), '大圖需要多幾秒是正常的');
+    await new Promise(function(r) { setTimeout(r, 60); }); // 讓瀏覽器先 repaint 再壓縮
     results.push({
       base64: await compressImage(reportPhotos[i].file),
       mimeType: reportPhotos[i].file.type || 'image/jpeg',
