@@ -890,10 +890,8 @@ function compressImage(file) {
   });
 }
 
-// 上傳單張照片（循序，避免並發衝突）
-async function uploadPhoto(fileInput) {
-  if (!fileInput.files || !fileInput.files[0]) return '';
-  var file = fileInput.files[0];
+async function uploadPhoto(file) {
+  if (!file) return '';
   try {
     var base64 = await compressImage(file);
     var res = await fetch(CONFIG.SCRIPT_URL, {
